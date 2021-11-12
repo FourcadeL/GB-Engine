@@ -6,5 +6,5 @@ game.map
 game.sym
 game.sav
 
-
+# ignore les fichers mac de mort
 .DS_Store
