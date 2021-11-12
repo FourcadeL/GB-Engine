@@ -5,3 +5,6 @@ game.gb
 game.map
 game.sym
 game.sav
+
+
+.DS_Store
