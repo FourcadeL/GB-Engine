@@ -20,7 +20,7 @@ RGBFIX  = rgbfix
 #####################################################################
 ##        Source and include folders - including subfolders        ##
 
-SOURCE = ./source
+SOURCE = ./sources
 
 ##                                                                 ##
 #####################################################################
