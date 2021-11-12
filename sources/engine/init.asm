@@ -215,11 +215,6 @@ StartPoint:
 
 
 
-    ; association de la routine Vblank au vecteur correspondant
-    ld      bc, Vblank_routine
-    call    irq_set_VBL
-
-
     ; mise à zero de la vram
     ld      d, $00
     ld      hl, _VRAM
@@ -230,10 +225,6 @@ StartPoint:
 
     ; copie en HRAM de la routine DMA
     call    init_DMA
-
-
-
-
 
 
 
