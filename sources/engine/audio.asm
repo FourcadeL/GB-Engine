@@ -99,30 +99,6 @@ Audio_init::
 	ld		[_CH4_track + wait_timer], a
 
 
-	;------test------(variables)
-
-	ld		a, $03 		; update toutes les _ frames
-	ld		[_update_frame], a
-
-
-	ld		bc,	CH1_SMB
-	ld		hl, _CH1_track + block_addr
-	ld		[hl], b
-	inc		hl
-	ld		[hl], c
-	ld		hl, _CH3_track + block_addr
-	ld		[hl], b
-	inc		hl
-	ld		[hl], c
-
-	ld		bc, CH2_SMB
-	ld		hl, _CH2_track + block_addr
-	ld		[hl], b
-	inc		hl
-	ld		[hl], c
-
-	ld 		a, $00
-	ld		[_note], a
 
 	;wave pattern
 	ld		hl, __Wave_Pattern_Triangle_start
