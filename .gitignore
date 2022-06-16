@@ -1,6 +1,11 @@
 # ignore assembled code
 *.obj
 
+*.gb
+*.map
+*.sym
+*.sav
+
 game.gb
 game.map
 game.sym
