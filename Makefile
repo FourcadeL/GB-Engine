@@ -30,7 +30,12 @@ SOURCE = ./sources
 #####################################################################
 ##             Récupération des éléments à build                   ##
 
-BIN	:= $(NAME).$(EXT)
+BRANCH := $(shell git symbolic-ref -q --short HEAD)
+DATE := $(shell date +"%d-%m-%Y_%Hh%M")
+BUILDNAME := build_$(BRANCH)_$(DATE)
+
+FINALBIN := $(NAME).$(EXT)
+BIN := $(BUILDNAME).$(EXT)
 
 MYSOURCES := $(shell find $(SOURCE) -type d -print)
 SOURCES := $(foreach dir,$(MYSOURCES),$(CURDIR)/$(dir))
@@ -55,6 +60,10 @@ OBJ = $(ASMFILES:.asm=.obj)
 ##                   Build and dependancies                        ##
 
 all: $(BIN)
+	@rm -f $(OBJ)
+
+final: $(FINALBIN)
+	@rm -f $(OBJ)
 
 rebuild:
 	@make clean
@@ -71,9 +80,15 @@ clean:
 
 $(BIN): $(OBJ)
 	@echo rgblink $(BIN)
-	@$(RGBLINK) -o $(BIN) -p 0xFF -m $(NAME).map -n $(NAME).sym $(OBJ)
+	@$(RGBLINK) -o $(BIN) -p 0xFF -m $(BUILDNAME).map -n $(BUILDNAME).sym $(OBJ)
 	@echo rgbfix $(BIN)
 	@$(RGBFIX) -p 0xFF -v $(BIN)
+
+$(FINALBIN): $(OBJ)
+	@echo rgblink $(FINALBIN)
+	@$(RGBLINK) -o $(FINALBIN) -p 0xFF -m $(NAME).map -n $(NAME).sym $(OBJ)
+	@echo rgbfix $(FINALBIN)
+	@$(RGBFIX) -p 0xFF -v $(FINALBIN)
 
 #####################################################################
 
