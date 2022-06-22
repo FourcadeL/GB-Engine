@@ -25,6 +25,12 @@
 Main::
 
 	call 	Main_init
+
+
+.loop
+	nop
+	call 	wait_vbl
+	jr 		.loop
 	
 
 
@@ -43,7 +49,10 @@ Main_init::
 	
 
 	;initialisation du moteur audio
-    	call    Audio_init
+	PRINT_DEBUG "audio init call"
+    call    Audio_init
+
+    PRINT_DEBUG "audio init done"
 
 
 

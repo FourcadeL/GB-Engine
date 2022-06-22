@@ -6,6 +6,7 @@
 
 	INCLUDE "hardware.inc"
 	INCLUDE "engine.inc"
+	INCLUDE "debug.inc"
 
 
 
@@ -79,12 +80,23 @@ Audio_off::
 
 Audio_init::
 
+	SET_BREAK
+
 	ld		a, $FF
 	ld		[rNR52], a 	;activation des circuits audio (doit être fait en premier)
+	
+
+	;--------set registers to 0 to avoid residual sound--------
+	ld 		a, $00
+	ld 		[rNR13], a
+	ld 		[rNR14], a
+	ld 		[rNR23], a
+	ld 		[rNR24], a
+
+
 	ld		[rNR51], a	; toutes les chaines sur toutes les sorties
 	ld		a, %01110111
 	ld		[rNR50], a	; pas d'entrées externes et volumes au max
-
 
 
 	;------engine variables initialisation-----
