@@ -32,9 +32,11 @@ SOURCE = ./sources
 
 BRANCH := $(shell git symbolic-ref -q --short HEAD)
 DATE := $(shell date +"%d-%m-%Y_%Hh%M")
-BUILDNAME := build_$(BRANCH)_$(DATE)
+BUILDNAME := $(NAME)_build_$(BRANCH)_$(DATE)
+TMPNAME := tmp_build
 
 FINALBIN := $(NAME).$(EXT)
+TMPBIN := $(TMPNAME).$(EXT)
 BIN := $(BUILDNAME).$(EXT)
 
 MYSOURCES := $(shell find $(SOURCE) -type d -print)
@@ -59,10 +61,13 @@ OBJ = $(ASMFILES:.asm=.obj)
 #####################################################################
 ##                   Build and dependancies                        ##
 
-all: $(BIN)
+all: 	$(TMPBIN)
 	@rm -f $(OBJ)
 
-final: $(FINALBIN)
+build:	$(BIN)
+	@rm -f $(OBJ)
+
+final:	$(FINALBIN)
 	@rm -f $(OBJ)
 
 rebuild:
@@ -83,6 +88,12 @@ $(BIN): $(OBJ)
 	@$(RGBLINK) -o $(BIN) -p 0xFF -m $(BUILDNAME).map -n $(BUILDNAME).sym $(OBJ)
 	@echo rgbfix $(BIN)
 	@$(RGBFIX) -p 0xFF -v $(BIN)
+
+$(TMPBIN):   $(OBJ)
+	@echo rgblink $(TMPBIN)
+	@$(RGBLINK) -o $(TMPBIN) -p 0xFF -m $(TMPNAME).map -n $(TMPNAME).sym $(OBJ)
+	@echo rgbfix $(TMPBIN)
+	$(RGBFIX) -p 0xFF -v $(TMPBIN)
 
 $(FINALBIN): $(OBJ)
 	@echo rgblink $(FINALBIN)
