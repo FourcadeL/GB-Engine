@@ -13,3 +13,7 @@ game.sav
 
 # ignore les fichers mac de mort
 .DS_Store
+
+
+# VSCode Stuff
+.vscode/
