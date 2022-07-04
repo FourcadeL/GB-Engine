@@ -142,6 +142,25 @@ vram_set::
 	jr 		nz, vram_set
 	ret
 
+;--------------------------------------------------------------------
+;- vram_set_inc()	d = start value 	bc = size 	hl = dest adress
+; @ensures : set vram values to an incrementing value
+; [hl] -> |d|d+1|d+2|d+3|d+4|...etc...
+;--------------------------------------------------------------------
+vram_set_inc::
+	ld 		a, [rSTAT]
+	bit 	1, a
+	jr   	nz, vram_set_inc ; PPU busy
+
+	ld 		[hl], d
+	inc 	hl
+	inc 	d
+	dec 	bc
+	ld 		a, b
+	or 		a, c
+	jr   	nz, vram_set_inc
+	ret
+
 ;--------------------------------------------------------------------------
 ;- vram_copy()    bc = size    hl = source address    de = dest address   -
 ;- effectue une copie vers la vram (attent de pouvoir y accéder)
