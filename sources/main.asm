@@ -26,9 +26,11 @@ Main::
 
 	call 	Main_init
 
+	call	wait_vbl
 
 .loop
 	nop
+	call 	Audio_update
 	call 	wait_vbl
 	jr 		.loop
 	
