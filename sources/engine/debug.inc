@@ -10,7 +10,7 @@
 ;+-----------------------------------------------------------------------------+
 
 	IF !DEF(DEBUG_INC)
-DEBUG_INC SET 1
+DEBUG_INC = 1
 
 ;----------------------------------------------------------------------
 ;- PRINT_DEBUG(message) 
@@ -28,7 +28,7 @@ DEBUG_INC SET 1
 ;- CPU registers: AF, BC, DE, HL, SP, PC, B, C, D, E, H, L, A, ZERO, ZF, Z, CARRY, CY, IME, ALLREGS
 ;- other state values: ROMBANK, XRAMBANK, SRAMBANK, WRAMBANK, VRAMBANK, TOTALCLKS, LASTCLKS, CLKS2VBLANK
 ;----------------------------------------------------------------------
-PRINT_DEBUG : MACRO
+MACRO PRINT_DEBUG
 	ld 		d, d
 	jr 		.end\@
 	dw 		$6464
@@ -43,7 +43,7 @@ ENDM
 ;-
 ;- permet d'afficher le contenu d'un tableau en mémoire
 ;----------------------------------------------------------------------
-PRINT_DEBUG_TABL : MACRO
+MACRO PRINT_DEBUG_TABL
 	IF 		\2 > 13
 		PRINTT "ERREUR demande affichage d'un tableau de taille trop grande à l'exécution (la taille est > 13)\nCet affichage est ignoré\n"
 	ELSE

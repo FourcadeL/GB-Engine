@@ -6,7 +6,7 @@
 
 
 	IF !DEF(ENGINE_INC)
-ENGINE_INC SET 1
+ENGINE_INC = 1
 
 ;+-----------------------------------------------------------------------------+
 ;| +-------------------------------------------------------------------------+ |
@@ -16,7 +16,7 @@ ENGINE_INC SET 1
 
 
 ;permet d'additionner deux registres 16 bit
-ADD_U16_hl_val : MACRO ;hl <- hl + (value first arg)
+MACRO ADD_U16_hl_val;hl <- hl + (value first arg)
     ld      a, l
     add     a, LOW(\1)
     ld      l, a
@@ -27,7 +27,7 @@ ENDM
 
 
 ;permet de récupérer a <- sin(a)
-GET_SINE_A : MACRO
+MACRO GET_SINE_A
     ld      h, HIGH(Sine)
     ld      l, a
     ld      a, [hl]
@@ -36,7 +36,7 @@ ENDM
 
 ;macro permettant d'appeler hl un peu plus rapidement
 ;(nécessite que le vecteur de restart à $0008 soit correctement mis en place)
-CALL_HL : MACRO
+MACRO CALL_HL
     rst     $08
 ENDM
 

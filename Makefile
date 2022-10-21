@@ -18,6 +18,14 @@ RGBFIX  = rgbfix
 #####################################################################
 
 #####################################################################
+##						ASSEMBLY FLAGS							   ##
+
+ASMFLAGS = -H -l
+
+##																   ##
+#####################################################################
+
+#####################################################################
 ##        Source and include folders - including subfolders        ##
 
 SOURCE = ./sources
@@ -81,7 +89,7 @@ clean:
 
 %.obj : %.asm
 	@echo rgbasm $@ $<
-	@$(RGBASM) $(INCLUDES) -o$@ $<
+	@$(RGBASM) $(ASMFLAGS) $(INCLUDES) -o$@ $<
 
 $(BIN): $(OBJ)
 	@echo rgblink $(BIN)
@@ -93,7 +101,7 @@ $(TMPBIN):   $(OBJ)
 	@echo rgblink $(TMPBIN)
 	@$(RGBLINK) -o $(TMPBIN) -p 0xFF -m $(TMPNAME).map -n $(TMPNAME).sym $(OBJ)
 	@echo rgbfix $(TMPBIN)
-	$(RGBFIX) -p 0xFF -v $(TMPBIN)
+	@$(RGBFIX) -p 0xFF -v $(TMPBIN)
 
 $(FINALBIN): $(OBJ)
 	@echo rgblink $(FINALBIN)
