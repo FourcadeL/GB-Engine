@@ -1,3 +1,55 @@
+; #############################""
+; définiiton vwf (compléter engine.ing)
+; explications : 
+;       à l'initialisation on définit un buffer placé à un certain inderx de la itlemap
+;       avec une dimension d'un certain nombre de tiles
+;       +----------------------> x
+;       | .curseur
+;       |
+;       |
+;       |
+;       v y
+;
+;           le curseur permet de placer une lettre et est déplacé à chaque écriture
+
+
+
+
+
+;+-----------------------------------------------------------------------------+
+;| +-------------------------------------------------------------------------+ |
+;| |                          FUNCTIONS                                      | |
+;| +-------------------------------------------------------------------------+ |
+;+-----------------------------------------------------------------------------+
+    
+    SECTION "vwf_functions", ROM0
+;----------------------------------------------------------------------
+;- vwf_init()
+;-      initialisation de l'environnement d'écriture
+;- réserve les tiles pour le buffer
+;- fait correspondre la tilemap au buffer d'écriture
+;----------------------------------------------------------------------
+vwf_init::
+;#TODO
+
+;+-----------------------------------------------------------------------------+
+;| +-------------------------------------------------------------------------+ |
+;| |                          VARIABLES                                      | |
+;| +-------------------------------------------------------------------------+ |
+;+-----------------------------------------------------------------------------+
+
+    SECTION "vwf_data", WRAM0
+vwf_vars_start:
+; buffer variables : variables de définition du buffer (taille, placement et tiles du tileset à utiliser)
+_buffer_size_x:     DS 1    ; taille (px) du buffer en largeur
+_buffer_size_y:     DS 1    ; taille (px) du buffer en hauteur
+_tile0_idx:         DS 1    ; index de la première tile du buffer
+    
+; cursor variables : variables de tracking de la position du curseur et de l'état de l'automate
+_cursor_pos_x:      DS 1    ; position x (px) du curseur
+_cursor_pos_y:      DS 1    ; position y (px) du curseur
+    
+    
     SECTION "vwf_characters_data", ROM0
 
 
