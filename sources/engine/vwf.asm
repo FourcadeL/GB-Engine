@@ -12,8 +12,14 @@
 ;
 ;           le curseur permet de placer une lettre et est déplacé à chaque écriture
 
+    INCLUDE "hardware.inc"
+	INCLUDE "engine.inc"
+	INCLUDE "debug.inc"
 
 
+    ; données par défaut
+default_space       EQU 2   ; nombre de pixels de chaque espace
+default_line        EQU 8   ; nombre de pixels de chaque lignes
 
 
 ;+-----------------------------------------------------------------------------+
@@ -23,6 +29,7 @@
 ;+-----------------------------------------------------------------------------+
     
     SECTION "vwf_functions", ROM0
+
 ;----------------------------------------------------------------------
 ;- vwf_init()
 ;-      initialisation de l'environnement d'écriture
@@ -31,6 +38,29 @@
 ;----------------------------------------------------------------------
 vwf_init::
 ;#TODO
+    ret
+
+;--------------------------------------------------------
+;- vwf_display_buffer(de)
+;-  associe le buffer à la tilemap à partir de l'adresse de
+;--------------------------------------------------------
+vwf_display_buffer::
+    ; TODO test
+    PRINT_DEBUG "displaying buffer"
+    ;; calcul du nombre de tiles en largeur et en hauteur
+    ld      a, [_buffer_size_x]
+    srl     a
+    srl     a
+    srl     a
+    ld      b,a ; b <- largeur
+    ld      a, [_buffer_size_y]
+    srl     a
+    srl     a
+    srl     a
+    ld      c,a ; c <- hauteur
+    ;# TODO terminer
+
+    ret
 
 ;+-----------------------------------------------------------------------------+
 ;| +-------------------------------------------------------------------------+ |
@@ -44,11 +74,17 @@ vwf_vars_start:
 _buffer_size_x:     DS 1    ; taille (px) du buffer en largeur
 _buffer_size_y:     DS 1    ; taille (px) du buffer en hauteur
 _tile0_idx:         DS 1    ; index de la première tile du buffer
+_tile0_addr:        DS 1    ; adresse de la première tile du buffer
     
 ; cursor variables : variables de tracking de la position du curseur et de l'état de l'automate
 _cursor_pos_x:      DS 1    ; position x (px) du curseur
 _cursor_pos_y:      DS 1    ; position y (px) du curseur
     
+
+; styling variables : variable de définition des comportements à adopter
+;   (espacement des lettre, taille d'une nouvelle ligne, etc)
+_space_size:        DS 1    ; taille d'un espace (px)
+_newline_height:     DS 1    ; nombre de pixels à descendre pour une nouvelle ligne
     
     SECTION "vwf_characters_data", ROM0
 
