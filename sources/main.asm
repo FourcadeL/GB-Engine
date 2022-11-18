@@ -27,9 +27,16 @@ Main::
 	call 	Main_init
 	PRINT_DEBUG "Main Init Done"
 
+	;test of vwf buffer display
+	ld 		c, %10000000
+	ld 		d, %00101000
+	ld 		b, $21
+	call 	vwf_init
+	ld		hl, $99A2
+	call 	vwf_display_buffer
+
 .loop
 	call 	wait_vbl
-	call 	vwf_display_buffer
 	nop 
 	nop 
 	jr .loop
@@ -50,6 +57,14 @@ Main_init::
 	ld 		bc, _test_data_end - _test_data_start
 	ld		hl, _test_data_start
 	ld		de, _VRAM
+	call 	vram_copy
+	ld 		bc, _test_data_end - _test_data_start
+	ld		hl, _test_data_start
+	ld		de, _VRAM + $0800
+	call 	vram_copy
+	ld 		bc, _test_data_end - _test_data_start
+	ld		hl, _test_data_start
+	ld		de, _VRAM + $1000
 	call 	vram_copy
 
 

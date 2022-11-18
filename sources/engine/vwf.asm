@@ -31,35 +31,71 @@ default_line        EQU 8   ; nombre de pixels de chaque lignes
     SECTION "vwf_functions", ROM0
 
 ;----------------------------------------------------------------------
-;- vwf_init()
+;- vwf_init() c = number of pixels in width ; d = number of pixels in height ; b = idx of first buffer tile
 ;-      initialisation de l'environnement d'écriture
 ;- réserve les tiles pour le buffer
 ;- fait correspondre la tilemap au buffer d'écriture
 ;----------------------------------------------------------------------
 vwf_init::
-;#TODO
+    ;#TODO test
+    ld      hl, _buffer_size_x
+    ld      [hl], c
+    ld      hl, _buffer_size_y
+    ld      [hl], d
+    ld      hl, _tile0_idx
+    ld      [hl], b
+    ld      a, $00
+    ld      [_cursor_pos_x], a
+    ld      [_cursor_pos_y], a
+    
+    ld      c, $10
+    call    mult_u816 ; finds in hl the address of the tile idx0
+    ld      a, [rLCDC]
+    and     LCDCF_BG8000
+    jr      nz, .pass_addr_correction
+    ld      bc, $1000
+    add     hl, bc
+.pass_addr_correction
+    ld      b, h
+    ld      c, l
+    ld      hl, _tile0_addr
+    ld      a, c
+    ld      [hl+], a
+    ld      [hl], b
+
     ret
 
 ;--------------------------------------------------------
-;- vwf_display_buffer(de)
-;-  associe le buffer à la tilemap à partir de l'adresse de
+;- vwf_display_buffer(hl)
+;-  associe le buffer à la tilemap
+;-  à partir de l'adresse hl
 ;--------------------------------------------------------
 vwf_display_buffer::
-    ; TODO test
     PRINT_DEBUG "displaying buffer"
     ;; calcul du nombre de tiles en largeur et en hauteur
     ld      a, [_buffer_size_x]
     srl     a
     srl     a
     srl     a
-    ld      b,a ; b <- largeur
+    ld      c, a ; c <- largeur
     ld      a, [_buffer_size_y]
     srl     a
     srl     a
     srl     a
-    ld      c,a ; c <- hauteur
-    ;# TODO terminer
-
+    ld      b, a ; b <- hauteur
+    ld      a, [_tile0_idx]
+    ld      d, a
+.loop
+    push    bc
+    push    hl    
+    ld      b, 0
+    call    vram_set_inc
+    pop     hl
+    ld      bc, $0020
+    add     hl, bc
+    pop     bc
+    dec     b
+    jr      nz, .loop
     ret
 
 ;+-----------------------------------------------------------------------------+
@@ -74,7 +110,7 @@ vwf_vars_start:
 _buffer_size_x:     DS 1    ; taille (px) du buffer en largeur
 _buffer_size_y:     DS 1    ; taille (px) du buffer en hauteur
 _tile0_idx:         DS 1    ; index de la première tile du buffer
-_tile0_addr:        DS 1    ; adresse de la première tile du buffer
+_tile0_addr:        DS 2    ; adresse de la première tile du buffer (big endian)
     
 ; cursor variables : variables de tracking de la position du curseur et de l'état de l'automate
 _cursor_pos_x:      DS 1    ; position x (px) du curseur
