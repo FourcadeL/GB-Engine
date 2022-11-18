@@ -25,9 +25,14 @@
 Main::
 
 	call 	Main_init
-	
+	PRINT_DEBUG "Main Init Done"
 
-
+.loop
+	call 	wait_vbl
+	call 	vwf_display_buffer
+	nop 
+	nop 
+	jr .loop
 
 
 
@@ -41,10 +46,11 @@ Main::
 Main_init::
 	; initialisations 
 	
-
-	;initialisation du moteur audio
-    	call    Audio_init
-
+	; écriture des tiles de test
+	ld 		bc, _test_data_end - _test_data_start
+	ld		hl, _test_data_start
+	ld		de, _VRAM
+	call 	vram_copy
 
 
 	; registre d'interupts sélection
@@ -71,7 +77,8 @@ Main_init::
 	or		LCDCF_OBJ8 ; objects de type 8*8
 	ld		[rLCDC],a
 
-
+	; initialisation de l'automate vwf
+	call 	vwf_init
 
 
 
@@ -79,3 +86,20 @@ Main_init::
 	; on rétablit les interrupts
 	ei
 	ret ; retour à l'exécution
+
+
+
+
+
+
+
+	;-----------------------------
+	;    test data
+	;-----------------------------
+
+
+	SECTION "Test_data", ROM0
+
+_test_data_start:
+INCBIN "./engine/engine_data/test_tileset.bin"
+_test_data_end:
