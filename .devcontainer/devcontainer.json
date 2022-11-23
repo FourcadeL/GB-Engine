@@ -1,0 +1,8 @@
+{
+  "name": "homebrew dev",
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "features": {
+    "ghcr.io/meaningful-ooo/devcontainer-features/homebrew:2": {}
+  },
+  "onCreateCommand": "brew install rgbds"
+}
