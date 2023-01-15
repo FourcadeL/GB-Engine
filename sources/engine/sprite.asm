@@ -95,7 +95,7 @@ Sprite_init::
 	ENDC
 	or 		a, LCDCF_OBJON
 	ld 		[rLCDC], a
-
+	PRINT_DEBUG "Sprite init done"
 
 	ret
 
