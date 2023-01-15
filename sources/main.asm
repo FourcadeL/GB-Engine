@@ -26,10 +26,18 @@
 Main::
 
 	call 	Main_init
+	call 	Sprite_init
 	PRINT_DEBUG "Main Init Done"
-	call room_main
+	call	abc_init
 
 	
+
+.loop
+	call 	Audio_update
+	call 	wait_vbl
+	nop
+	jr .loop
+
 
 
 ;---------------------------------------------
@@ -51,6 +59,16 @@ Main_init::
 	ld		hl, _test_data_start
 	ld		de, _VRAM + $0800
 	call 	vram_copy
+	ld 		bc, _test_data_end - _test_data_start
+	ld		hl, _test_data_start
+	ld		de, _VRAM + $1000
+	call 	vram_copy
+
+	;initialisation du moteur audio
+	PRINT_DEBUG "audio init call"
+    call    Audio_init
+
+    PRINT_DEBUG "audio init done"
 
 
 
@@ -78,19 +96,24 @@ Main_init::
 	or		LCDCF_OBJ8 ; objects de type 8*8
 	ld		[rLCDC],a
 
-	ld bc, Main_vblk
+	; association de la routine vblank
+	ld bc, Main_VBL_routine
 	call irq_set_VBL
-
 
 	; on rétablit les interrupts
 	ei
 	ret ; retour à l'exécution
 
 
-Main_vblk:
+
+;------------------------
+; Main_VBL_routine()
+; 	vblank handler
+;	simple routine mettant à jour l'OAM par l'appel à call_DMA
+;------------------------
+Main_VBL_routine::
 	call call_DMA
 	ret
-
 
 
 
