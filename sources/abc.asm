@@ -9,7 +9,7 @@
 	INCLUDE "debug.inc"
 
 ;#########Constants definition#############
-PLAYER_START_X EQU 20
+PLAYER_START_X EQU 43
 PLAYER_START_Y EQU 147
 
 PLAYER_X_SPEED EQU $01
