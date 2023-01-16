@@ -760,8 +760,9 @@ iterY:
 iterX_start:
 	bit 	5, c
 	jr 		z, .noflip_start
-		;flip : la position X commence de la fin (d = d+8*b)
+		;flip : la position X commence de la fin (d = d+8*(b-1))
 		ld 		a, b
+		dec 	a
 		sla 	a 		;a*2
 		sla 	a 		;a*4
 		sla 	a  		;a*8
