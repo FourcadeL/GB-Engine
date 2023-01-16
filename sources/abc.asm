@@ -10,7 +10,19 @@
 
 ;#########Constants definition#############
 PLAYER_START_X EQU 20
-PLAYER_START_Y EQU 120
+PLAYER_START_Y EQU 147
+
+PLAYER_X_SPEED EQU $01
+
+TILE_LEFT_CORNER_ID EQU $80
+TILE_TOP_ID EQU $81
+TILE_RIGHT_CORNER_ID EQU $82
+TILE_LEFT_ID EQU $83
+TILE_RIGHT_ID EQU $85
+TILE_LEFT_END_ID EQU $98
+TILE_RIGHT_END_ID EQU $99
+
+SPRITE_PLAYER_OFFSET EQU $0B
 ;##########################################
 
 
@@ -86,5 +98,13 @@ DB $15, $16, $17
 
 _player_sprite: DS 1 ; indicateur du sprite du joueur
 
+_player_X_pos: DS 1 ; position du joueur X
+_player_Y_pos: DS 1 ; position du joueur Y
 
 
+
+; the brick layer is stored in a table of size 18*17
+; this table is stored here for reference of collisions
+_brick_layer_start:
+    DS $0132
+_brick_layer_end:
