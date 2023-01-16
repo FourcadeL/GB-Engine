@@ -132,6 +132,26 @@ movePlayer:
     add a, PLAYER_X_SPEED
     ld [hl], a
 .skip_right
+    ld a, [PAD_pressed]
+    and PAD_A
+    jr z, .skip_flip
+    ; doing a sprite flip for fun and because I want to test stuff
+    PRINT_DEBUG "flip set"
+    ld a, [_player_sprite]
+    ld b, a
+    ld c, %00101000
+    call Sprite_set_attr
+.skip_flip
+    ld a, [PAD_pressed]
+    and PAD_B
+    jr z, .skip_flip_reset
+    ; reseting sprite flip
+    PRINT_DEBUG "flip reset"
+    ld a, [_player_sprite]
+    ld b, a
+    ld c, %00001000
+    call Sprite_set_attr
+.skip_flip_reset
     ret
 
 ;-----------------------------------------------
