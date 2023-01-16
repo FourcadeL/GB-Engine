@@ -15,7 +15,7 @@ ENGINE_INC = 1
 ;+-----------------------------------------------------------------------------+
 
 
-;permet d'additionner deux registres 16 bit
+;permet d'additionner une valeur 16 bit à hl
 MACRO ADD_U16_hl_val;hl <- hl + (value first arg)
     ld      a, l
     add     a, LOW(\1)

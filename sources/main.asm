@@ -29,6 +29,7 @@ Main::
 	call 	Sprite_init
 	PRINT_DEBUG "Main Init Done"
 	call	abc_init
+	call 	abc_main
 
 	
 
@@ -94,6 +95,7 @@ Main_init::
 	or 		LCDCF_BGON ; arriere plan activé
 	or		LCDCF_OBJON ; objects affichés
 	or		LCDCF_OBJ8 ; objects de type 8*8
+	or 		LCDCF_BG8800 ; tiles background specifique
 	ld		[rLCDC],a
 
 	; association de la routine vblank
