@@ -23,6 +23,12 @@ TILE_LEFT_END_ID EQU $98
 TILE_RIGHT_END_ID EQU $99
 
 SPRITE_PLAYER_OFFSET EQU $0B
+
+
+;--------- field informations ----
+FIELD_START_ADDR EQU $9821
+FIELD_WIDTH_VAL EQU 18
+
 ;##########################################
 
 
@@ -206,6 +212,36 @@ set_outline:
 
 
 
+;---------------------
+;- set_brick_layer() bc = data table start pointer
+;- sets up the brick layer 
+;- from a data table pointer
+;-   detail :
+;-     each brick is two tiles wide
+;-     they are filled tile by tile (so semi offsetted brick can exist)
+;-     each byte entry is as follows :
+;-       %iiiiiiiP : i -> the brick id (7 bits)
+;-                   P -> the placement bit : 0 is left tile of the brick 1 is right tile of the brick
+;-       a zero byte indicates an empty space (1 tile wide)
+;-       so the backgroud image should be placed at this til 
+;-------------------------------
+set_brick_layer:
+    ld hl, _brick_layer_start; hl will serve as the write register
+    ld de, _brick_layer_end - _brick_layer_start ; counter of filled infos for loop
+.loop
+    ld a, [bc]
+    and $FF
+    jr z, empty_space ; empty space in layer, dont add anything
+    ;TODO
+.empty_space
+    ld [hl+], a
+    dec [hl] de
+    ;TODO
+
+
+
+
+
 ; ##################################
     SECTION "ABC_Data", ROMX
 
@@ -216,6 +252,8 @@ _abc_tileset_end:
 
 _player_tiles_ids_start:
 DB $15, $16, $17
+
+
 
 
 
