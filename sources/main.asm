@@ -26,7 +26,6 @@
 Main::
 
 	call 	Main_init
-	call 	Sprite_init
 	PRINT_DEBUG "Main Init Done"
 	call	abc_init
 	call 	abc_main

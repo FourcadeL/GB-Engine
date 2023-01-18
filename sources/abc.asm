@@ -7,6 +7,7 @@
 	INCLUDE "hardware.inc"
 	INCLUDE "engine.inc"
 	INCLUDE "debug.inc"
+    INCLUDE "abc/brick.inc"
 
 ;#########Constants definition#############
 PLAYER_START_X EQU 43
@@ -28,6 +29,7 @@ SPRITE_PLAYER_OFFSET EQU $0B
 ;--------- field informations ----
 FIELD_START_ADDR EQU $9821
 FIELD_WIDTH_VAL EQU 18
+FIELD_HEIGHT_VAL EQU 17
 
 ;##########################################
 
@@ -52,6 +54,13 @@ abc_init::
 
     ; dessin de l'outline
     call set_outline
+
+    ; mise en place du brick layer
+    ld bc, _first_test_layer
+    call set_brick_layer
+
+    ; copie du brick layer dans la VRAM
+    call set_tilemap_from_brick_layer
 
     ; mise en place des valeurs initiales du joueur
     ld a, PLAYER_START_X
@@ -223,22 +232,88 @@ set_outline:
 ;-       %iiiiiiiP : i -> the brick id (7 bits)
 ;-                   P -> the placement bit : 0 is left tile of the brick 1 is right tile of the brick
 ;-       a zero byte indicates an empty space (1 tile wide)
-;-       so the backgroud image should be placed at this til 
+;-       so the backgroud image should be placed at this tile
+;-
+;- Donnée d'entrée (data table) TERMINEE par FF si fin plus tôt
 ;-------------------------------
 set_brick_layer:
+    push bc
+    ; mise à 0 de la zone mémoire correspondante
+    ld hl, _brick_layer_start
+    ld bc, _brick_layer_end - _brick_layer_start
+    ld d, $00
+    call memset
+    pop bc
     ld hl, _brick_layer_start; hl will serve as the write register
     ld de, _brick_layer_end - _brick_layer_start ; counter of filled infos for loop
 .loop
     ld a, [bc]
-    and $FF
-    jr z, empty_space ; empty space in layer, dont add anything
-    ;TODO
+    inc bc
+    and $FF ; test if a is $00
+    jr z, .empty_space ; empty space in layer, dont add anything
+    cp a, $FF
+    ret z ; return if terminal value $FF is reached
+    sla a ; transforms brick ID into table element
+    ld [hl+], a
+    dec de ; ATTENTION TODO (peut poser problème si la donnée d'entrée eset mal formée)
+    inc a ; second part of brick to fill in brick layer
 .empty_space
     ld [hl+], a
-    dec [hl] de
-    ;TODO
+    dec de
+    ld a, d
+    or a, e
+    jr nz, .loop
+    ret
 
+;--------------------------
+;- set_tilemap_from_brick_layer()
+;- generate the tilemap of the brick layer and push it to VRAM
+;--------------------------
+set_tilemap_from_brick_layer:
+    ld bc, _brick_layer_start
+    ld hl, _tilemap_buffer_start
+    ld de, _brick_layer_end - _brick_layer_start
+.loop
+    ld a, [bc]
+    inc bc
+    and a, $FF ; test if a is $00
+    jr nz, .not_null
+        ; a is $00 place background TODO (for now just tile $84)
+        ld a, $84
+        jr .copy_a_in_buffer
+.not_null
+        ; a is not $00 find tile of associated brick
+        push hl
+        push bc
+        push de
+        ld b, a
+        srl b
+        and a, %00000001
+        push af
+        ld hl, brick_table_info
+        ld c, SIZEOF_BRCK_STRUCT
+        call tab_offset
+        ld a, [hl]
+        pop bc
+        add a, b
+        pop de
+        pop bc
+        pop hl
+.copy_a_in_buffer
+    ld [hl+], a
+    dec de
+    ld a, d
+    or a, e
+    jr nz, .loop
 
+    ;buffer set, copy its content in VRAM
+    ld b, FIELD_HEIGHT_VAL
+    ld c, FIELD_WIDTH_VAL
+    ld d, $01
+    ld e, $01
+    ld hl, _tilemap_buffer_start
+    call tilemap_bg_block_copy
+    ret
 
 
 
@@ -252,6 +327,10 @@ _abc_tileset_end:
 
 _player_tiles_ids_start:
 DB $15, $16, $17
+
+
+_first_test_layer:
+    DB $00, $01, $00, $01, $00, $01, $FF
 
 
 
@@ -274,3 +353,8 @@ _player_Y_pos: DS 1 ; position du joueur Y
 _brick_layer_start:
     DS $0132
 _brick_layer_end:
+
+; before beeing pushed to VRAM, the tilemap is generated in this buffer
+_tilemap_buffer_start:
+    DS $0132
+_tilemap_buffer_end:
