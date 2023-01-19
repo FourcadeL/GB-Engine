@@ -71,6 +71,9 @@ abc_init::
     ld hl, _player_Y_pos
     ld [hl], a
 
+    ; initialisation du gestionnaire de sprites
+    call Sprite_init
+
 
     ; instanciation du sprite player
     ld b, %00001000 ; see sprite.asm for infos
