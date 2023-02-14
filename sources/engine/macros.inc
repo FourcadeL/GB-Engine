@@ -23,11 +23,11 @@ MACRO ADD_U16_hl_val;hl <- hl + (value first arg)
     ld      h, a
 ENDM
 
-; permet un shift right sur une valeur 16 bit contenue dans ab
-; ab <- ab(shift right 1)
-MACRO SHIFTR_U16_ab
-    srl     a
-    rr      b
+; permet un shift right sur une valeur 16 bit contenue dans ba
+; ba <- ba(shift right 1)
+MACRO SHIFTR_U16_ba
+    srl     b
+    rra
 ENDM
 
 

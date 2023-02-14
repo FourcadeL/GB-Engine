@@ -10,6 +10,11 @@ BALL_X_SPEED EQU %00000010
 BALL_Y_SPEED EQU %00000010
 ; --------------------------------------
 
+    INCLUDE "hardware.inc"
+    INCLUDE "engine.inc"
+    INCLUDE "debug.inc"
+    INCLUDE "macros.inc"
+
 SECTION "ball_functions", ROMX
 
 ball_init::
@@ -30,7 +35,19 @@ ball_init::
 ball_move::
 
 ball_calculate_screen_pos::
-    ld
+    ld hl, ball_pos_x
+    ld [hl+], a
+    ld [hl], b
+    SHIFTR_U16_ba
+    SHIFTR_U16_ba
+    ld [ball_screen_pos_x], a
+    ld hl, ball_pos_y
+    ld [hl+], a
+    ld [hl], b
+    SHIFTR_U16_ba
+    SHIFTR_U16_ba
+    ld [ball_screen_bos_y], a
+    ret
 
 
 
