@@ -7,6 +7,7 @@
 	INCLUDE "hardware.inc"
 	INCLUDE "engine.inc"
 	INCLUDE "debug.inc"
+    INCLUDE "engine/macros.inc"
     INCLUDE "abc/brick.inc"
 
 ;#########Constants definition#############
@@ -86,6 +87,7 @@ abc_init::
     ld hl, _player_tiles_ids_start
     call Sprite_set_tiles
 
+    call ball_init
 
     PRINT_DEBUG "abc init done"
     ret
@@ -98,6 +100,7 @@ abc_init::
 abc_main::
     call getInput
     call movePlayer
+    call update_ball
     call update_player_sprite
     call wait_vbl
     jr abc_main
@@ -124,6 +127,8 @@ update_player_sprite:
     call Sprite_set_Ypos
 
     ; update ce nouveau sprite
+    ld a, [_player_sprite]
+    ld b, a
     call Sprite_update_OAM
     ret
 

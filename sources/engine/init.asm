@@ -6,6 +6,7 @@
 
 	INCLUDE "hardware.inc"
 	INCLUDE "engine.inc"
+    INCLUDE "macros.inc"
 
 
 ;+-----------------------------------------------------------------------------+

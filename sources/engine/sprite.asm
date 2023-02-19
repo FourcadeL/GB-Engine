@@ -19,6 +19,7 @@ mode_16 	EQU 0 	;mode d'affichage OBJ 8*16 (0-> mode 8*8  1-> mode 8*16)
 
 	INCLUDE "hardware.inc"
 	INCLUDE "engine.inc"
+	INCLUDE "macros.inc"
 	INCLUDE "debug.inc"
 
 
