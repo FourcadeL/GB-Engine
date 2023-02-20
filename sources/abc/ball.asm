@@ -8,6 +8,10 @@ BALL_X_INIT_POS EQU %0000000000010000
 BALL_Y_INIT_POS EQU %0000000000010000
 BALL_X_INIT_SPEED EQU %00000010
 BALL_Y_INIT_SPEED EQU %00000010
+
+BORDER_TOP EQU %0000000010000000
+BORDER_LEFT EQU %0000000000001000
+BORDER_RIGHT EQU %0000000010000000
 ; --------------------------------------
 
     INCLUDE "hardware.inc"
@@ -46,6 +50,20 @@ ball_init::
     call _ball_debug_print_position
     ret
 
+;------------------------
+; update the speed vector on the x axis
+ball_bounce_x:
+    ld hl, ball_speed_x
+    jr ball_bounce_y.do_bounce
+;------------------------
+;update the speed vector on the y axis
+ball_bounce_y:
+    ld hl, ball_speed_y
+.do_bounce
+    ld a, [hl]
+    add a, %100000000
+    ld [hl], a
+    ret
 
 ball_move::
     ; add speed vector value to x
