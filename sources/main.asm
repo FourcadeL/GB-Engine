@@ -27,18 +27,11 @@ Main::
 	call 	Main_init
 	PRINT_DEBUG "Main Init Done"
 
-	;test of vwf buffer display
-	ld 		c, %10000000
-	ld 		d, %00101000
-	ld 		b, $21
-	call 	vwf_init
-	ld		hl, $99A2
-	call 	vwf_display_buffer
 
 .loop
+	call 	Audio_update
 	call 	wait_vbl
-	nop 
-	nop 
+	nop
 	jr .loop
 
 
@@ -66,6 +59,13 @@ Main_init::
 	ld		hl, _test_data_start
 	ld		de, _VRAM + $1000
 	call 	vram_copy
+
+	;initialisation du moteur audio
+	PRINT_DEBUG "audio init call"
+    call    Audio_init
+
+    PRINT_DEBUG "audio init done"
+
 
 
 	; registre d'interupts sélection
