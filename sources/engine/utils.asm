@@ -22,26 +22,32 @@
 
 
 ;----------------------------------------------------------------------
-;- memset(d = value ; hl = start address ; bc = taille à copier)
+;- memset(d = value ; hl = start address ; bc = copy size)
 ;----------------------------------------------------------------------
-
-
 memset::
 	ld		[hl],d
 	inc 	hl
 	dec		bc
 	ld		a,b
 	or		a,c
-	jp		nz,memset
+	jr		nz,memset
 	ret
+
+;-----------------------------------------------------------------
+;- memset_fast(d = value ; hl = start address ; b = copy size)
+;-----------------------------------------------------------------
+memset_fast::
+	ld [hl], d
+	inc hl
+	dec d
+	jr nz, memset_fast
+
 
 
 
 ;----------------------------------------------------------------------
 ;- memcopy(bc = size ; hl = source address ; de = destination address)
 ;----------------------------------------------------------------------
-
-
 memcopy::
 	ldi		a,[hl]
 	ld		[de], a
@@ -58,7 +64,6 @@ memcopy::
 ;--------------------------------------------------------------------------
 ;- memcopy_fast(b = size ; hl = source address ; de = destination address)
 ;--------------------------------------------------------------------------
-
 memcopy_fast::
 	ldi		a,[hl]
 	ld		[de],a
@@ -69,9 +74,8 @@ memcopy_fast::
 
 
 ;--------------------------------------------------------------------------
-;- mult_u8(b = n1, c = n2) -> a = n1 * n2 (retour sur 8 bits)
+;- mult_u8(b = n1, c = n2) -> a = n1 * n2 (8 bits return value)
 ;--------------------------------------------------------------------------
-
 mult_u8::
 	ld 		a, $00
 	bit 	0, c
@@ -116,7 +120,7 @@ mult_u8::
 	ret
 
 ;--------------------------------------------------------------------------
-;- mult_u816(b = n1, c = n2) -> hl = n1 * n2 (retour sur 16 bits)
+;- mult_u816(b = n1, c = n2) -> hl = n1 * n2 (16 bits return value)
 ;--------------------------------------------------------------------------
 mult_u816::
 	ld 		d, $00
@@ -171,14 +175,13 @@ mult_u816::
 	ret
 
 ;----------------------------------------
-;- tab_offset(b = num element, c = elem size (in bytes), hl = bse addr)
-;- 		retourne l'adresse du b_ieme elem de taille c dans le tableau
-;-  	hl = hl + b*c
+;- tab_offset(b = num element,
+;-				c = elem size (in bytes),
+;-				hl = base addr)
+;-				-> hl = hl + b*c
 ;----------------------------------------
-
 tab_offset::
 	push 	hl
-	;calcule b * c
 	call 	mult_u816
 	pop 	de
 	add 	hl, de 
@@ -188,8 +191,6 @@ tab_offset::
 ;----------------------------------------
 ;- generateRandom() a = returned value
 ;----------------------------------------
-
-
 generateRandom::
 	ld 		hl, RandomX
 	ld 		a, [hl]
@@ -226,11 +227,6 @@ generateRandom::
 ;| |                          VARIABLES                                      | |
 ;| +-------------------------------------------------------------------------+ |
 ;+-----------------------------------------------------------------------------+
-
-
-
-
-
 	SECTION "Utils_Variables", WRAM0
 
 RandomX:		DS 1
