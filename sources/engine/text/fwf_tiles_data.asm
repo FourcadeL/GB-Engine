@@ -151,47 +151,47 @@ FWF_tiles_lookup:
     DB LOW(CCBRACKET_tile >> 4)
     DB LOW(TILDE_tile >> 4)
     DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4) ;$80
+    DB LOW(CCEDILLA_tile >> 4) ;$80
+    DB LOW(uTREM_tile >> 4)
+    DB LOW(eAIG_tile >> 4)
+    DB LOW(aCARET_tile >> 4)
+    DB LOW(aTREM_tile >> 4)
+    DB LOW(aGRAV_tile >> 4)
+    DB LOW(aRING_tile >> 4)
+    DB LOW(cCEDILLA_tile >> 4)
+    DB LOW(eCARET_tile >> 4)
+    DB LOW(eTREM_tile >> 4)
+    DB LOW(eGRAV_tile >> 4)
+    DB LOW(iTREM_tile >> 4)
+    DB LOW(iCARET_tile >> 4)
+    DB LOW(iGRAV_tile >> 4)
+    DB LOW(ATREM_tile >> 4)
+    DB LOW(ARING_tile >> 4)
+    DB LOW(EAIG_tile >> 4) ;$90
+    DB LOW(aeSYM_tile >> 4)
+    DB LOW(AESYM_tile >> 4)
+    DB LOW(oCARET_tile >> 4)
+    DB LOW(oTREM_tile >> 4)
+    DB LOW(oGRAV_tile >> 4)
+    DB LOW(uGRAV_tile >> 4)
+    DB LOW(yTREM_tile >> 4)
+    DB LOW(OTREM_tile >> 4)
+    DB LOW(UTREM_tile >> 4)
     DB LOW(UNKNOWN_tile >> 4)
     DB LOW(UNKNOWN_tile >> 4)
     DB LOW(UNKNOWN_tile >> 4)
     DB LOW(UNKNOWN_tile >> 4)
     DB LOW(UNKNOWN_tile >> 4)
     DB LOW(UNKNOWN_tile >> 4)
+    DB LOW(aAIG_tile >> 4) ;$A0
+    DB LOW(iAIG_tile >> 4)
+    DB LOW(oAIG_tile >> 4)
+    DB LOW(uAIG_tile >> 4)
+    DB LOW(nTILDE_tile >> 4)
+    DB LOW(NTILDE_tile >> 4)
     DB LOW(UNKNOWN_tile >> 4)
     DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4) ;$90
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4) ;$A0
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
+    DB LOW(IQUESTION_tile >> 4)
     DB LOW(UNKNOWN_tile >> 4)
     DB LOW(UNKNOWN_tile >> 4)
     DB LOW(UNKNOWN_tile >> 4)
@@ -575,3 +575,107 @@ CCBRACKET_tile:
 TILDE_tile:
     DB $00,$00,$00,$00,$00,$00,$30,$30
     DB $49,$49,$06,$06,$00,$00,$00,$00
+
+; EXTENDED SYMBOLS
+CCEDILLA_tile:
+    DB $00,$00,$3C,$3C,$62,$62,$60,$60
+    DB $60,$60,$62,$62,$3C,$3C,$08,$08
+uTREM_tile:
+    DB $00,$00,$00,$00,$24,$24,$00,$00
+    DB $24,$24,$24,$24,$24,$24,$1C,$1C
+eAIG_tile:
+    DB $00,$00,$08,$08,$10,$10,$18,$18
+    DB $24,$24,$3C,$3C,$20,$20,$18,$18
+aCARET_tile:
+    DB $00,$00,$18,$18,$24,$24,$18,$18
+    DB $04,$04,$1C,$1C,$24,$24,$1C,$1C
+aTREM_tile:
+    DB $00,$00,$14,$14,$00,$00,$18,$18
+    DB $04,$04,$1C,$1C,$24,$24,$1C,$1C
+aGRAV_tile:
+    DB $00,$00,$10,$10,$08,$08,$18,$18
+    DB $04,$04,$1C,$1C,$24,$24,$1C,$1C
+aRING_tile:
+    DB $08,$08,$14,$14,$08,$08,$18,$18
+    DB $04,$04,$1C,$1C,$24,$24,$1C,$1C
+cCEDILLA_tile:
+    DB $00,$00,$18,$18,$24,$24,$20,$20
+    DB $24,$24,$18,$18,$08,$08,$10,$10
+eCARET_tile:
+    DB $00,$00,$18,$18,$24,$24,$18,$18
+    DB $24,$24,$3C,$3C,$20,$20,$18,$18
+eTREM_tile:
+    DB $00,$00,$14,$14,$00,$00,$18,$18
+    DB $24,$24,$3C,$3C,$20,$20,$18,$18
+eGRAV_tile:
+    DB $00,$00,$10,$10,$08,$08,$18,$18
+    DB $24,$24,$3C,$3C,$20,$20,$18,$18
+iTREM_tile:
+    DB $00,$00,$00,$00,$00,$00,$28,$28
+    DB $00,$00,$10,$10,$10,$10,$10,$10
+iCARET_tile:
+    DB $00,$00,$00,$00,$10,$10,$28,$28
+    DB $00,$00,$10,$10,$10,$10,$10,$10
+iGRAV_tile:
+    DB $00,$00,$00,$00,$20,$20,$10,$10
+    DB $00,$00,$10,$10,$10,$10,$10,$10
+ATREM_tile:
+    DB $14,$14,$00,$00,$3C,$3C,$62,$62
+    DB $62,$62,$7E,$7E,$62,$62,$62,$62
+ARING_tile:
+    DB $08,$08,$14,$14,$08,$08,$3C,$3C
+    DB $62,$62,$62,$62,$7E,$7E,$62,$62
+EAIG_tile:
+    DB $08,$08,$10,$10,$7C,$7C,$60,$60
+    DB $78,$78,$60,$60,$60,$60,$7C,$7C
+aeSYM_tile:
+    DB $00,$00,$00,$00,$00,$00,$64,$64
+    DB $1A,$1A,$7E,$7E,$98,$98,$76,$76
+AESYM_tile:
+    DB $00,$00,$7F,$7F,$CC,$CC,$CC,$CC
+    DB $FE,$FE,$CC,$CC,$CC,$CC,$CF,$CF
+oCARET_tile:
+    DB $00,$00,$18,$18,$24,$24,$00,$00
+    DB $18,$18,$24,$24,$24,$24,$18,$18
+oTREM_tile:
+    DB $00,$00,$00,$00,$24,$24,$00,$00
+    DB $18,$18,$24,$24,$24,$24,$18,$18
+oGRAV_tile:
+    DB $00,$00,$10,$10,$08,$08,$00,$00
+    DB $18,$18,$24,$24,$24,$24,$18,$18
+uCARET_tile:
+    DB $00,$00,$18,$18,$24,$24,$00,$00
+    DB $24,$24,$24,$24,$24,$24,$1C,$1C
+uGRAV_tile:
+    DB $00,$00,$10,$10,$08,$08,$00,$00
+    DB $24,$24,$24,$24,$24,$24,$1C,$1C
+yTREM_tile:
+    DB $00,$00,$24,$24,$00,$00,$24,$24
+    DB $24,$24,$18,$18,$08,$08,$10,$10
+OTREM_tile:
+    DB $14,$14,$00,$00,$3C,$3C,$62,$62
+    DB $62,$62,$62,$62,$62,$62,$3C,$3C
+UTREM_tile:
+    DB $24,$24,$00,$00,$62,$62,$62,$62
+    DB $62,$62,$62,$62,$62,$62,$3C,$3C
+aAIG_tile:
+    DB $08,$08,$10,$10,$00,$00,$18,$18
+    DB $04,$04,$1C,$1C,$24,$24,$1C,$1C
+iAIG_tile:
+    DB $00,$00,$00,$00,$08,$08,$10,$10
+    DB $00,$00,$10,$10,$10,$10,$10,$10
+oAIG_tile:
+    DB $00,$00,$08,$08,$10,$10,$00,$00
+    DB $18,$18,$24,$24,$24,$24,$18,$18
+uAIG_tile:
+    DB $00,$00,$08,$08,$10,$10,$00,$00
+    DB $24,$24,$24,$24,$24,$24,$1C,$1C
+nTILDE_tile:
+    DB $00,$00,$28,$28,$50,$50,$00,$00
+    DB $30,$30,$28,$28,$28,$28,$28,$28
+NTILDE_tile:
+    DB $14,$14,$28,$28,$00,$00,$62,$62
+    DB $72,$72,$6A,$6A,$66,$66,$62,$62
+IQUESTION_tile:
+    DB $00,$00,$08,$08,$00,$00,$08,$08
+    DB $18,$18,$20,$20,$22,$22,$1C,$1C

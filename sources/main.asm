@@ -38,7 +38,7 @@ Main::
 	ld l, a
 	push de
 	call fwf_display_char
-	ld e, 40
+	ld e, 20
 	call wait_frames
 	pop de
 	inc de
@@ -130,10 +130,10 @@ _test_text:
 	DB "Là les caractères spéciaux ne sont pas implémentés donc forcément il y a plein"
 	DB "de carrés moches et pas jolis"
 	DB "J'avoue ne pas avoir d'idée du nombre de caractères réutilisés dans la langue française ..."
-	DB "Peut être que là ça a été dépassé et qu'on ne voit plus que des carrés moches ?"
+	DB "Peut être que là ça a été dépassé et qu'on ne voit plus que des \"carrés moches\" ?"
 	DB "Ou alors l'approche est méga robuste et je suis trop heureux !"
 	DB "OMG whaou ça marche VrAiMeNt SuPeR BiEn !"
-	DB "OBLIgé D'ECRiRe en majUSCUle pour Voir LeS CAs LIMITES"
+	DB "OBLIgé D'ECRiRe en majUSCUle pour Voir (LeS CAs LIMITES)"
 	DB "qmkjswcvxhoniUITD YREVDBFUYWXOI"
 	DB "ET MEME COMME ça je l'atteint PAS Qxlnwnds !"
 	DB "C'est OUUUUUUUUUUUF JE suis trop trop CONTENT de mon BOULOT !"
