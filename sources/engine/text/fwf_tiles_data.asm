@@ -70,16 +70,16 @@ FWF_tiles_lookup:
     DB LOW(UNKNOWN_tile >> 4)
     DB LOW(UNKNOWN_tile >> 4)
     DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4) ;$30
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
+    DB LOW(0_tile >> 4) ;$30
+    DB LOW(1_tile >> 4)
+    DB LOW(2_tile >> 4)
+    DB LOW(3_tile >> 4)
+    DB LOW(4_tile >> 4)
+    DB LOW(5_tile >> 4)
+    DB LOW(6_tile >> 4)
+    DB LOW(7_tile >> 4)
+    DB LOW(8_tile >> 4)
+    DB LOW(9_tile >> 4)
     DB LOW(UNKNOWN_tile >> 4)
     DB LOW(UNKNOWN_tile >> 4)
     DB LOW(UNKNOWN_tile >> 4)
@@ -284,9 +284,40 @@ FWF_tiles_data:
 BLANK_tile:
     DB $00,$00,$00,$00,$00,$00,$00,$00
     DB $00,$00,$00,$00,$00,$00,$00,$00
-UNKNOWN_TILE:
+UNKNOWN_tile:
     DB $FF,$FF,$00,$00,$FF,$FF,$00,$00
     DB $FF,$FF,$00,$00,$FF,$FF,$00,$00
+
+0_tile:
+    DB $00,$00,$38,$38,$64,$64,$64,$64
+    DB $64,$64,$64,$64,$64,$64,$38,$38
+1_tile:
+    DB $00,$00,$18,$18,$38,$38,$58,$58
+    DB $18,$18,$18,$18,$18,$18,$3C,$3C
+2_tile:
+    DB $00,$00,$3C,$3C,$46,$46,$06,$06
+    DB $0C,$0C,$10,$10,$20,$20,$7E,$7E
+3_tile:
+    DB $00,$00,$3C,$3C,$46,$46,$06,$06
+    DB $3C,$3C,$06,$06,$46,$46,$3C,$3C
+4_tile:
+    DB $00,$00,$0C,$0C,$1C,$1C,$2C,$2C
+    DB $4C,$4C,$7C,$7C,$0C,$0C,$0C,$0C
+5_tile:
+    DB $00,$00,$7E,$7E,$60,$60,$60,$60
+    DB $7C,$7C,$02,$02,$42,$42,$3C,$3C
+6_tile:
+    DB $00,$00,$3C,$3C,$62,$62,$60,$60
+    DB $7C,$7C,$62,$62,$62,$62,$3C,$3C
+7_tile:
+    DB $00,$00,$7E,$7E,$06,$06,$06,$06
+    DB $0C,$0C,$0C,$0C,$18,$18,$18,$18
+8_tile:
+    DB $00,$00,$3C,$3C,$62,$62,$62,$62
+    DB $3C,$3C,$62,$62,$62,$62,$3C,$3C
+9_tile:
+    DB $00,$00,$3C,$3C,$46,$46,$46,$46
+    DB $3E,$3E,$06,$06,$46,$46,$3C,$3C
 
 A_tile:
     DB $00,$00,$3C,$3C,$62,$62,$62,$62
