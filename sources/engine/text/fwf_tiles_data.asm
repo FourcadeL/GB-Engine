@@ -6,7 +6,7 @@
 ;-----------------------------
 ;- GET_TILE_DATA_ADDR(l = tile ascii ID) -> hl = tile data pointer
 ;-----------------------------
-MACRO GET_TILE_DATA_ADDR
+fwf_get_tile_data_addr::
     ld h, HIGH(FWF_tiles_lookup)
     ld a, [hl]
     swap a
@@ -17,7 +17,7 @@ MACRO GET_TILE_DATA_ADDR
     and a, %00001111
     add a, HIGH(FWF_tiles_data)
     ld h, a
-ENDM
+    ret
 
 
     SECTION "fwf_tiles_lookup", ROMX, ALIGN[8]
