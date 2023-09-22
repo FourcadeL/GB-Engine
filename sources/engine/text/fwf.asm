@@ -76,7 +76,7 @@ fwf_init::
     jr nz, .tile_table_set_loop
 
     ; setup variables
-    ld a, 0
+    ld a, $00
     ld [_next_used_tile_id_index], a
     
     ; setup characters blocks table
@@ -100,7 +100,7 @@ fwf_display_char::
 
     pop hl
     ld a, [hl]
-    and a, %011111111
+    and a, %01111111
     ld h, HIGH(__FWF_tiles_ids_start)
     ld l, a
     ld d, [hl]
@@ -132,7 +132,7 @@ fwf_init_char:
     call fwf_get_tile_data_addr
     pop de
     ld c, $10
-    call vram_copy
+    call vram_copy_fast
     ret
 
     SECTION "fwf_characters_blocks", WRAM0, ALIGN[8]
