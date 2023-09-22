@@ -25,12 +25,12 @@
 ;- memset(d = value ; hl = start address ; bc = copy size)
 ;----------------------------------------------------------------------
 memset::
-	ld		[hl],d
-	inc 	hl
-	dec		bc
-	ld		a,b
-	or		a,c
-	jr		nz,memset
+	ld	[hl],d
+	inc hl
+	dec	bc
+	ld	a,b
+	or	a,c
+	jr	nz,memset
 	ret
 
 ;-----------------------------------------------------------------
@@ -39,8 +39,9 @@ memset::
 memset_fast::
 	ld [hl], d
 	inc hl
-	dec d
+	dec b
 	jr nz, memset_fast
+	ret
 
 
 
@@ -49,13 +50,13 @@ memset_fast::
 ;- memcopy(bc = size ; hl = source address ; de = destination address)
 ;----------------------------------------------------------------------
 memcopy::
-	ldi		a,[hl]
-	ld		[de], a
-	inc 	de
-	dec 	bc
-	ld		a,b
-	or 		a,c
-	jr		nz, memcopy
+	ld	a,[hli]
+	ld	[de], a
+	inc de
+	dec bc
+	ld	a,b
+	or 	a,c
+	jr	nz, memcopy
 	ret
 
 
@@ -65,11 +66,11 @@ memcopy::
 ;- memcopy_fast(b = size ; hl = source address ; de = destination address)
 ;--------------------------------------------------------------------------
 memcopy_fast::
-	ldi		a,[hl]
-	ld		[de],a
-	inc		de
-	dec		b
-	jr		nz, memcopy_fast
+	ld a,[hli]
+	ld [de],a
+	inc	de
+	dec	b
+	jr nz, memcopy_fast
 	ret
 
 
