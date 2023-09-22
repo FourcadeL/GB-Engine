@@ -56,21 +56,21 @@ FWF_tiles_lookup:
     DB LOW(UNKNOWN_tile >> 4)
     DB LOW(UNKNOWN_tile >> 4)
     DB LOW(BLANK_tile >> 4) ;$20
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
+    DB LOW(EXCLAMATION_tile >> 4)
+    DB LOW(QUOTE_tile >> 4)
+    DB LOW(HASHTAG_tile >> 4)
+    DB LOW(DOLLAR_tile >> 4)
+    DB LOW(PERCENT_tile >> 4)
+    DB LOW(AMPERSTAND_tile >> 4)
+    DB LOW(APOSTROPHE_tile >> 4)
+    DB LOW(OPARENTH_tile >> 4)
+    DB LOW(CPARENTH_tile >> 4)
+    DB LOW(STAR_tile >> 4)
+    DB LOW(PLUS_tile >> 4)
+    DB LOW(COMMA_tile >> 4)
+    DB LOW(MINUS_tile >> 4)
+    DB LOW(DOT_tile >> 4)
+    DB LOW(SLASH_tile >> 4)
     DB LOW(ZERO_tile >> 4) ;$30
     DB LOW(ONE_tile >> 4)
     DB LOW(TWO_tile >> 4)
@@ -81,13 +81,13 @@ FWF_tiles_lookup:
     DB LOW(SEVEN_tile >> 4)
     DB LOW(EIGHT_tile >> 4)
     DB LOW(NINE_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4) ;$40
+    DB LOW(COLON_tile >> 4)
+    DB LOW(SCOLON_tile >> 4)
+    DB LOW(LESSER_tile >> 4)
+    DB LOW(EQUAL_tile >> 4)
+    DB LOW(GREATER_tile >> 4)
+    DB LOW(QUESTION_tile >> 4)
+    DB LOW(AROBASE_tile >> 4) ;$40
     DB LOW(A_tile >> 4)
     DB LOW(B_tile >> 4)
     DB LOW(C_tile >> 4)
@@ -114,12 +114,12 @@ FWF_tiles_lookup:
     DB LOW(X_tile >> 4)
     DB LOW(Y_tile >> 4)
     DB LOW(Z_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4) ;$60
+    DB LOW(OBRACKET_tile >> 4)
+    DB LOW(BACKSLASH_tile >> 4)
+    DB LOW(CBRACKET_tile >> 4)
+    DB LOW(CIRCUMFLEX_tile >> 4)
+    DB LOW(UNDERSCORE_tile >> 4)
+    DB LOW(BACK_APOSTROPHE_tile >> 4) ;$60
     DB LOW(a_tile >> 4)
     DB LOW(b_tile >> 4)
     DB LOW(c_tile >> 4)
@@ -146,10 +146,10 @@ FWF_tiles_lookup:
     DB LOW(x_tile >> 4)
     DB LOW(y_tile >> 4)
     DB LOW(z_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
-    DB LOW(UNKNOWN_tile >> 4)
+    DB LOW(OCBRACKET_tile >> 4)
+    DB LOW(VBAR_tile >> 4)
+    DB LOW(CCBRACKET_tile >> 4)
+    DB LOW(TILDE_tile >> 4)
     DB LOW(UNKNOWN_tile >> 4)
     DB LOW(UNKNOWN_tile >> 4) ;$80
     DB LOW(UNKNOWN_tile >> 4)
@@ -477,3 +477,101 @@ y_tile:
 z_tile:
     DB $00,$00,$00,$00,$00,$00,$00,$00
     DB $3C,$3C,$08,$08,$10,$10,$3C,$3C
+
+; SYMBOLS
+EXCLAMATION_tile:
+    DB $00,$00,$18,$18,$18,$18,$18,$18
+    DB $18,$18,$00,$00,$18,$18,$18,$18
+QUOTE_tile:
+    DB $00,$00,$28,$28,$28,$28,$28,$28
+    DB $00,$00,$00,$00,$00,$00,$00,$00
+HASHTAG_tile:
+    DB $00,$00,$00,$00,$24,$24,$7E,$7E
+    DB $24,$24,$24,$24,$7E,$7E,$24,$24
+DOLLAR_tile:
+    DB $00,$00,$38,$38,$54,$54,$50,$50
+    DB $38,$38,$14,$14,$54,$54,$38,$38
+PERCENT_tile:
+    DB $00,$00,$20,$20,$52,$52,$24,$24
+    DB $08,$08,$12,$12,$25,$25,$42,$42
+AMPERSTAND_tile:
+    DB $00,$00,$00,$00,$30,$30,$48,$48
+    DB $30,$30,$4C,$4C,$4C,$4C,$3A,$3A
+APOSTROPHE_tile:
+    DB $00,$00,$20,$20,$20,$20,$00,$00
+    DB $00,$00,$00,$00,$00,$00,$00,$00
+OPARENTH_tile:
+    DB $00,$00,$08,$08,$10,$10,$10,$10
+    DB $10,$10,$10,$10,$10,$10,$08,$08
+CPARENTH_tile:
+    DB $00,$00,$10,$10,$08,$08,$08,$08
+    DB $08,$08,$08,$08,$08,$08,$10,$10
+STAR_tile:
+    DB $00,$00,$00,$00,$28,$28,$10,$10
+    DB $28,$28,$00,$00,$00,$00,$00,$00
+PLUS_tile:
+    DB $00,$00,$00,$00,$00,$00,$10,$10
+    DB $10,$10,$7C,$7C,$10,$10,$10,$10
+COMMA_tile:
+    DB $00,$00,$00,$00,$00,$00,$00,$00
+    DB $00,$00,$20,$20,$20,$20,$40,$40
+MINUS_tile:
+    DB $00,$00,$00,$00,$00,$00,$00,$00
+    DB $00,$00,$7C,$7C,$00,$00,$00,$00
+DOT_tile:
+    DB $00,$00,$00,$00,$00,$00,$00,$00
+    DB $00,$00,$00,$00,$00,$00,$40,$40
+SLASH_tile:
+    DB $00,$00,$04,$04,$08,$08,$08,$08
+    DB $10,$10,$20,$20,$20,$20,$40,$40
+COLON_tile:
+    DB $00,$00,$00,$00,$00,$00,$00,$00
+    DB $20,$20,$00,$00,$20,$20,$00,$00
+SCOLON_tile:
+    DB $00,$00,$00,$00,$00,$00,$00,$00
+    DB $20,$20,$00,$00,$20,$20,$40,$40
+LESSER_tile:
+    DB $00,$00,$00,$00,$00,$00,$08,$08
+    DB $10,$10,$60,$60,$10,$10,$08,$08
+EQUAL_tile:
+    DB $00,$00,$00,$00,$00,$00,$00,$00
+    DB $3C,$3C,$00,$00,$3C,$3C,$00,$00
+GREATER_tile:
+    DB $00,$00,$00,$00,$00,$00,$10,$10
+    DB $08,$08,$06,$06,$08,$08,$10,$10
+QUESTION_tile:
+    DB $00,$00,$38,$38,$44,$44,$04,$04
+    DB $08,$08,$10,$10,$00,$00,$10,$10
+AROBASE_tile:
+    DB $00,$00,$00,$00,$3C,$3C,$42,$42
+    DB $9A,$9A,$AA,$AA,$9A,$9A,$44,$44
+OBRACKET_tile:
+    DB $00,$00,$00,$00,$18,$18,$10,$10
+    DB $10,$10,$10,$10,$10,$10,$18,$18
+BACKSLASH_tile:
+    DB $00,$00,$20,$20,$10,$10,$10,$10
+    DB $08,$08,$04,$04,$04,$04,$02,$02
+CBRACKET_tile:
+    DB $00,$00,$00,$00,$18,$18,$08,$08
+    DB $08,$08,$08,$08,$08,$08,$18,$18
+CIRCUMFLEX_tile:
+    DB $00,$00,$10,$10,$28,$28,$44,$44
+    DB $00,$00,$00,$00,$00,$00,$00,$00
+UNDERSCORE_tile:
+    DB $00,$00,$00,$00,$00,$00,$00,$00
+    DB $00,$00,$00,$00,$00,$00,$7E,$7E
+BACK_APOSTROPHE_tile:
+    DB $00,$00,$08,$08,$04,$04,$00,$00
+    DB $00,$00,$00,$00,$00,$00,$00,$00
+OCBRACKET_tile:
+    DB $00,$00,$08,$08,$10,$10,$10,$10
+    DB $20,$20,$10,$10,$10,$10,$08,$08
+VBAR_tile:
+    DB $00,$00,$10,$10,$10,$10,$10,$10
+    DB $10,$10,$10,$10,$10,$10,$10,$10
+CCBRACKET_tile:
+    DB $00,$00,$10,$10,$08,$08,$08,$08
+    DB $04,$04,$08,$08,$08,$08,$10,$10
+TILDE_tile:
+    DB $00,$00,$00,$00,$00,$00,$30,$30
+    DB $49,$49,$06,$06,$00,$00,$00,$00
