@@ -23,7 +23,7 @@ NB_UNIQUE_TILES EQU 64 ; number of unique tiles available to the fwf text engine
 ;-------------------------------------------------------
 MACRO GET_NEXT_FREE_TILE_ID
     ld hl, _next_used_tile_id_index
-    ld a, hl
+    ld a, [hl]
     ld b, a
     inc a
     cp a, NB_UNIQUE_TILES
