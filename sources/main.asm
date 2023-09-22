@@ -9,6 +9,7 @@
 	INCLUDE "hardware.inc"
 	INCLUDE "engine.inc"
 	INCLUDE "debug.inc"
+	INCLUDE "charmap.inc"
 
 
 
@@ -31,14 +32,15 @@ Main::
 	PRINT_DEBUG "FWF Init Done"
 
 	ld de, $9801
-	ld hl, _test_text
+	; ld hl, _test_text
+	ld hl, _text
 .loop
 	ld a, [hl]
 	push hl
 	ld l, a
 	push de
 	call fwf_display_char
-	ld e, 20
+	ld e, 10
 	call wait_frames
 	pop de
 	inc de
@@ -46,7 +48,6 @@ Main::
 	inc hl
 	nop
 	jr .loop
-
 
 
 ;---------------------------------------------
@@ -121,6 +122,11 @@ Main_vblk:
 _test_data_start:
 INCBIN "./engine/engine_data/test_tileset.bin"
 _test_data_end:
+
+
+_text:
+	DB "OK! Maintenant il est temps de s'ôter de tous les doutes sur les capacités de ce à quoi pourrait servir le moteur textuel. Ne pas hésiter sur les accents (voilà comme ça), les caractères spéciaux #ilespaspret, les signes en plus @$+ etc..."
+	DB "En plus de ça j'ajoute des MAJUSCULE pour GONFLER les TILES UTILISÉES : ça va faire mal ! Alors, on en est où maintenant de compteur ? ça a déjà beugé où bien ça marche de OUF ?"
 
 _test_text:
 	DB "Bonjour ceci est un test j'ajoute des tiles en plus MAJUSCULE"
