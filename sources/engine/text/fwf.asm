@@ -12,6 +12,7 @@ INCLUDE "engine.inc"
 INCLUDE "debug.inc"
 
 NB_UNIQUE_TILES EQU 64 ; number of unique tiles available to the fwf text engine
+                        ; can't be more than 127
 
 ; TODO : pour l'instant seul la partie "récupération de la tile du caractère" est codée
 ; Je dois encore m'occuper de l'écriture dans la tilemap des lettres ajoutées
@@ -35,7 +36,7 @@ fwf_init::
 
     ; setup variables
     ld a, 0
-    ld [_next_used_tile_block], a
+    ld [_next_used_tile_id_index], a
     
     ; setup characters blocks table
     ld d, $00
@@ -45,6 +46,27 @@ fwf_init::
     ret
 
 
+;-----------------------------------
+;- fwf_display_char(l = char to display, de = tilemap destination addr)
+;- displays character l on tilemap addr de
+;-----------------------------------
+fwf_display_char::
+    push de
+    ld h, HIGH(__FWF_characters_blocks_start)
+    push hl
+    bit 7, [hl]
+    call z, fwf_init_char
+
+    pop hl
+    ld a, [hl]
+    and a, %011111111
+    ld h, HIGH(__FWF_tiles_ids_start)
+    ld l, a
+    ld d, [hl]
+    pop hl
+    ld c, $01
+    call vram_set_fast
+    ret
     SECTION "fwf_characters_blocks", WRAM0, ALIGN[8]
 __FWF_characters_blocks_start:
     DS $FF ; 
@@ -56,6 +78,4 @@ __FWF_tiles_ids_start:
 __FWF_tiles_ids_end:
 
     SECTION "fwf_variables", WRAM0
-_next_used_tile_block: DS 1
-
-    SECTION "fwf_characters_data", ROM0
+_next_used_tile_id_index: DS 1
