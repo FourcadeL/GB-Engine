@@ -91,14 +91,15 @@ fwf_init::
 ;- flushes all initialised characters for a new write
 ;--------------------------------------------
 fwf_flush::
-    ld hl, __FWF_characters_blocks_end
-    ld de, $FF
+    ld hl, __FWF_characters_blocks_start
+    ld d, $FF
 .erase_loop
-    res 7, [hli]
-    dec de
-    ld a, d
-    or a, e
+    res 7, [hl]
+    inc hl
+    dec d
     jr nz, .erase_loop
+    ld hl, _next_used_tile_id_index
+    ld [hl], $00
     ret
 
 ;-----------------------------------
