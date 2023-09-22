@@ -112,7 +112,7 @@ vram_set::
 vram_set_fast::
 	ld 	a, [rSTAT]
 	bit 1, a
-	jr 	nz, vram_set ; PPU busy
+	jr 	nz, vram_set_fast ; PPU busy
 
 	ld 	[hl], d
 	inc hl
