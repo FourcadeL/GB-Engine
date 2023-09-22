@@ -11,7 +11,7 @@ INCLUDE "hardware.inc"
 INCLUDE "engine.inc"
 INCLUDE "debug.inc"
 
-NB_UNIQUE_TILES EQU 64 ; number of unique tiles available to the fwf text engine
+NB_UNIQUE_TILES EQU 40 ; number of unique tiles available to the fwf text engine
                         ; can't be more than 127
 
 ; TODO : pour l'instant seul la partie "récupération de la tile du caractère" est codée
@@ -86,6 +86,20 @@ fwf_init::
     call memset_fast
     ret
 
+;--------------------------------------------
+;- fwf_flush()
+;- flushes all initialised characters for a new write
+;--------------------------------------------
+fwf_flush::
+    ld hl, __FWF_characters_blocks_end
+    ld de, $FF
+.erase_loop
+    res 7, [hli]
+    dec de
+    ld a, d
+    or a, e
+    jr nz, .erase_loop
+    ret
 
 ;-----------------------------------
 ;- fwf_display_char(l = char to display, de = tilemap destination addr)
