@@ -4,5 +4,12 @@
   "features": {
     "ghcr.io/meaningful-ooo/devcontainer-features/homebrew:2": {}
   },
-  "onCreateCommand": "brew install rgbds"
+"onCreateCommand": "brew install rgbds",
+"customizations": {
+	"vscode": {
+		"extensions": [
+			"emulicious.emulicious-debugger"
+		]
+	}
+}
 }
