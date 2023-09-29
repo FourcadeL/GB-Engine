@@ -164,8 +164,6 @@ update_timer:
 check_idle:
 do_flush:
 fetch_routine:
-    ld hl, _current_read_addr
-    INCREMENT_ADRESS_AT_HL_BIG_ENDIAN
     ld a, [hl]
     cp a, $20 ; check for control character
     jr c, .control_char_handler
