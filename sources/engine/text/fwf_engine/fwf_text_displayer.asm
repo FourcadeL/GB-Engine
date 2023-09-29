@@ -164,10 +164,15 @@ update_timer:
 check_idle:
 do_flush:
 fetch_routine:
-    ld a, [hl]
+    ld hl, _current_read_addr
+    ld c, [hl]
+    inc hl
+    ld b, [hl]
+    ld a, [bc]
     cp a, $20 ; check for control character
     jr c, .control_char_handler
     call set_timer_state
+    jr fwf_automaton_update
 .control_char_handler
     ; TODO
     ret
@@ -199,6 +204,8 @@ update_display_addr_new_line:
     ld a, $20
     sub [hl]
     ld b, a
+    ld a, $00
+    ld [_current_display_col], a
     ld hl, _current_display_addr
     ld a, [hl]
     add a, b
