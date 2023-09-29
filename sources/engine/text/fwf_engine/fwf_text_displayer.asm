@@ -163,6 +163,21 @@ update_timer:
 
 check_idle:
 do_flush:
+    ld hl, _displayer_line_width
+    ld c, [hl]
+    ld hl, _displayer_nb_rows
+    ld b, [hl]
+    ld hl, _blank_tile_id
+    ld d, [hl]
+    ld hl, _displayer_start_display_addr
+    ld a, [hli]
+    ld h, [hl]
+    ld l, a
+    call tilemap_block_set
+    call fwf_flush
+    call update_display_addr_start_return
+    jr fwf_automaton_update
+
 fetch_routine:
     ld hl, _current_read_addr
     ld c, [hl]
