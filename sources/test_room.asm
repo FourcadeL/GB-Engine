@@ -23,39 +23,28 @@ INCLUDE "charmap.inc"
 room_main::
     call room_init
 
-    ld de, $9801
-	; ld hl, _test_text
-	ld hl, _text
 .loop
-	ld a, [hl]
-	cp a, "\n"
-	jr z, .change_text
-	push hl
-	ld l, a
-	push de
-	call fwf_display_char
-	ld e, 10
-	call wait_frames
-	pop de
-	inc de
-	pop hl
-	inc hl
-	nop
-	jr .loop
-.change_text
-	call fwf_flush
-	ld hl, $9800
-	ld d, $00
-	ld bc, $0400
-	call vram_set
-	ld de, $9801
-	ld hl, _test_text
+	call fwf_automaton_update
+    call wait_vbl
 	jr .loop
 
 
 room_init:
     ld c, $01
     call fwf_init
+    ld a, 18
+    call fwf_automaton_set_display_width
+    ld a, 10
+    call fwf_automaton_set_display_height
+    ld a, 2
+    call fwf_automaton_set_timer
+    ld a, $00
+    call fwf_automaton_set_blank_tile_id
+    ld de, $9841
+    call fwf_automaton_set_display_start_addr
+    ld de, _text
+    call fwf_automaton_set_read_addr
+    call fwf_automaton_init
     ret
 
 

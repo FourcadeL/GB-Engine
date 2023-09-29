@@ -137,6 +137,7 @@ display_char:
     call fwf_display_char
     ld hl, _current_read_addr
     INCREMENT_ADRESS_AT_HL_BIG_ENDIAN
+    call update_display_addr_new_char
     call set_fetch_state
     ld a, [_current_display_row]
     ld b, a
