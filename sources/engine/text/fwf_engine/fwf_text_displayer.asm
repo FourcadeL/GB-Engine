@@ -63,6 +63,12 @@ fwf_automaton_update::
     jr z, fetch_state ; TODO
     ret ; juste in case but shouldn't reach
 
+display_char:
+update_timer:
+check_idle:
+do_flush:
+fetch_state:
+
     SECTION "fwf_automaton_variables", WRAM0
 
 _displayer_state: DS 1

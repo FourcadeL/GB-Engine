@@ -5,12 +5,11 @@
 
 ; Control instructions
 ; \n : new lines
-; \0 : end of block text
-; \b[$XXXX] : block of text -> fetch block of text at addr $XXXX then return to current block
-; \w : put text displayer in wait state
-; \f : put text displayer into flush state
-; \wf : put text displayer in wait and flush state
-; \t[$XX] : set timer
+; \\0 : end of block text
+; \\b[$XXXX] : block of text -> fetch block of text at addr $XXXX then return to current block
+; \\w : put text displayer in wait state
+; \\f : put text displayer into flush state
+; \\t[$XX] : set timer
 
     IF !DEF(CHARMAP_INC)
 CHARMAP_INC = 1
@@ -18,12 +17,11 @@ CHARMAP_INC = 1
 NEWCHARMAP EASCII
 
 ;STANDARD ASCII
-CHARMAP "\0", $00
-CHARMAP "\b", $02
-CHARMAP "\f", $04
-CHARMAP "\w", $06
-CHARMAP "\wf", $0604
-CHARMAP "\t" , $08
+CHARMAP "\\0", $00
+CHARMAP "\\b", $02
+CHARMAP "\\f", $04
+CHARMAP "\\w", $06
+CHARMAP "\\t" , $08
 CHARMAP "\n", $0A
 CHARMAP " ", $20
 CHARMAP "!", $21
