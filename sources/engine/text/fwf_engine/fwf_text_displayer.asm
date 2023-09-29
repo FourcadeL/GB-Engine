@@ -123,29 +123,6 @@ fwf_automaton_update::
     jr z, fetch_routine ; TODO
     ret ; juste in case but shouldn't reach
 
-display_char:
-    ld hl, _current_read_addr
-    ld c, [hl]
-    inc hl
-    ld b, [hl]
-    ld a, [bc]
-    ld hl, _current_display_addr
-    ld e, [hl]
-    inc hl
-    ld d, [hl]
-    ld l, a
-    call fwf_display_char
-    ld hl, _current_read_addr
-    INCREMENT_ADRESS_AT_HL_BIG_ENDIAN
-    call update_display_addr_new_char
-    call set_fetch_state
-    ld a, [_current_display_row]
-    ld b, a
-    ld a, [_current_display_col]
-    or a, b
-    ret nz
-    call set_flush_state
-    ret
 
 update_timer:
     ld a, [_current_timer_value]
@@ -190,6 +167,30 @@ fetch_routine:
     jr fwf_automaton_update
 .control_char_handler
     ; TODO
+    ret
+
+display_char:
+    ld hl, _current_read_addr
+    ld c, [hl]
+    inc hl
+    ld b, [hl]
+    ld a, [bc]
+    ld hl, _current_display_addr
+    ld e, [hl]
+    inc hl
+    ld d, [hl]
+    ld l, a
+    call fwf_display_char
+    ld hl, _current_read_addr
+    INCREMENT_ADRESS_AT_HL_BIG_ENDIAN
+    call update_display_addr_new_char
+    call set_fetch_state
+    ld a, [_current_display_row]
+    ld b, a
+    ld a, [_current_display_col]
+    or a, b
+    ret nz
+    call set_flush_state
     ret
 
 ;---------------------------------------------------------
