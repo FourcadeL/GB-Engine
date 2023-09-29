@@ -171,6 +171,27 @@ vram_copy_fast::
     jr  nz, vram_copy_fast
     ret
 
+;-----------------------------------------------------
+;- tilemap_block_set(b = height, c = width, hl = destination address, d = set value)
+;- set a block of tiles to value on d
+;-----------------------------------------------------
+tilemap_block_set::
+	push hl
+	push bc
+	call vram_set_fast
+	ld a, b
+	pop bc
+	pop hl
+	dec a
+	ret z
+	ld b, a 
+	ld a, l
+	add a, $20
+	ld l, a
+	jr nc, tilemap_block_set
+	inc h
+	jr tilemap_block_set
+
 ;--------------------------------------------------------------------------
 ;- tilemap_bg_block_copy()    b = height, c = width  d = y pos(from top) e = x pos(from left) hl = source address-
 ;- effectue une copie vers la tilemap du background (attend de pouvoir y accéder)
