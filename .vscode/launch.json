@@ -10,7 +10,7 @@
             "name": "Launch in Emulicious",
             "program": "${workspaceFolder}/tmp_build.gb",
             "port": 58870,
-            "stopOnEntry": true
+            "stopOnEntry": false
         }
     ]
 }
