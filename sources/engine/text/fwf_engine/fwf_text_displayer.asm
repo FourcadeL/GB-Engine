@@ -27,6 +27,7 @@ MACRO INCREMENT_ADRESS_AT_HL_BIG_ENDIAN
     inc hl
     inc [hl]
 .end
+ENDM
 
     SECTION "fwf_automaton_code",  ROM0
 ;----------------------------------------------------------
@@ -147,7 +148,8 @@ display_char:
 
 update_timer:
     ld a, [_current_timer_value]
-    cp a, [_displayer_timer]
+    ld hl, _displayer_timer
+    cp a, [hl]
     jr z, .timer_trip
     inc a
     ld [_current_timer_value], a
