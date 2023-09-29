@@ -40,7 +40,7 @@ room_init:
     call fwf_automaton_set_display_width
     ld a, 9
     call fwf_automaton_set_display_height
-    ld a, 4
+    ld a, 8
     call fwf_automaton_set_timer
     ld a, $00
     call fwf_automaton_set_blank_tile_id
@@ -55,8 +55,15 @@ room_init:
 
     SECTION "Test_data", ROM0
     
-    
     _text:
+        DB "J'écris un peu ce qui me passe par la tête... J'essaye de tester le moteur textuel sans me forcer non plus à utiliser des caractères spéciaux, mais en laissant quend même touts les accents, les points de ponctuation stpécifiques, les MAJUSCULES "
+        DB "et symboles que l'on rencontre normalement dans un texte écrit en français..."
+        DB "Est-ce que ça devient trop pour le moteur ? Je ne pense pas. J'ai essayé beaucoup de choses et ça a vraiment l'air d'être robuste. Alors oui forcément ici le text s'écirt en bloc avec des sauts qui ne veulent rien dire !"
+        DB "Il manque des estpaces lors de certains sauts de ligne, etc etc. Mais ça c'est surtout parce que je n'ai pas encore implémenté la gestion des caractères spéciqux dans mes routines. Ils sont définis hein, ce n'est pas le problème, "
+        DB "mais travailler sur le code pour les gérer est TEEEEEEEEEEEELement difficile."
+        DB "Si je continue de garder ma motivation, d'ici quelques jours tout devrais fonctionner sans problèmes et on verra alors des beaux blocs de text bien formatés, avec des controles d'attentes, des variation de vitesse d'affichage et plus encore :) !"
+
+    _text2:
         DB "OK! Maintenant il est temps de s'ôter de tous les doutes sur les capacités de ce à quoi pourrait servir le moteur textuel. Ne pas hésiter sur les accents (voilà comme ça), les caractères spéciaux #ilespaspret, les signes en plus @$+ etc..."
         DB "En plus de ça j'ajoute des MAJUSCULE pour GONFLER les TILES UTILISÉES : ça va faire mal ! Alors, on en est où maintenant de compteur ? ça a déjà beugé où bien ça marche de OUF ?"
     

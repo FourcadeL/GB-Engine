@@ -208,9 +208,9 @@ display_char:
     ld b, a
     ld a, [_current_display_col]
     or a, b
-    ret nz
+    jp nz, fwf_automaton_update
     call set_flush_state
-    ret
+    jp fwf_automaton_update
 
 ;---------------------------------------------------------
 ;---------------------------------------------------------
