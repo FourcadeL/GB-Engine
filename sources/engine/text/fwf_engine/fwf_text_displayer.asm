@@ -153,6 +153,7 @@ do_flush:
     call tilemap_block_set
     call fwf_flush
     call update_display_addr_start_return
+    call set_fetch_state
     jr fwf_automaton_update
 
 fetch_routine:

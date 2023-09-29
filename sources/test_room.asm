@@ -32,15 +32,15 @@ room_main::
 room_init:
     ld c, $01
     call fwf_init
-    ld a, 18
+    ld a, 20
     call fwf_automaton_set_display_width
-    ld a, 10
+    ld a, 9
     call fwf_automaton_set_display_height
-    ld a, 2
+    ld a, 4
     call fwf_automaton_set_timer
     ld a, $00
     call fwf_automaton_set_blank_tile_id
-    ld de, $9841
+    ld de, $9840
     call fwf_automaton_set_display_start_addr
     ld de, _text
     call fwf_automaton_set_read_addr
@@ -54,7 +54,7 @@ room_init:
     
     _text:
         DB "OK! Maintenant il est temps de s'ôter de tous les doutes sur les capacités de ce à quoi pourrait servir le moteur textuel. Ne pas hésiter sur les accents (voilà comme ça), les caractères spéciaux #ilespaspret, les signes en plus @$+ etc..."
-        DB "En plus de ça j'ajoute des MAJUSCULE pour GONFLER les TILES UTILISÉES : ça va faire mal ! Alors, on en est où maintenant de compteur ? ça a déjà beugé où bien ça marche de OUF ?\n"
+        DB "En plus de ça j'ajoute des MAJUSCULE pour GONFLER les TILES UTILISÉES : ça va faire mal ! Alors, on en est où maintenant de compteur ? ça a déjà beugé où bien ça marche de OUF ?"
     
     _test_text:
         DB "Bonjour ceci est un test j'ajoute des tiles en plus MAJUSCULE"
