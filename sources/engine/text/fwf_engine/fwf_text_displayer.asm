@@ -100,6 +100,11 @@ set_addr:
     ld [hl], d
     ret
 
+fwf_automaton_awake_from_idle::
+    ld hl, _current_idle_state
+    set 0, [hl]
+    ret
+
 fwf_automaton_init::
     call update_display_addr_start_return
     ld a, $00
@@ -116,9 +121,9 @@ fwf_automaton_update::
     cp a, TIMER_STATE
     jr z, update_timer
     cp a, IDLE_STATE
-    jr z, check_idle ; TODO
+    jr z, check_idle
     cp a, FLUSH_STATE
-    jr z, do_flush ; TODO
+    jr z, do_flush
     cp a, FETCH_STATE
     jr z, fetch_routine ; TODO
     ret ; juste in case but shouldn't reach
@@ -139,6 +144,19 @@ update_timer:
     jr fwf_automaton_update
 
 check_idle:
+    ld hl, _current_idle_state
+    bit 7, [hl]
+    jr nz, .already_idle
+    ld a, %10000000
+    ld [hl], a
+.already_idle
+    bit 0, [hl]
+    ret z ; waiting awake
+    ld a, $00
+    ld [hl], a
+    call set_fetch_state
+    ret
+
 do_flush:
     ld hl, _displayer_line_width
     ld c, [hl]
@@ -260,6 +278,7 @@ _displayer_nb_rows: DS 1
 _current_display_row: DS 1
 _blank_tile_id: DS 1 ; blank tile to use when flushing
 _current_read_addr: DS 2 ; big endian
+_current_idle_state: DS 1 ; %E000000W E -> entry : is set when entering idle state | W -> wake : when set, exit idle state
 
     SECTION "fwf_automaton_text_stack", WRAM0
 

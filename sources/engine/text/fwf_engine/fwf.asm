@@ -14,9 +14,6 @@ INCLUDE "debug.inc"
 NB_UNIQUE_TILES EQU 40 ; number of unique tiles available to the fwf text engine
                         ; can't be more than 127
 
-; TODO : pour l'instant seul la partie "récupération de la tile du caractère" est codée
-; Je dois encore m'occuper de l'écriture dans la tilemap des lettres ajoutées
-
 ;-------------------------------------------------------
 ;- GET_NEXT_FREE_TILE_ID() -> b = tile id index to use ; c = tile id to use
 ;- [hl, a, b, c]

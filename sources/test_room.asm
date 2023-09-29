@@ -24,7 +24,11 @@ room_main::
     call room_init
 
 .loop
+    call getInput
 	call fwf_automaton_update
+    ld a, [PAD_pressed]
+    cp a, PAD_A
+    call z, fwf_automaton_awake_from_idle
     call wait_vbl
 	jr .loop
 
