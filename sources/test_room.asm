@@ -56,7 +56,8 @@ room_init:
     SECTION "Test_data", ROM0
     
     _text:
-        DB "J'écris un peu ce qui me passe par la tête... J'essaye de tester le moteur textuel sans me forcer non plus à utiliser des caractères spéciaux, mais en laissant quend même touts les accents, les points de ponctuation stpécifiques, les MAJUSCULES "
+        DB "J'écris un peu ce qui me passe par la tête...\\t", $20, "J'essaye de tester le moteur textuel sans me forcer non plus \\t", $02
+        DB "à utiliser des caractères spéciaux, mais\\t", $20, " en laissant quend même touts\\t", $04, " les accents, les points de ponctuation stpécifiques, les MAJUSCULES "
         DB "et symboles que l'on rencontre normalement dans un texte écrit en français..."
         DB "Est-ce que ça devient trop pour le moteur ? Je ne pense pas. J'ai essayé beaucoup de choses et ça a vraiment l'air d'être robuste. Alors oui forcément ici le text s'écirt en bloc avec des sauts qui ne veulent rien dire !"
         DB "Il manque des estpaces lors de certains sauts de ligne, etc etc. Mais ça c'est surtout parce que je n'ai pas encore implémenté la gestion des caractères spéciqux dans mes routines. Ils sont définis hein, ce n'est pas le problème, "

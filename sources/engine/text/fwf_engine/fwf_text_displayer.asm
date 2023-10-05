@@ -23,10 +23,10 @@ INCLUDE "charmap.inc"
 
 MACRO INCREMENT_ADRESS_AT_HL_BIG_ENDIAN
     inc [hl]
-    jr nz, .end
+    jr nz, .end\@
     inc hl
     inc [hl]
-.end
+.end\@
 ENDM
 
     SECTION "fwf_automaton_code",  ROM0
@@ -71,6 +71,9 @@ fwf_automaton_set_display_height::
 ;- fwf_automaton_set_timer(a = time value)
 ;----------------------------------------
 fwf_automaton_set_timer::
+    ld hl, _current_timer_value
+    ld b, $00
+    ld [hl], b
     ld hl, _displayer_timer
     jr set_value
 ;----------------------------------------
@@ -117,7 +120,7 @@ fwf_automaton_update::
     cp a, END_STATE
     ret z
     cp a, DISP_STATE
-    jr z, display_char
+    jp z, display_char
     cp a, TIMER_STATE
     jr z, update_timer
     cp a, IDLE_STATE
@@ -125,7 +128,7 @@ fwf_automaton_update::
     cp a, FLUSH_STATE
     jr z, do_flush
     cp a, FETCH_STATE
-    jr z, fetch_routine ; TODO
+    jr z, fetch_routine
     ret ; juste in case but shouldn't reach
 
 
@@ -185,8 +188,19 @@ fetch_routine:
     call set_timer_state
     jr fwf_automaton_update
 .control_char_handler
-    ; TODO
-    ret
+    cp a, "\\0" ; end char
+    jr z, control_end_char
+    cp a, "\\b" ; text block char
+    jr z, control_text_block_char
+    cp a, "\\f" ; flush char
+    jr z, control_flush_char
+    cp a, "\\w" ; wait char
+    jr z, control_wait_char
+    cp a, "\\t" ; timer char
+    jr z, control_timer_char
+    cp a, "\n" ; newline char
+    jr z, control_newline_char
+    ret ; juste in case but shouldn't reach
 
 display_char:
     ld hl, _current_read_addr
@@ -213,6 +227,32 @@ display_char:
     jp fwf_automaton_update
 
 ;---------------------------------------------------------
+control_end_char: ; behaviour for control char "\\0"
+    ; TODO
+    ret
+control_text_block_char: ; behaviour for control char "\\b"
+    ; TODO
+    ret
+control_flush_char: ; behaviour for control char "\\f"
+    ; TODO
+    ret
+control_wait_char: ; behaviour for control character char "\\w"
+    ; TODO
+    ret
+control_timer_char: ; behaviour for control character char "\\t"
+    ld hl, _current_read_addr
+    INCREMENT_ADRESS_AT_HL_BIG_ENDIAN
+    ld c, [hl]
+    inc hl
+    ld b, [hl]
+    ld a, [bc]
+    call fwf_automaton_set_timer
+    ld hl, _current_read_addr
+    INCREMENT_ADRESS_AT_HL_BIG_ENDIAN
+    jp fwf_automaton_update
+control_newline_char: ; behaviour for control character char "\n"
+    ; TODO
+    ret
 ;---------------------------------------------------------
 ; Displayer related code    
 update_display_addr_new_char:
@@ -282,3 +322,5 @@ _current_idle_state: DS 1 ; %E000000W E -> entry : is set when entering idle sta
 
     SECTION "fwf_automaton_text_stack", WRAM0
 
+_fwf_text_stack: DS 16
+_fwf_text_stack_top:
