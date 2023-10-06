@@ -21,12 +21,39 @@ DEF END_STATE = %10000000
 INCLUDE "hardware.inc"
 INCLUDE "charmap.inc"
 
-MACRO INCREMENT_ADRESS_AT_HL_BIG_ENDIAN
+MACRO INCREMENT_ADRESS_AT_HL_LITTLE_ENDIAN
     inc [hl]
     jr nz, .end\@
     inc hl
     inc [hl]
 .end\@
+ENDM
+
+MACRO INCREMENT2_ADRESS_AT_HL_LITTLE_ENDIAN
+    inc [hl]
+    jr z, .halfwork\@
+    inc [hl]
+    jr nz, .end\@
+    inc hl
+    inc [hl]
+    jr .end\@
+.halfwork\@
+    inc [hl]
+    inc hl
+    inc [hl]
+.end\@
+ENDM
+
+MACRO DECREMENT2_ADRESS_AT_HL_LITTLE_ENDIAN
+    ld c, [hl]
+    inc hl
+    ld b, [hl]
+    dec hl
+    dec bc
+    dec bc
+    ld [hl], c
+    inc hl
+    ld [hl], b
 ENDM
 
     SECTION "fwf_automaton_code",  ROM0
