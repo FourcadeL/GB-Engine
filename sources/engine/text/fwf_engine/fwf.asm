@@ -15,11 +15,11 @@ NB_UNIQUE_TILES EQU 40 ; number of unique tiles available to the fwf text engine
                         ; can't be more than 127
 
 ;-------------------------------------------------------
-;- GET_NEXT_FREE_TILE_ID() -> b = tile id index to use ; c = tile id to use
+;- GET_NEXT_FREE_TILE_OFFSET() -> b = tile id offset to use ; c = tile id to use
 ;- [hl, a, b, c]
 ;-------------------------------------------------------
-MACRO GET_NEXT_FREE_TILE_ID
-    ld hl, _next_used_tile_id_index
+MACRO GET_NEXT_FREE_TILE_OFFSET
+    ld hl, _next_used_tile_id_offset
     ld a, [hl]
     ld b, a
     inc a
@@ -29,9 +29,10 @@ MACRO GET_NEXT_FREE_TILE_ID
     ld a, $00
 .end_procedure
     ld [hl], a
-    ld h, HIGH(__FWF_tiles_ids_start)
-    ld l, b
-    ld c, [hl]
+    ld a, b
+    ld hl, _first_tile_id
+    add a, [hl]
+    ld c, a
 ENDM
 
 ;---------------------------------------
@@ -64,17 +65,11 @@ ENDM
 fwf_init::
     ; setup tile ids table
     ld a, c
-    ld b, NB_UNIQUE_TILES
-    ld hl, __FWF_tiles_ids_start
-.tile_table_set_loop
-    ld [hli], a
-    inc a
-    dec b
-    jr nz, .tile_table_set_loop
+    ld [_first_tile_id], a
 
     ; setup variables
     ld a, $00
-    ld [_next_used_tile_id_index], a
+    ld [_next_used_tile_id_offset], a
     
     ; setup characters blocks table
     ld d, $00
@@ -95,7 +90,7 @@ fwf_flush::
     inc hl
     dec d
     jr nz, .erase_loop
-    ld hl, _next_used_tile_id_index
+    ld hl, _next_used_tile_id_offset
     ld [hl], $00
     ret
 
@@ -113,9 +108,9 @@ fwf_display_char::
     pop hl
     ld a, [hl]
     and a, %01111111
-    ld h, HIGH(__FWF_tiles_ids_start)
-    ld l, a
-    ld d, [hl]
+    ld hl, _first_tile_id
+    add a, [hl]
+    ld d, a
     pop hl
     ld c, $01
     call vram_set_fast
@@ -129,7 +124,7 @@ fwf_display_char::
 ;-----------------------------------------------
 fwf_init_char:
     push hl
-    GET_NEXT_FREE_TILE_ID
+    GET_NEXT_FREE_TILE_OFFSET
     pop hl
     ld h, HIGH(__FWF_characters_blocks_start)
     ld a, b
@@ -152,10 +147,7 @@ __FWF_characters_blocks_start:
     DS $FF ; 
 __FWF_characters_blocks_end:
 
-    SECTION "fwf_tiles_ids", WRAM0, ALIGN[8]
-__FWF_tiles_ids_start:
-    DS NB_UNIQUE_TILES
-__FWF_tiles_ids_end:
 
     SECTION "fwf_variables", WRAM0
-_next_used_tile_id_index: DS 1
+_next_used_tile_id_offset: DS 1
+_first_tile_id: DS 1
