@@ -108,6 +108,14 @@ fwf_automaton_awake_from_idle::
     set 0, [hl]
     ret
 
+;----------------------------------
+;- fwf_automaton_is_stopped() -> z set : automaton is stopped | nz set : automaton is active
+;----------------------------------
+fwf_automaton_is_stopped::
+    ld hl, _displayer_state
+    ld a, END_STATE
+    cp a, [hl]
+    ret
 fwf_automaton_init::
     call update_display_addr_start_return
     ld a, $00
