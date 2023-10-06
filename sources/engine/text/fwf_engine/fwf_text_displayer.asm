@@ -269,10 +269,19 @@ control_text_block_char: ; behaviour for control char "\\b"
     ; TODO
     ret
 control_flush_char: ; behaviour for control char "\\f"
-    ; TODO
+    call set_flush_state
     ret
 control_wait_char: ; behaviour for control character char "\\w"
-    ; TODO
+    call set_idle_state
+    ret
+control_newline_char: ; behaviour for control character char "\n"
+    call update_display_addr_new_line
+    ld a, [_current_display_row]
+    ld b, a
+    ld a, [_current_display_col]
+    or a, b
+    ret nz
+    call set_flush_state ; last line exeeded
     ret
 control_timer_char: ; behaviour for control character char "\\t"
     ld hl, _current_read_addr
