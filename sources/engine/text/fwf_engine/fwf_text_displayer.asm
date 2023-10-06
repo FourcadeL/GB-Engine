@@ -3,6 +3,9 @@
 ; Text displayer AUTOMATON
 ; #########################
 
+; MAXIMUM RECURSIVE STACK SIZE
+DEF MAXIMUM_RECURSIVE_STACK_SIZE = 4
+
 ; AUTOMATON states :
 ;   DISP : display next char
 ;   FETCH : fetch next text instruction
@@ -143,11 +146,17 @@ fwf_automaton_is_stopped::
     ld a, END_STATE
     cp a, [hl]
     ret
+
 fwf_automaton_init::
     call update_display_addr_start_return
     ld a, $00
     ld [_current_timer_value], a
-    call set_fetch_state
+    ld [_current_stack_size], a
+    ld hl, _current_stack_addr
+    ld [hl], LOW(_fwf_text_stack)
+    inc hl
+    ld [hl], HIGH(_fwf_text_stack)
+    call set_flush_state
     ret
 
 fwf_automaton_update::
@@ -223,10 +232,12 @@ fetch_routine:
     call set_timer_state
     jr fwf_automaton_update
 .control_char_handler
+    ld hl, _current_read_addr
+    INCREMENT_ADRESS_AT_HL_LITTLE_ENDIAN
     cp a, "\\0" ; end char
     jr z, control_end_char
     cp a, "\\b" ; text block char
-    jr z, control_text_block_char
+    jp z, control_text_block_char
     cp a, "\\f" ; flush char
     jr z, control_flush_char
     cp a, "\\w" ; wait char
@@ -250,7 +261,7 @@ display_char:
     ld l, a
     call fwf_display_char
     ld hl, _current_read_addr
-    INCREMENT_ADRESS_AT_HL_BIG_ENDIAN
+    INCREMENT_ADRESS_AT_HL_LITTLE_ENDIAN
     call update_display_addr_new_char
     call set_fetch_state
     ld a, [_current_display_row]
@@ -300,18 +311,50 @@ control_newline_char: ; behaviour for control character char "\n"
     ret
 control_timer_char: ; behaviour for control character char "\\t"
     ld hl, _current_read_addr
-    INCREMENT_ADRESS_AT_HL_BIG_ENDIAN
     ld c, [hl]
     inc hl
     ld b, [hl]
     ld a, [bc]
     call fwf_automaton_set_timer
     ld hl, _current_read_addr
-    INCREMENT_ADRESS_AT_HL_BIG_ENDIAN
+    INCREMENT_ADRESS_AT_HL_LITTLE_ENDIAN
     jp fwf_automaton_update
-control_newline_char: ; behaviour for control character char "\n"
-    ; TODO
-    ret
+control_text_block_char: ; behaviour for control char "\\b"
+    ld hl, _current_stack_size
+    ld a, MAXIMUM_RECURSIVE_STACK_SIZE
+    cp a, [hl]
+    ret z ; max stack size exceeded
+    inc [hl]
+    ld hl, _current_read_addr
+    ld c, [hl]
+    inc hl
+    ld b, [hl]
+    ld h, b
+    ld l, c
+    ld e, [hl]
+    inc hl
+    ld d, [hl] ; de <- read addr of next block
+    inc hl ; hl <- read addr to push onto the stack
+    push hl
+    call fwf_automaton_set_read_addr
+    ld hl, _current_stack_addr
+    ld c, [hl]
+    inc hl
+    ld b, [hl]
+    ld h, b
+    ld l, c
+    pop de
+    ld [hl], e
+    inc hl
+    ld [hl], d
+    inc hl
+    ld b, h
+    ld c, l
+    ld hl, _current_stack_addr
+    ld [hl], c
+    inc hl
+    ld [hl], b
+    jp fwf_automaton_update
 ;---------------------------------------------------------
 ; Displayer related code    
 update_display_addr_new_char:
@@ -322,7 +365,7 @@ update_display_addr_new_char:
     jr z, update_display_addr_new_line
     ld [_current_display_col], a
     ld hl, _current_display_addr
-    INCREMENT_ADRESS_AT_HL_BIG_ENDIAN
+    INCREMENT_ADRESS_AT_HL_LITTLE_ENDIAN
     ret
 update_display_addr_new_line:
     ld a, [_current_display_col]
@@ -367,7 +410,7 @@ update_display_addr_start_return:
     SECTION "fwf_automaton_variables", WRAM0
 
 _displayer_state: DS 1
-_displayer_start_display_addr: DS 2 ; big endian
+_displayer_start_display_addr: DS 2 ; little endian
 _displayer_timer: DS 1 ; delay beetween char timer
 _current_timer_value: DS 1
 _current_display_addr: DS 2 ; big endian
@@ -376,10 +419,13 @@ _current_display_col: DS 1
 _displayer_nb_rows: DS 1
 _current_display_row: DS 1
 _blank_tile_id: DS 1 ; blank tile to use when flushing
-_current_read_addr: DS 2 ; big endian
+_current_read_addr: DS 2 ; little endian
 _current_idle_state: DS 1 ; %E000000W E -> entry : is set when entering idle state | W -> wake : when set, exit idle state
+_current_stack_size: DS 1 ; current size of the stack
+_current_stack_addr: DS 2; little endian
+
 
     SECTION "fwf_automaton_text_stack", WRAM0
 
-_fwf_text_stack: DS 16
+_fwf_text_stack: DS MAXIMUM_RECURSIVE_STACK_SIZE*2
 _fwf_text_stack_top:
