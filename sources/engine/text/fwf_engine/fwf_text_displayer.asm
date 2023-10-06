@@ -263,11 +263,26 @@ display_char:
 
 ;---------------------------------------------------------
 control_end_char: ; behaviour for control char "\\0"
-    ; TODO
-    ret
-control_text_block_char: ; behaviour for control char "\\b"
-    ; TODO
-    ret
+    call set_end_state
+    ld hl, _current_stack_size
+    ld a, [hl]
+    cp a, $00
+    ret z ; nothing left to display
+    dec [hl] ; pop addr for text stack
+    ld hl, _current_stack_addr
+    DECREMENT2_ADRESS_AT_HL_LITTLE_ENDIAN
+    ld hl, _current_stack_addr
+    ld c, [hl]
+    inc hl
+    ld b, [hl]
+    ld h, b
+    ld l, c
+    ld e, [hl]
+    inc hl
+    ld d, [hl]
+    call fwf_automaton_set_read_addr ; read_addr <- de
+    call set_fetch_state
+    jp fwf_automaton_update
 control_flush_char: ; behaviour for control char "\\f"
     call set_flush_state
     ret
