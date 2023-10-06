@@ -174,65 +174,37 @@ wait_vbl::
 StartPoint:
 
 
-    di              ;pas d'interrupts pendant l'initialisation
+    di ; no interupts during startup
 
-	;---------------
-	;réaliser ici toutes les initialisations (random seed, DMA routine copy, ...)
-	;---------------
-    ;on éteint l'écran
-    call    screen_off
+    call screen_off ; screen of before VRAM or memory manipulation
 
-
-
-    ; mise à zero de la ram et calcul d'une seed pour initialiser le random
-    ld      e, $00
-    ld      d, $00
-    ld      hl, _RAM
-    ld      bc, $2000
-.clear_and_seed_loop:
-    ld      a, e
-    add     a, [hl]
-    ld      e, a
-    ld      [hl], $00
-    inc     hl
-    dec     bc
-    ld      a, c
-    or      b
-    jr      nz, .clear_and_seed_loop
-    ; e contient maintenant une random seed
-
+    ; RAM cleanup
+    ld d, $00
+    ld hl, _RAM
+    ld bc, $2000
+    call memset
     
+    ; random seed init (seed is A = $55 ; B = $F3 ; C = $1A)
+    ld hl, RandomA
+    ld [hl], $55
+    ld hl, RandomB
+    ld [hl], $F3
+    ld hl, RandomC
+    ld [hl], $1A
 
-    ; sauvegarde des valeurs de la seed e
-    ld      a, e
-    ld      [RandomA], a
-    swap    a
-    ld      [RandomB], a
-    inc     a
-    rr      a
-    rr      a
-    ld      [RandomC], a
+    ; VRAM cleanup
+    ld d, $00
+    ld hl, _VRAM
+    ld bc, $2000
+    call memset
 
+    ; copy DMA routine into HRAM
+    call init_DMA
 
+	; main call
+	call Main
 
-    ; mise à zero de la vram
-    ld      d, $00
-    ld      hl, _VRAM
-    ld      bc, $2000
-    call    memset
-
-
-
-    ; copie en HRAM de la routine DMA
-    call    init_DMA
-
-
-
-	; appel à main
-	call 	Main
-
-	; au cas où on ressort de l'appel à main
-	jp		Reset
+	jp Reset ; just in case but shouldn't reach
 
 
 
