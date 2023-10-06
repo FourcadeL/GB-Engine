@@ -30,8 +30,16 @@ room_main::
     cp a, PAD_A
     call z, fwf_automaton_awake_from_idle
     call wait_vbl
+    call fwf_automaton_is_stopped
+    jr z, .load_next_text
 	jr .loop
-
+.load_next_text
+    ld e, 20
+    call wait_frames
+    ld de, _text2
+    call fwf_automaton_set_read_addr
+    call fwf_automaton_init
+    jr .loop
 
 room_init:
     ld c, $01
@@ -40,7 +48,7 @@ room_init:
     call fwf_automaton_set_display_width
     ld a, 9
     call fwf_automaton_set_display_height
-    ld a, 8
+    ld a, $20
     call fwf_automaton_set_timer
     ld a, $00
     call fwf_automaton_set_blank_tile_id
@@ -54,19 +62,47 @@ room_init:
 
 
     SECTION "Test_data", ROM0
+
+    _small_text:
+        DB "HIHI !\n\\b"
+        DW _small_text2
+        DB "\\0"
+    
+    _small_text2:
+        DB "HOHO !\\b"
+        DW _small_text3
+        DB "\\0"
+
+    _small_text3:
+        DB "HEHE !\n\\b"
+        DW _small_text33
+        DB "\\0"
+
+    _small_text33:
+        DB "fin ?\n\\b"
+        DW _small_text4
+        DB "\\0"
+
+    _small_text4:
+        DB "fin\\0"
     
     _text:
-        DB "J'écris un peu ce qui me passe par la tête...\\t", $20, "J'essaye de tester le moteur textuel sans me forcer non plus \\t", $02
-        DB "à utiliser des caractères spéciaux, mais\\t", $20, " en laissant quend même touts\\t", $04, " les accents, les points de ponctuation stpécifiques, les MAJUSCULES "
-        DB "et symboles que l'on rencontre normalement dans un texte écrit en français..."
-        DB "Est-ce que ça devient trop pour le moteur ? Je ne pense pas. J'ai essayé beaucoup de choses et ça a vraiment l'air d'être robuste. Alors oui forcément ici le text s'écirt en bloc avec des sauts qui ne veulent rien dire !"
+        DB "ABCDEFGAAAAAAA"
+        DB "\\t", $20, "Essai : \\b"
+        DW _small_text
+        DB " et un petit\\t", 4, "plus\\0"
+        DB "Attention !!!\nJe vais flush !\n(en tout cas juste après avoir fini de parler pour ne rien dire)\\w\\f"
+        DB "J'écris un peu\n\\wce qui\nme passe par\nla tête...\n\\t", $20, "J'essaye de\ntester le\nmoteur textuel\nsans me forcer\nnon plus \\w\\t", $02
+        DB "à utiliser\ndes caractères\nspéciaux, mais\n\\t", $16, "en laissant\nquand même tous\\t", $04, "\nles accents,\nles points de\nponctuation\nspécifiques,\nles MAJUSCULES...\\f"
+        DB "et symboles que\\fl'on rencontre normalement\\fdans un texte écrit en français...\\f"
+        DB "Est-ce que ça\ndevient trop pour le moteur ? Je ne pense pas.\nJ'ai essayé beaucoup de choses\net ça a vraiment l'air d'être robuste.\nAlors oui forcément\\fici le text s'éctit en bloc\navec des sauts qui ne\nveulent rien dire !\\f"
         DB "Il manque des estpaces lors de certains sauts de ligne, etc etc. Mais ça c'est surtout parce que je n'ai pas encore implémenté la gestion des caractères spéciqux dans mes routines. Ils sont définis hein, ce n'est pas le problème, "
         DB "mais travailler sur le code pour les gérer est TEEEEEEEEEEEELement difficile."
         DB "Si je continue de garder ma motivation, d'ici quelques jours tout devrais fonctionner sans problèmes et on verra alors des beaux blocs de text bien formatés, avec des controles d'attentes, des variation de vitesse d'affichage et plus encore :) !"
 
     _text2:
         DB "OK! Maintenant il est temps de s'ôter de tous les doutes sur les capacités de ce à quoi pourrait servir le moteur textuel. Ne pas hésiter sur les accents (voilà comme ça), les caractères spéciaux #ilespaspret, les signes en plus @$+ etc..."
-        DB "En plus de ça j'ajoute des MAJUSCULE pour GONFLER les TILES UTILISÉES : ça va faire mal ! Alors, on en est où maintenant de compteur ? ça a déjà beugé où bien ça marche de OUF ?"
+        DB "En plus de ça j'ajoute des MAJUSCULE pour GONFLER les TILES UTILISÉES : ça va faire mal ! Alors, on en est où maintenant de compteur ? ça a déjà beugé où bien ça marche de OUF ?\\0"
     
     _test_text:
         DB "Bonjour ceci est un test j'ajoute des tiles en plus MAJUSCULE"
