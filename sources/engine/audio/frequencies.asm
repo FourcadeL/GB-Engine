@@ -102,7 +102,9 @@
 ;------------------------------------------------------------------------------------------
 ;- Audio_get_note_frequency12(a = note index) -> bc = gb frequency of note (11 bits)      
 ;- return the gb frequency to use for specified note
-;- (channel 1 and 2 only)
+;- (channel 1 and 2)
+;- for channel 3 : everything is shifted one octave down :
+; C3 is C2, F4 is F3 ets ...
 ;------------------------------------------------------------------------------------------
 Audio_get_note_frequency12::
     ;---high part---
