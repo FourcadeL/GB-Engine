@@ -8,6 +8,7 @@ INCLUDE "hardware.inc"
 INCLUDE "engine.inc"
 INCLUDE "debug.inc"
 INCLUDE "charmap.inc"
+INCLUDE "utils.inc"
 
 
 
