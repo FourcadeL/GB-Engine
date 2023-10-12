@@ -7,6 +7,7 @@
 	INCLUDE "hardware.inc"
 	INCLUDE "engine.inc"
 	INCLUDE "debug.inc"
+	INCLUDE "utils.inc"
 
 
 
@@ -80,25 +81,12 @@ Audio_off::
 
 Audio_init::
 
-	SET_BREAK
-
 	ld		a, $FF
-	ld		[rNR52], a 	;activation des circuits audio (doit être fait en premier)
+	ld		[rNR52], a
+
+	MEMBSET [rNR50], $77 ; max volume and no external input
+	MEMBSET [rNR51], $FF ; all channels on all terminals
 	
-
-	;--------set registers to 0 to avoid residual sound--------
-	ld 		a, $00
-	ld 		[rNR13], a
-	ld 		[rNR14], a
-	ld 		[rNR23], a
-	ld 		[rNR24], a
-
-
-	ld		[rNR51], a	; toutes les chaines sur toutes les sorties
-	ld		a, %01110111
-	ld		[rNR50], a	; pas d'entrées externes et volumes au max
-
-
 	;------engine variables initialisation-----
 
 	ld		a, $00
@@ -109,32 +97,6 @@ Audio_init::
 	ld		[_CH2_track + wait_timer], a
 	ld		[_CH3_track + wait_timer], a
 	ld		[_CH4_track + wait_timer], a
-
-
-
-	;wave pattern
-	ld		hl, __Wave_Pattern_Triangle_start
-	call	Audio_set_wave_pattern
-
-	ld		a, %00100000
-	ld		[rNR32], a ; wave output level
-
-	ld		a, %10000000
-	;ld		[rNR30], a ; wave chanel on
-	ld		[rNR34], a ; initial start
-
-
-	;tst
-	ld		a, %10100111
-	ld		[rNR11], a
-	ld		[rNR21], a
-	ld		a, %11110100
-	ld		[rNR12], a
-	ld		[rNR22], a
-	ld		a, %10000000
-	ld		[rNR14], a ; initial start
-	ld		[rNR24], a	;initial start
-
 	
 
 	ret
@@ -277,7 +239,7 @@ Audio_hardware_update::
 	ld		hl, curr_note
 	add		hl, de
 	ld		a, [hl]
-	call	Audio_get_freq
+	call	Audio_get_note_frequency12
 	ld		a, [rNR14]
 	and		a, %01000000
 	or		a, %10000000
@@ -301,7 +263,7 @@ Audio_hardware_update::
 	ld		hl, curr_note
 	add		hl, de
 	ld		a, [hl]
-	call	Audio_get_freq
+	call	Audio_get_note_frequency12
 	ld		a, [rNR24]
 	and		a, %01000000
 	or		a, %10000000
@@ -325,7 +287,7 @@ Audio_hardware_update::
 	ld		hl, curr_note
 	add		hl, de
 	ld		a, [hl]
-	call	Audio_get_freq
+	call	Audio_get_note_frequency12
 	ld		a, [rNR34]
 	and		a, %01000000
 	or		a, %10000000
@@ -502,72 +464,26 @@ Audio_tracker_step::
 
 	ret
 
-;------------------------------------------------------------------------------------------
-;- Audio_get_freq(a = index de la note) -> bc = fréquence de la note (11 bits)      
-;-			  retourne la fréquence à jouer pour la note demandée (11 bits)
-;-   												   -
-;------------------------------------------------------------------------------------------
-
-Audio_get_freq::
-	;---high part--- (meilleur méthode que j'ai trouvée pour le moment)
-	ld		b, %00000111
-	cp		a, %00100100 ;111
-	jr		nc, .correct_high_part
-	dec		b
-	cp		a, %00011000 ; 110
-	jr		nc, .correct_high_part
-	dec		b
-	cp		a, %00010001 ; 101
-	jr		nc, .correct_high_part
-	dec		b
-	cp		a, %00001100 ; 100
-	jr		nc, .correct_high_part
-	dec 	b
-	cp 		a, %00001000 ; 011
-	jr		nc, .correct_high_part
-	dec		b
-	cp		a, %00000101 ; 010
-	jr		nc, .correct_high_part
-	dec		b
-	cp		a, %00000010 ; 001
-	jr		nc, .correct_high_part
-	dec  	b
-.correct_high_part		;b output is ok
-	;low part utilisation du fait que la table est alignée à $XX00 pour ne pas réaliser d'addition
-	ld		h, HIGH(__Audio_Table_start)
-	ld		l, a
-	ld		c, [hl]
-	ret
-
-
 
 
 ;------------------------------------------------------------------------------------------
-;- Audio_set_wave_pattern(hl = addresse du pattern a copier)    
-;-			  la taille du pattern attendue est 16 octets
-;-				(si celle ci est inférieure, le pattern est répété lors de la copie) /!\ pas implémenté
-;-   /!\  Cette fonction désactive la chaine 3 pendant l'accès    -
+;- Audio_set_CH3_wave_pattern(hl = pattern addr)
+; expected pattern size is 16 bytes
+;- CH3 is disabled during pattern copy to avoid audio pop
+;- sound output levels are reset after function call
 ;------------------------------------------------------------------------------------------
-
-
 Audio_set_wave_pattern::
-	;sauvegarde du registre d'état dans b
-	ld 		a, [rNR30]
-	ld 		b, a
-	and		a, %01111111
-	ld		[rNR30], a
-	;copie du patern vers _AUD3WAVERAM
+	; reset output level to prevent audio pop
+	MEMBSET [rNR32], $00
+	MEMBSET [rNR34], $80
+	; disable DAC
+	MEMBSET [rNR30], $00
+	;pattern copy
 	ld		de, _AUD3WAVERAM
-	ld		c, $10  ;16 octets à copier
-.loop_wave_copy
-	ldi		a, [hl]
-	ld		[de], a
-	inc 	de
-	dec		c
-	jr		nz, .loop_wave_copy
-	;remise en place du registre d'état
-	ld		a, b
-	ld		[rNR30], a
+	ld		b, $10
+	call memcopy_fast
+	; enable DAC
+	MEMBSET [rNR30], $80
 	ret
 
 
@@ -615,44 +531,4 @@ _CH4_track:			DS SIZEOF_trackstruct
 
 
 
-;+-----------------------------------------------------------------------------+
-;| +-------------------------------------------------------------------------+ |
-;| |                          WAVE PATTERNS                                  | |
-;| +-------------------------------------------------------------------------+ |
-;+-----------------------------------------------------------------------------+
-
-
-	SECTION "Audio_wave_patterns", ROM0
-
-
-__Wave_Pattern_Triangle_start:
-INCBIN "triangle.bin"
-__Wave_Pattern_Triangle_end:
-
-__Wave_Pattern_Sawtooth_start:
-INCBIN "sawtooth.bin"
-__Wave_Pattern_Sawtooth_end:
-
-
-
-
-
-;+-----------------------------------------------------------------------------+
-;| +-------------------------------------------------------------------------+ |
-;| |                          AUDIO TABLE                                    | |
-;| +-------------------------------------------------------------------------+ |
-;+-----------------------------------------------------------------------------+
-
-;cette section stocke les 8 bits de poids faible de la note indexée à jouer (voir audio.txt)
-;les trois bits de poinds forts devront être déterminés par une autre méthode plus simple
-;(pour économiser la mémoire)
-
-;la section est alignée afin que la première adresse soit de type $X0
-; aini lors du calcul de l'offset une seule addition est nécessaire
-
-	SECTION "Audio_Table", ROM0, ALIGN[8]
-
-__Audio_Table_start:
-INCBIN "audio_table.bin"
-__Audio_Table_end:
 
