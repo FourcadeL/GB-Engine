@@ -413,7 +413,7 @@ _displayer_state: DS 1
 _displayer_start_display_addr: DS 2 ; little endian
 _displayer_timer: DS 1 ; delay beetween char timer
 _current_timer_value: DS 1
-_current_display_addr: DS 2 ; big endian
+_current_display_addr: DS 2 ; little endian
 _displayer_line_width: DS 1
 _current_display_col: DS 1
 _displayer_nb_rows: DS 1

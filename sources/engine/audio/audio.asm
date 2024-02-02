@@ -66,13 +66,6 @@ Audio_off::
 
 
 
-
-
-
-
-
-
-
 ;--------------------------------------------------------------------------
 ;- Audio_init()       
 ;-			Initialisation basique des registres audio (peut être modifié)
@@ -80,10 +73,7 @@ Audio_off::
 ;--------------------------------------------------------------------------
 
 Audio_init::
-
-	ld		a, $FF
-	ld		[rNR52], a
-
+	MEMBSET [rNR52], $FF ; enable all channels
 	MEMBSET [rNR50], $77 ; max volume and no external input
 	MEMBSET [rNR51], $FF ; all channels on all terminals
 	
@@ -100,10 +90,6 @@ Audio_init::
 	
 
 	ret
-
-
-
-
 
 
 
