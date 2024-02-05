@@ -9,7 +9,7 @@
 ; UNDER THE SAME STRUCTURE IS DONE FOR EVERY INSTANCES
 
 ; MAXIMUM RECURCIVE STACK SIZE
-DEF MAXIMUM_RECURSIVE_STACK_SIZE = 4
+DEF MAXIMUM_RECURSIVE_STACK_SIZE = 3
 
 ; TRACKER STATES :
 ;   PLAY : Active State
@@ -41,8 +41,9 @@ delay_value             RB 1 ; current value of the default delay
 delay_counter           RB 1 ; current delay counter
 repeat_counter          RB 1 ; current value of the default repeat
 return_tracker_value    RB 1 ; current value of the return tracker (tracker to return to on instruction)
-stack_size              RB 1 ; size of the current recursive stack
-tracker_stack           RB 2*MAXIMUM_RECURSIVE_STACK_SIZE ; recursive stack of the tracker
+stack_save              RB 2 ; SP of the current recursive stack (little endian)
+tracker_stack           RB 4*MAXIMUM_RECURSIVE_STACK_SIZE ; recursive stack of the tracker
+tracker_stack_base      RB 0
 SIZEOF_tracker_struct	RB 0
 ;-----------
 
@@ -85,6 +86,9 @@ set_delay_state:
     jr set_state
 set_new_note_state:
     ld a, NEW_NOTE_STATE
+    jr set_state
+set_end_state:
+    ld a, END_STATE
     jr set_state
 set_fetch_state:
     ld a, FETCH_STATE
@@ -160,6 +164,8 @@ fetch_routine:
     jr nz, _set_delay_counter_instruction
     bit 5, a
     jr nz, _set_repeat_counter_instruction
+    bit 3, a
+    jr nz, _block_control_instruction
     bit 2, a
     jr nz, _return_instruction
     jr fetch_routine ; if reached -> unknown instruction, fetch next one
@@ -237,5 +243,147 @@ _return_instruction:
     ld [hl], d ; set tracker value to computed position
     jr fetch_routine
 
+
+;------------------------
+; _block_control_instruction(a = instruction read)
+; do control of tracker block instruction
+; block control instruction : %00001?bb (+ $XX)
+;   bb : 
+;       00 -> block end (returned to pushed block), if empty stack : END_STATE
+;       01 -> reset block stack
+;       10 -> jump to tracker block $XX
+;       11 -> call to tracker block $XX
+; -----------------------
+_block_control_instruction:
+    bit 1, a
+    jr nz, _new_block_instruction
+    bit 0, a
+    jr nz, .reset_block_stack ; 00 -> block end
+    GET_CURRENT_TRACKER_ELEM_ADDR stack_save
+    ld a, [hl+]
+    ld d, [hl]
+    ld e, a ; de <- stack pointer save
+    GET_CURRENT_TRACKER_ELEM_ADDR tracker_stack_base
+    ld a, l
+    cp a, e
+    jr nz, .pop_and_swap ; empty stack just stop tracker and return
+        call set_end_state
+        ret
+.pop_and_swap
+    di ; critical zone, loose handle of execution stack to handle tracker stack
+        ld [_execution_stack_pointer_save], sp ; saved execution stack pointer
+        ld l, [de] ; de is stack_save addr
+        inc de
+        ld h, [de]
+        ld sp, hl ; sp <- tracker recursive stack
+
+        pop de ; pop repeat_counter and return tracker value
+        GET_CURRENT_TRACKER_ELEM_ADDR block_Haddr
+        pop bc ; pop block_Haddr and tracker value
+        ld a, b
+        ld [hl+], a
+        ld [hl], c
+        GET_CURRENT_TRACKER_ELEM_ADDR repeat_counter
+        ld a, d
+        ld [hl+], a
+        ld [hl], e
+        inc hl ; hl is the stack save addr
+
+        ld de, hl
+        ld hl, sp
+        ld a, l
+        ld [de], a
+        inc de
+        ld a, h
+        ld [de], a ; saved stack pointer
+
+        ld de, _execution_stack_pointer_save
+        ld l, [de]
+        inc de
+        ld h, [de]
+        ld sp, hl ; restored execution stack pointer
+    ei
+    jr fetch_routine
+.reset_block_stack
+    GET_CURRENT_TRACKER_ELEM_ADDR tracker_stack_base
+    ld a, [hl+]
+    ld d, [hl]
+    ld e, a
+    GET_CURRENT_TRACKER_ELEM_ADDR stack_save
+    ld a, e
+    ld [hl+], a
+    ld [hl], d
+    jr fetch_routine
+
+;------------------------
+; _block_control_instruction(a = instruction read)
+; do control of tracker block instruction
+; block control instruction : %00001?1b + $XX
+;   bb :
+;       10 -> jump to tracker block $XX
+;       11 -> call to tracker block $XX
+; -----------------------
+_new_block_instruction:
+    bit 0, a
+    jr z, .new_block_read_and_context_change
+    GET_CURRENT_TRACKER_ELEM_ADDR stack_save
+    ld a, [hl+]
+    ld d, [hl]
+    ld e, a ; de <- stack pointer save
+    di ; critical zone, loose handle of execution stack to handle tracker stack
+        ld [_execution_stack_pointer_save], sp ; saved execution stack pointer
+        ld l, [de] ; de is stack_save addr
+        inc de
+        ld h, [de]
+        ld sp, hl ; sp <- tracker recursive stack
+
+        GET_CURRENT_TRACKER_ELEM_ADDR block_Haddr
+        ld a, [hl+]
+        ld c, [hl]
+        inc c
+        ld b, a
+        push bc ; pushed block H addr and tracker
+
+        GET_CURRENT_TRACKER_ELEM_ADDR repeat_counter
+        ld a, [hl+]
+        ld c, [hl]
+        ld b, a
+        push bc ; pushed repeat counter and return tracker value
+
+        inc hl ; hl is the stack save addr
+        ld de, hl
+        ld hl, sp
+        ld a, l
+        ld [de], a
+        inc de
+        ld a, h
+        ld [de], a ; saved stack pointer
+
+        ld de, _execution_stack_pointer_save
+        ld l, [de]
+        inc de
+        ld h, [de]
+        ld sp, hl ; restored execution stack pointer
+    ei
+.new_block_read_and_context_change
+    GET_CURRENT_TRACKER_ELEM_ADDR block_Haddr
+    push hl
+    ld a, [hl+]
+    ld l, [hl]
+    ld h, a
+    ld a, [hl] ; a <- next block H addr
+    pop hl
+    ld [hl+], a ; set new block addr
+    ld a, $00
+    ld [hl], a ; set new tracker to 0
+    GET_CURRENT_TRACKER_ELEM_ADDR repeat_counter
+    ld a, $00
+    ld [hl+], a ; reset repeat_counter
+    ld [hl], a ; reset return tracker value
+    jr fetch_routine
+
+
+
     SECTION "audio_tracker_variables", WRAM0
 _current_tracker_struct_addr: DS 2 ; addr of currently working tracker (little endian)
+_execution_stack_pointer_save: DS 2 ; memory location of saved value for stack pointer
