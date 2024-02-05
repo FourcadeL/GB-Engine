@@ -39,6 +39,8 @@ tracker_state           RB 1 ; current state of the tracker
 current_note            RB 1 ; currently playing note
 delay_value             RB 1 ; current value of the default delay
 delay_counter           RB 1 ; current delay counter
+repeat_counter          RB 1 ; current value of the default repeat
+return_tracker_value    RB 1 ; current value of the return tracker (tracker to return to on instruction)
 stack_size              RB 1 ; size of the current recursive stack
 tracker_stack           RB 2*MAXIMUM_RECURSIVE_STACK_SIZE ; recursive stack of the tracker
 SIZEOF_tracker_struct	RB 0
@@ -156,6 +158,11 @@ fetch_routine:
     jr z, _note_instruction_read ;v-- else : control instruction 
     bit 6, a
     jr nz, _set_delay_counter_instruction
+    bit 5, a
+    jr nz, _set_repeat_counter_instruction
+    bit 2, a
+    jr nz, _return_instruction
+    jr fetch_routine ; if reached -> unknown instruction, fetch next one
 
 ; -------------------------
 ; _note_instruction_read(a = instruction read)
@@ -181,6 +188,53 @@ _set_delay_counter_instruction:
     ld c, a
     GET_CURRENT_TRACKER_ELEM_ADDR delay_value
     ld [hl], c
+    jr fetch_routine
+
+; ----------------------
+; _set_repeat_counter_instruction(a = instruction read)
+;   set repeat counter to a | %000xxxxx
+;   keep tracker in fetch state
+;   fetch next instruction
+; ----------------------
+_set_repeat_counter_instruction:
+    and a, %00011111
+    ld c, a
+    GET_CURRENT_TRACKER_ELEM_ADDR repeat_counter
+    ld [hl], c
+    jr fetch_routine
+
+
+; ------------------------
+; _return_instruction(a = instruction read)
+;   return instruction : %000001bb
+;   do return instruction
+;   bb :
+;       -> 00 : global return, tracker <-0
+;       -> 01 : conditionnal global, if repeat_counter <= 0, tracker <- 0 (decrease repeat counter)
+;       -> 10 : partial return, tracker <- return_tracker_value
+;       -> 11 : conditionnal partial, if repeat_counter <= 0, tracker <- return_tracker_value (decrease repeat counter)
+; keep tracker in fetch state
+; fetch next instruction
+; ------------------------
+_return_instruction:
+    and a, %00000011
+    ld c, a
+    bit 0, a
+    jr z, .absolute ; absolute return, do not test repeat
+    GET_CURRENT_TRACKER_ELEM_ADDR repeat_counter
+    ld a, [hl]
+    dec [hl]
+    cp a, $00
+    jr z, fetch_routine ; don't repeat, pass to next fecth
+.absolute
+    ld d, $00 ; default tracker new value
+    bit 1, c
+    jr z, .global_return ; reset tracker to 0
+    GET_CURRENT_TRACKER_ELEM_ADDR return_tracker_value
+    ld d, [hl]
+.global_return
+    GET_CURRENT_TRACKER_ELEM_ADDR tracker_value
+    ld [hl], d ; set tracker value to computed position
     jr fetch_routine
 
     SECTION "audio_tracker_variables", WRAM0

@@ -24,6 +24,7 @@ DEF END_STATE = %10000000
 INCLUDE "hardware.inc"
 INCLUDE "charmap.inc"
 
+; [hl, f]
 MACRO INCREMENT_ADRESS_AT_HL_LITTLE_ENDIAN
     inc [hl]
     jr nz, .end\@
@@ -32,6 +33,7 @@ MACRO INCREMENT_ADRESS_AT_HL_LITTLE_ENDIAN
 .end\@
 ENDM
 
+; [hl, f]
 MACRO INCREMENT2_ADRESS_AT_HL_LITTLE_ENDIAN
     inc [hl]
     jr z, .halfwork\@
@@ -47,6 +49,7 @@ MACRO INCREMENT2_ADRESS_AT_HL_LITTLE_ENDIAN
 .end\@
 ENDM
 
+; [hl, bc]
 MACRO DECREMENT2_ADRESS_AT_HL_LITTLE_ENDIAN
     ld c, [hl]
     inc hl

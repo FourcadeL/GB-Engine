@@ -8,6 +8,7 @@ UTILS_INC = 1
 ;--------------------------------
 ;MEMBSET
 ;set byte of memory \1 to \2 using register a
+; [a]
 ;--------------------------------
 MACRO MEMBSET
     ld a, \2
