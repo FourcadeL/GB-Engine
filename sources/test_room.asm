@@ -89,11 +89,16 @@ room_init:
     ret
 
 
+    SECTION "TEST_TRACKER_VARIABLES", WRAM0
+
+_t_struct_inst:     DS SIZEOF_tracker_struct
+
 
     SECTION "Test_data", ROM0
     
     _text:
-        DB " \n \n   TEST AUDIO\n \n Test du moteur audio :\n \n \n Push B pour tester de jouer une note\n \n Push A pour une note WAVE\\0"
+        DB " \n \n   TEST AUDIO\n \n Test du moteur audio :\n \n \n Push B pour tester de jouer une note\n \n Push A pour une note WAVE\n \n",
+        DB "Push Start pour step le tracker (DEBUG)\\0"
 
     _aud:
         DB 04, 04, 04, 06, 8, 6, 4, 8, 6, 6, 4

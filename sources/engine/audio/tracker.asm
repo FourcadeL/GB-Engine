@@ -23,6 +23,7 @@ DEF END_STATE = %10000100
 
 
 INCLUDE "hardware.inc"
+INCLUDE "debug.inc"
 
 
 ;+-----------------------------------------------------------------------------+
@@ -113,7 +114,8 @@ tracker_init::
     ld d, $00
     call memset_fast
     GET_CURRENT_TRACKER_ELEM_ADDR tracker_stack_base
-    ld de, hl
+    ld d, h
+    ld e, l
     GET_CURRENT_TRACKER_ELEM_ADDR stack_save
     ld a, e
     ld [hl+], a
@@ -140,7 +142,7 @@ tracker_update:
     cp a, DELAY_STATE
     jr z, update_delay
     cp a, PLAY_STATE
-    jr z; UNUSED STATE ?
+    ; jr z; UNUSED STATE ?
     cp a, FETCH_STATE
     jr z, fetch_routine
     ret ; just in case but shouldn't reach
@@ -257,7 +259,7 @@ _return_instruction:
     ld a, [hl]
     dec [hl]
     cp a, $00
-    jr z, fetch_routine ; don't repeat, pass to next fecth
+    jp z, fetch_routine ; don't repeat, pass to next fecth
 .absolute
     ld d, $00 ; default tracker new value
     bit 1, c
@@ -267,7 +269,7 @@ _return_instruction:
 .global_return
     GET_CURRENT_TRACKER_ELEM_ADDR tracker_value
     ld [hl], d ; set tracker value to computed position
-    jr fetch_routine
+    jp fetch_routine
 
 ; ------------------------
 ; _return_tracker_set
@@ -281,7 +283,7 @@ _return_tracker_set:
     inc c
     GET_CURRENT_TRACKER_ELEM_ADDR return_tracker_value
     ld [hl], c
-    jr fetch_routine
+    jp fetch_routine
 
 
 ;------------------------
@@ -312,9 +314,11 @@ _block_control_instruction:
 .pop_and_swap
     di ; critical zone, loose handle of execution stack to handle tracker stack
         ld [_execution_stack_pointer_save], sp ; saved execution stack pointer
-        ld l, [de] ; de is stack_save addr
+        ld a, [de] ; de is stack_save addr
+        ld l, a
         inc de
-        ld h, [de]
+        ld a, [de]
+        ld h, a
         ld sp, hl ; sp <- tracker recursive stack
 
         pop de ; pop repeat_counter and return tracker value
@@ -327,10 +331,12 @@ _block_control_instruction:
         ld a, d
         ld [hl+], a
         ld [hl], e
-        inc hl ; hl is the stack save addr
 
-        ld de, hl
-        ld hl, sp
+        ld d, h
+        ld e, l
+        inc de ; de is the stack save addr
+
+        ld hl, sp + 0
         ld a, l
         ld [de], a
         inc de
@@ -338,12 +344,14 @@ _block_control_instruction:
         ld [de], a ; saved stack pointer
 
         ld de, _execution_stack_pointer_save
-        ld l, [de]
+        ld a, [de]
+        ld l, a
         inc de
-        ld h, [de]
+        ld a, [de]
+        ld h, a
         ld sp, hl ; restored execution stack pointer
     ei
-    jr fetch_routine
+    jp fetch_routine
 .reset_block_stack
     GET_CURRENT_TRACKER_ELEM_ADDR tracker_stack_base
     ld a, [hl+]
@@ -353,7 +361,7 @@ _block_control_instruction:
     ld a, e
     ld [hl+], a
     ld [hl], d
-    jr fetch_routine
+    jp fetch_routine
 
 ;------------------------
 ; _block_control_instruction(a = instruction read)
@@ -372,9 +380,11 @@ _new_block_instruction:
     ld e, a ; de <- stack pointer save
     di ; critical zone, loose handle of execution stack to handle tracker stack
         ld [_execution_stack_pointer_save], sp ; saved execution stack pointer
-        ld l, [de] ; de is stack_save addr
+        ld a, [de] ; de is stack_save addr
+        ld l, a
         inc de
-        ld h, [de]
+        ld a, [de]
+        ld h, a
         ld sp, hl ; sp <- tracker recursive stack
 
         GET_CURRENT_TRACKER_ELEM_ADDR block_Haddr
@@ -390,9 +400,11 @@ _new_block_instruction:
         ld b, a
         push bc ; pushed repeat counter and return tracker value
 
-        inc hl ; hl is the stack save addr
-        ld de, hl
-        ld hl, sp
+        ld d, h
+        ld e, l
+        inc de ; de is the stack save addr
+        
+        ld hl, sp + 0
         ld a, l
         ld [de], a
         inc de
@@ -400,9 +412,11 @@ _new_block_instruction:
         ld [de], a ; saved stack pointer
 
         ld de, _execution_stack_pointer_save
-        ld l, [de]
+        ld a, [de]
+        ld l, a
         inc de
-        ld h, [de]
+        ld a, [de]
+        ld h, a
         ld sp, hl ; restored execution stack pointer
     ei
 .new_block_read_and_context_change
@@ -420,7 +434,7 @@ _new_block_instruction:
     ld a, $00
     ld [hl+], a ; reset repeat_counter
     ld [hl], a ; reset return tracker value
-    jr fetch_routine
+    jp fetch_routine
 
 
 
