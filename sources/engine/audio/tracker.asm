@@ -80,23 +80,23 @@ set_current_working_tracker:
     ld [hl], b
     ret
 set_play_state:
-    ld a, PLAY_STATE
+    ld c, PLAY_STATE
     jr set_state
 set_delay_state:
-    ld a, DELAY_STATE
+    ld c, DELAY_STATE
     jr set_state
 set_new_note_state:
-    ld a, NEW_NOTE_STATE
+    ld c, NEW_NOTE_STATE
     jr set_state
 set_end_state:
-    ld a, END_STATE
+    ld c, END_STATE
     jr set_state
 set_fetch_state:
-    ld a, FETCH_STATE
+    ld c, FETCH_STATE
     ; jr set_state
 set_state:
     GET_CURRENT_TRACKER_ELEM_ADDR tracker_state
-    ld [hl], a
+    ld [hl], c
     ret
 
 ; -------------------------------

@@ -78,7 +78,7 @@ room_init:
     call fwf_automaton_set_display_width
     ld a, 18
     call fwf_automaton_set_display_height
-    ld a, $01
+    ld a, $00
     call fwf_automaton_set_timer
     ld a, $00
     call fwf_automaton_set_blank_tile_id
@@ -112,7 +112,7 @@ _t_struct_inst:     DS 10 + 4*3 ; trop moche mais flemme de gérer les includes 
         DB %10000100 ; global return
     
     _text:
-        DB " \n \n   TEST AUDIO\n \n Test du moteur audio :\n \n \n Push B pour tester de jouer une note\n \n Push A pour une note WAVE\n \n",
+        DB " \n \n   TEST AUDIO\n \n Test du moteur audio :\n \n \n Push B pour tester de jouer une note\n \n Push A pour une note WAVE\n \n"
         DB "Push Start pour step le tracker (DEBUG)\\0"
 
     _aud:
