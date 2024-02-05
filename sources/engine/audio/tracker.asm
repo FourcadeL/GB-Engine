@@ -168,6 +168,9 @@ fetch_routine:
     jr nz, _block_control_instruction
     bit 2, a
     jr nz, _return_instruction
+    bit 0, a
+    jr nz, _return_tracker_set
+    PRINT_DEBUG "W [invalid inst]"
     jr fetch_routine ; if reached -> unknown instruction, fetch next one
 
 ; -------------------------
@@ -241,6 +244,20 @@ _return_instruction:
 .global_return
     GET_CURRENT_TRACKER_ELEM_ADDR tracker_value
     ld [hl], d ; set tracker value to computed position
+    jr fetch_routine
+
+; ------------------------
+; _return_tracker_set
+; set return_tracker_value to tracker value + 1
+; keep tracker in fetch state
+; fetch next instruction
+; ------------------------
+_return_tracker_set:
+    GET_CURRENT_TRACKER_ELEM_ADDR tracker_value
+    ld c, [hl]
+    inc c
+    GET_CURRENT_TRACKER_ELEM_ADDR return_tracker_value
+    ld [hl], c
     jr fetch_routine
 
 
