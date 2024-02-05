@@ -62,6 +62,12 @@ room_main::
     pop bc
     inc bc
 .notwaveupdate
+    ld a, [PAD_pressed]
+    cp a, PAD_START
+    jr nz, .nottrackerupdate
+    ld bc, _t_struct_inst
+    call tracker_step
+.nottrackerupdate
     jr .loop2
 
 
@@ -72,7 +78,7 @@ room_init:
     call fwf_automaton_set_display_width
     ld a, 18
     call fwf_automaton_set_display_height
-    ld a, $00
+    ld a, $01
     call fwf_automaton_set_timer
     ld a, $00
     call fwf_automaton_set_blank_tile_id
@@ -86,15 +92,24 @@ room_init:
     ; ld hl, __Wave_Pattern_Sawtooth_start
     ld hl, __Wave_Pattern_Triangle_start
     call Audio_set_wave_pattern
+
+    ld bc, _t_struct_inst
+    ld e, HIGH(_tracker_dummy_track)
+    call tracker_init
     ret
 
 
     SECTION "TEST_TRACKER_VARIABLES", WRAM0
 
-_t_struct_inst:     DS SIZEOF_tracker_struct
+_t_struct_inst:     DS 10 + 4*3 ; trop moche mais flemme de gérer les includes des structs pour du debug
 
 
     SECTION "Test_data", ROM0
+
+    _tracker_dummy_track:
+        DB %11000100 ; set wainting time to 4
+        DB 4, 5, 6, 7, 8 ; play 5 notes
+        DB %10000100 ; global return
     
     _text:
         DB " \n \n   TEST AUDIO\n \n Test du moteur audio :\n \n \n Push B pour tester de jouer une note\n \n Push A pour une note WAVE\n \n",

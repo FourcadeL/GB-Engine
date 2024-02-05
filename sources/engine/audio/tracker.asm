@@ -190,11 +190,11 @@ fetch_routine:
     bit 5, a
     jr nz, _set_repeat_counter_instruction
     bit 3, a
-    jr nz, _block_control_instruction
+    jp nz, _block_control_instruction
     bit 2, a
     jr nz, _return_instruction
     bit 0, a
-    jr nz, _return_tracker_set
+    jp nz, _return_tracker_set
     PRINT_DEBUG "W [invalid inst]"
     jr fetch_routine ; if reached -> unknown instruction, fetch next one
 
@@ -298,7 +298,7 @@ _return_tracker_set:
 ; -----------------------
 _block_control_instruction:
     bit 1, a
-    jr nz, _new_block_instruction
+    jp nz, _new_block_instruction
     bit 0, a
     jr nz, .reset_block_stack ; 00 -> block end
     GET_CURRENT_TRACKER_ELEM_ADDR stack_save
