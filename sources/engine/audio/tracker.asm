@@ -98,6 +98,28 @@ set_state:
     ld [hl], a
     ret
 
+; -------------------------------
+; tracker_init(bc = addr of working tracker to initialize, e = High addr of first tracker block)
+;   init a tracker at addr bc
+;   for track block in de
+;   every other values are set to 0 (except stack save and tracker state)
+; -------------------------------
+tracker_init::
+    call set_current_working_tracker
+    GET_CURRENT_TRACKER_ELEM_ADDR block_Haddr
+    ld a, e
+    ld [hl+], a
+    ld b, SIZEOF_tracker_struct - 1
+    ld d, $00
+    call memset_fast
+    GET_CURRENT_TRACKER_ELEM_ADDR tracker_stack_base
+    ld de, hl
+    GET_CURRENT_TRACKER_ELEM_ADDR stack_save
+    ld a, e
+    ld [hl+], a
+    ld [hl], d
+    call set_fetch_state
+    ret
 
 ; ---------------------------
 ; tracker_step(bc = addr of working tracker to update)
@@ -125,6 +147,7 @@ tracker_update:
 
 update_new_note:
     call set_delay_state
+    PRINT_DEBUG "D : new note"
     jr tracker_update
 
 update_delay:
