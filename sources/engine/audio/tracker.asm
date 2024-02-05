@@ -48,6 +48,7 @@ SIZEOF_tracker_struct	RB 0
 ; GET_CURRENT_TRACKER_ELEM_ADDR
 ; set hl to the addr of the element in \1
 ; for the current tracker
+; [hl, af, b]
 ;--------------------------------
 MACRO GET_CURRENT_TRACKER_ELEM_ADDR
     ld hl, _current_tracker_struct_addr
@@ -138,6 +139,49 @@ update_delay:
     call set_fetch_state
     jr tracker_update
 
+; --------------------------
+; fetch_routine
+; - fetch next instruction
+; - update memory state
+; --------------------------
+fetch_routine:
+    GET_CURRENT_TRACKER_ELEM_ADDR block_Haddr
+    ld a, [hl+]
+    ld b, [hl]
+    inc [hl] ; tracker counter update
+    ld l, b
+    ld h, a
+    ld a, [hl] ; a <- tracker instruction
+    bit 7, a
+    jr z, _note_instruction_read ;v-- else : control instruction 
+    bit 6, a
+    jr nz, _set_delay_counter_instruction
+
+; -------------------------
+; _note_instruction_read(a = instruction read)
+; set note in tracker memory
+; set tracker state to NEW_NOTE_STATE
+; returns handle
+; -------------------------
+_note_instruction_read:
+    ld c, a
+    GET_CURRENT_TRACKER_ELEM_ADDR current_note
+    ld [hl], c
+    call set_new_note_state
+    ret
+
+; --------------------------
+; _set_delay_counter_instruction(a = instruction read)
+; set delay counter to a | %00XXXXXX
+; keep tracker in fetch state
+; fetch next instruction
+; --------------------------
+_set_delay_counter_instruction:
+    and a, %00111111
+    ld c, a
+    GET_CURRENT_TRACKER_ELEM_ADDR delay_value
+    ld [hl], c
+    jr fetch_routine
 
     SECTION "audio_tracker_variables", WRAM0
 _current_tracker_struct_addr: DS 2 ; addr of currently working tracker (little endian)
