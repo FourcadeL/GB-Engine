@@ -103,14 +103,14 @@ room_init:
 
 _t_struct_inst:     DS 10 + 4*3 ; trop moche mais flemme de gérer les includes des structs pour du debug
 
+    SECTION "tracker dummy", ROM0, ALIGN[8]
+_tracker_dummy_track:
+    DB %11000100 ; set wainting time to 4
+    DB 4, 5, 6, 7, 8 ; play 5 notes
+    DB %10000100 ; global return
 
     SECTION "Test_data", ROM0
 
-    _tracker_dummy_track:
-        DB %11000100 ; set wainting time to 4
-        DB 4, 5, 6, 7, 8 ; play 5 notes
-        DB %10000100 ; global return
-    
     _text:
         DB " \n \n   TEST AUDIO\n \n Test du moteur audio :\n \n \n Push B pour tester de jouer une note\n \n Push A pour une note WAVE\n \n"
         DB "Push Start pour step le tracker (DEBUG)\\0"
