@@ -101,6 +101,28 @@ tracker_init::
     call set_fetch_state
     ret
 
+; -------------------------------------------------------
+; tracker_get_note()
+;   -> a : current note of the currently working tracker
+; /!\ currently working tracker should already be initialized
+;   (with a call to tracker new note state for example)
+; -------------------------------------------------------
+tracker_get_note::
+    GET_CURRENT_TRACKER_ELEM_ADDR current_note
+    ld a, [hl]
+    ret
+
+; --------------------------------------------------------
+; tracker_new note_state(bc = addr of working tracker)
+;   -> f : Z reset if tracker is in new note state
+; --------------------------------------------------------
+tracker_new_note_state::
+    call set_current_working_tracker
+    GET_CURRENT_TRACKER_ELEM_ADDR tracker_state
+    ld a, [hl]
+    cp a, ATRACKER_NEW_NOTE_STATE
+    ret
+
 ; ---------------------------
 ; tracker_step(bc = addr of working tracker to update)
 ; ---------------------------
