@@ -63,14 +63,7 @@ room_main::
     pop bc
     inc bc
 .notwaveupdate
-    ld a, [PAD_pressed]
-    cp a, PAD_START
-    jr nz, .nottrackerupdate
-    push bc
-    ld bc, _t_struct_inst
-    call tracker_step
-    pop bc
-.nottrackerupdate
+    call Audio_update
     jr .loop2
 
 
@@ -96,27 +89,36 @@ room_init:
     ld hl, __Wave_Pattern_Triangle_start
     call Audio_set_wave_pattern
 
-    ld bc, _t_struct_inst
-    ld e, HIGH(_tracker_dummy_track)
-    call tracker_init
+
+    ld c, HIGH(_tracker_dummy_track)
+    ld b, c
+    push bc
+    push bc
+    ld b, 4 ; tracker speed
+    call Audio_init
+    pop bc
+    pop bc
     ret
 
 
-    SECTION "TEST_TRACKER_VARIABLES", WRAM0
-
-_t_struct_inst:     DS SIZEOF_tracker_struct
 
     SECTION "tracker dummy", ROM0, ALIGN[8]
 _tracker_dummy_track:
     DB %11000100 ; set wainting time to 4
-    DB 4, 5, 6, 7, 8 ; play 5 notes
+    DB 12, 12, 12, 14, 
+    DB %11001000 ; set waiting time to 8
+    DB 16, 14
+    DB %11000100 ; set waiting time to 4
+    DB 12, 16, 14, 14
+    DB %11010000 ; set waiting time to 16
+    DB 12
     DB %10000100 ; global return
 
     SECTION "Test_data", ROM0
 
     _text:
         DB " \n \n   TEST AUDIO\n \n Test du moteur audio :\n \n \n Push B pour tester de jouer une note\n \n Push A pour une note WAVE\n \n"
-        DB "Push Start pour step le tracker (DEBUG)\\0"
+        DB "Le tracker audio devrait se lancer tout seul et boucler ;)\\0"
 
     _aud:
         DB 04, 04, 04, 06, 8, 6, 4, 8, 6, 6, 4
