@@ -70,7 +70,7 @@ Audio_init::
 
 	; ---- init 4 channel trackers -------
 	ld bc, _CH1_track
-	ld hl, sp+4
+	ld hl, sp+5
 	ld a, [hl-]
 	ld e, a ; e <- $WW
 	push hl
