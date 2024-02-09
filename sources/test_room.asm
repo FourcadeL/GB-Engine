@@ -84,7 +84,6 @@ room_init:
     call fwf_automaton_set_read_addr
     call fwf_automaton_init
     call fwf_automaton_update
-    call Audio_init
     ; ld hl, __Wave_Pattern_Sawtooth_start
     ld hl, __Wave_Pattern_Triangle_start
     call Audio_set_wave_pattern
@@ -104,6 +103,12 @@ room_init:
 
     SECTION "tracker dummy", ROM0, ALIGN[8]
 _tracker_dummy_track:
+    DB %10001011 ; call to block
+    DB HIGH(_tracker_ACDLL_track)
+    DB %10000100 ; global return
+
+    SECTION "track 1", ROM0, ALIGN[8]
+_tracker_ACDLL_track:
     DB %10100001 ; set repeat counter to 1
     DB %10000001 ; set return tracker here
     DB %11000001 ; set wainting time to 1
@@ -112,7 +117,7 @@ _tracker_dummy_track:
     DB 16, 14
     DB %11000001 ; set waiting time to 1
     DB 12, 16, 14, 14
-    DB %11001001 ; set waiting time to 9
+    DB %11000111 ; set waiting time to 7
     DB 12
     DB %10000111 ; conditionnal return to return tracker
     DB %11000001 ; set wainting time to 1
@@ -121,9 +126,9 @@ _tracker_dummy_track:
     DB 9, 9
     DB %11000001 ; set wainting time to 1
     DB 14, 12, 11, 9
-    DB %11001001 ; set waiting time to 9
+    DB %11000111 ; set waiting time to 7
     DB 7
-    DB %10000100 ; global return
+    DB %10001000 ; block end
 
     SECTION "Test_data", ROM0
 

@@ -307,17 +307,14 @@ _block_control_instruction:
     GET_CURRENT_TRACKER_ELEM_ADDR tracker_stack_base
     ld a, l
     cp a, e
-    jr nz, .pop_and_swap ; empty stack just stop tracker and return
-        call set_end_state
+    jr nz, .pop_and_swap 
+        call set_end_state ; empty stack just stop tracker and return
         ret
 .pop_and_swap
     di ; critical zone, loose handle of execution stack to handle tracker stack
         ld [_execution_stack_pointer_save], sp ; saved execution stack pointer
-        ld a, [de] ; de is stack_save addr
-        ld l, a
-        inc de
-        ld a, [de]
-        ld h, a
+        ld h, d
+        ld l, e
         ld sp, hl ; sp <- tracker recursive stack
 
         pop de ; pop repeat_counter and return tracker value
@@ -375,15 +372,10 @@ _new_block_instruction:
     jr z, .new_block_read_and_context_change
     GET_CURRENT_TRACKER_ELEM_ADDR stack_save
     ld a, [hl+]
-    ld d, [hl]
-    ld e, a ; de <- stack pointer save
+    ld h, [hl]
+    ld l, a ; hl <- stack pointer save
     di ; critical zone, loose handle of execution stack to handle tracker stack
         ld [_execution_stack_pointer_save], sp ; saved execution stack pointer
-        ld a, [de] ; de is stack_save addr
-        ld l, a
-        inc de
-        ld a, [de]
-        ld h, a
         ld sp, hl ; sp <- tracker recursive stack
 
         GET_CURRENT_TRACKER_ELEM_ADDR block_Haddr
