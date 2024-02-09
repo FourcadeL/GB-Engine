@@ -43,27 +43,57 @@ Audio_off::
 
 
 ;--------------------------------------------------------------------------
-;- Audio_init()       
-;-			Initialisation basique des registres audio (peut être modifié)
-;-			volumes max toutes les chaines sur tout les terminaux                                -
+;- Audio_init(b=trackers speed ; StackPush : $WWXX $YYZZ)       
+;-		Initialisation basique des registres audio (peut être modifié)
+;-		volumes max toutes les chaines sur tout les terminaux
+;  		
+; 		Initialises tracker speed to b
+; 		Initializes channels trackers with block start addr pushed on stack
+; 			CH1 : $WW
+; 			CH2 : $XX
+; 			CH3 : $YY
+; 			CH4 : $ZZ
 ;--------------------------------------------------------------------------
-
 Audio_init::
 	MEMBSET [rNR52], $FF ; enable all channels
 	MEMBSET [rNR50], $77 ; max volume and no external input
 	MEMBSET [rNR51], $FF ; all channels on all terminals
-	
-	;------engine variables initialisation-----
 
-	ld		a, $00
-	ld		[_update_frame + 1], a ; counter
+	; ---- init variables -----
+	ld hl, _trackers_speed
+	ld [hl], b ; init tracker speed
+	ld hl, _trackers_update_counter
+	ld a, $01
+	ld [hl], a ; reset counter (1 to force update of first frame)
+	ld hl, _trackers_stepped
+	res 7, [hl] ; reset tracker stepped
 
-	ld		a, $01 ; initialisation des timers
-	ld		[_CH1_track + wait_timer], a
-	ld		[_CH2_track + wait_timer], a
-	ld		[_CH3_track + wait_timer], a
-	ld		[_CH4_track + wait_timer], a
-	
+	; ---- init 4 channel trackers -------
+	ld bc, _CH1_track
+	ld hl, sp+4
+	ld a, [hl-]
+	ld e, a ; e <- $WW
+	push hl
+	call tracker_init ; CH1 init
+
+	pop hl
+	ld bc, _CH2_track
+	ld a, [hl-]
+	ld e, a ; e <- $XX
+	push hl
+	call tracker_init ; CH2 init
+
+	pop hl
+	ld bc, _CH3_track
+	ld a, [hl-]
+	ld e, a ; e <- $YY
+	push hl
+	call tracker_init ; CH3 init
+
+	pop hl
+	ld bc, _CH4_track
+	ld e, [hl] ; e <- $ZZ
+	call tracker_init
 
 	ret
 
@@ -453,10 +483,6 @@ Audio_set_wave_pattern::
 
 
 
-
-
-
-
 ;+-----------------------------------------------------------------------------+
 ;| +-------------------------------------------------------------------------+ |
 ;| |                          VARIABLES                                      | |
@@ -466,30 +492,21 @@ Audio_set_wave_pattern::
 
 	SECTION "Audio_Variables",WRAM0
 
+_trackers_speed:		DS 1 ; update speed of tracker (0 -> once per call, 1 -> every two call, etc)
+_trackers_update_counter:	DS 1 ; update counter of tracker
+_trackers_stepped:	DS 1 ; %bxxxxxxx -> b : 1 if tracker has been stepped
 
-_counter: 	DS 1
+;channel 1 tracker
+_CH1_track:			DS SIZEOF_tracker_struct
 
-_note:		DS 1
+;channel 2 tracker
+_CH2_track:			DS SIZEOF_tracker_struct
 
+;channel 3 tracker
+_CH3_track:			DS SIZEOF_tracker_struct
 
-
-;engine variables
-;update frame est le nombre de frames attendues entre chaques update du moteur audio
-;update frame + 1 = compteur (compteur des frames passées avant update)
-_update_frame:	DS 2
-
-
-;channel 1 variables
-_CH1_track:			DS SIZEOF_trackstruct
-
-;channel 2 variables
-_CH2_track:			DS SIZEOF_trackstruct
-
-;channel 3 variables
-_CH3_track:			DS SIZEOF_trackstruct
-
-;channel 4 variables
-_CH4_track:			DS SIZEOF_trackstruct
+;channel 4 tracker
+_CH4_track:			DS SIZEOF_tracker_struct
 
 
 
