@@ -94,7 +94,7 @@ room_init:
     ld b, c
     push bc
     push bc
-    ld b, 4 ; tracker speed
+    ld b, 12 ; tracker speed
     call Audio_init
     pop bc
     pop bc
@@ -104,14 +104,25 @@ room_init:
 
     SECTION "tracker dummy", ROM0, ALIGN[8]
 _tracker_dummy_track:
-    DB %11000100 ; set wainting time to 4
+    DB %10100001 ; set repeat counter to 1
+    DB %10000001 ; set return tracker here
+    DB %11000001 ; set wainting time to 1
     DB 12, 12, 12, 14, 
-    DB %11001000 ; set waiting time to 8
+    DB %11000011 ; set waiting time to 3
     DB 16, 14
-    DB %11000100 ; set waiting time to 4
+    DB %11000001 ; set waiting time to 1
     DB 12, 16, 14, 14
-    DB %11010000 ; set waiting time to 16
+    DB %11001001 ; set waiting time to 9
     DB 12
+    DB %10000111 ; conditionnal return to return tracker
+    DB %11000001 ; set wainting time to 1
+    DB 14, 14, 14, 14
+    DB %11000011 ; set waiting time to 3
+    DB 9, 9
+    DB %11000001 ; set wainting time to 1
+    DB 14, 12, 11, 9
+    DB %11001001 ; set waiting time to 9
+    DB 7
     DB %10000100 ; global return
 
     SECTION "Test_data", ROM0

@@ -280,7 +280,6 @@ _return_instruction:
 _return_tracker_set:
     GET_CURRENT_TRACKER_ELEM_ADDR tracker_value
     ld c, [hl]
-    inc c
     GET_CURRENT_TRACKER_ELEM_ADDR return_tracker_value
     ld [hl], c
     jp fetch_routine
