@@ -8,31 +8,7 @@
 	INCLUDE "engine.inc"
 	INCLUDE "debug.inc"
 	INCLUDE "utils.inc"
-
-
-
-
-;+-----------------------------------------------------------------------------+
-;| +-------------------------------------------------------------------------+ |
-;| |                          STRUCTURES                                     | |
-;| +-------------------------------------------------------------------------+ |
-;+-----------------------------------------------------------------------------+
-;tracker variables structure (same for all three channels)
-;-----------
-RSRESET
-block_addr			RB 2
-tracker				RB 1
-restart_note		RB 1
-curr_note			RB 1
-curr_instr			RB 1
-curr_effect			RB 1
-wait_timer			RB 1
-repeat_counter		RB 1
-return_tracker		RB 1
-SIZEOF_trackstruct	RB 0
-;-----------
-
-
+	INCLUDE "tracker.inc"
 
 
 

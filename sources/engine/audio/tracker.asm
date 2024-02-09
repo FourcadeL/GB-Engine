@@ -8,45 +8,23 @@
 ; /!\ MULTIPLE TRACKERS CAN BE INSTANCIATED SO MEMORY MANAGEMENT
 ; UNDER THE SAME STRUCTURE IS DONE FOR EVERY INSTANCES
 
-; MAXIMUM RECURCIVE STACK SIZE
-DEF MAXIMUM_RECURSIVE_STACK_SIZE = 3
 
 ; TRACKER STATES :
 ;   PLAY : Active State
 ;   DELAY : Delay before next note
 ;   END : No activity
-DEF PLAY_STATE = %00000001
-DEF DELAY_STATE = %0000010
-DEF NEW_NOTE_STATE = %00000100
-DEF FETCH_STATE = %01000000
-DEF END_STATE = %10000100
+DEF ATRACKER_PLAY_STATE = %00000001
+DEF ATRACKER_DELAY_STATE = %0000010
+DEF ATRACKER_NEW_NOTE_STATE = %00000100
+DEF ATRACKER_FETCH_STATE = %01000000
+DEF ATRACKER_END_STATE = %10000100
 
 
 INCLUDE "hardware.inc"
 INCLUDE "debug.inc"
+INCLUDE "tracker.inc"
 
 
-;+-----------------------------------------------------------------------------+
-;| +-------------------------------------------------------------------------+ |
-;| |                          STRUCTURES                                     | |
-;| +-------------------------------------------------------------------------+ |
-;+-----------------------------------------------------------------------------+
-;tracker éléments structure
-;-----------
-RSRESET
-block_Haddr             RB 1 ; High byte of block addr (since it is ALIGNED no need for the low part)
-tracker_value           RB 1 ; current value of tracker on the 256 steps
-tracker_state           RB 1 ; current state of the tracker
-current_note            RB 1 ; currently playing note
-delay_value             RB 1 ; current value of the default delay
-delay_counter           RB 1 ; current delay counter
-repeat_counter          RB 1 ; current value of the default repeat
-return_tracker_value    RB 1 ; current value of the return tracker (tracker to return to on instruction)
-stack_save              RB 2 ; SP of the current recursive stack (little endian)
-tracker_stack           RB 4*MAXIMUM_RECURSIVE_STACK_SIZE ; recursive stack of the tracker
-tracker_stack_base      RB 0
-SIZEOF_tracker_struct	RB 0
-;-----------
 
 ;--------------------------------
 ; GET_CURRENT_TRACKER_ELEM_ADDR
@@ -80,19 +58,19 @@ set_current_working_tracker:
     ld [hl], b
     ret
 set_play_state:
-    ld c, PLAY_STATE
+    ld c, ATRACKER_PLAY_STATE
     jr set_state
 set_delay_state:
-    ld c, DELAY_STATE
+    ld c, ATRACKER_DELAY_STATE
     jr set_state
 set_new_note_state:
-    ld c, NEW_NOTE_STATE
+    ld c, ATRACKER_NEW_NOTE_STATE
     jr set_state
 set_end_state:
-    ld c, END_STATE
+    ld c, ATRACKER_END_STATE
     jr set_state
 set_fetch_state:
-    ld c, FETCH_STATE
+    ld c, ATRACKER_FETCH_STATE
     ; jr set_state
 set_state:
     GET_CURRENT_TRACKER_ELEM_ADDR tracker_state
@@ -135,15 +113,15 @@ tracker_step::
 tracker_update:
     GET_CURRENT_TRACKER_ELEM_ADDR tracker_state
     ld a, [hl]
-    cp a, END_STATE
+    cp a, ATRACKER_END_STATE
     ret z
-    cp a, NEW_NOTE_STATE
+    cp a, ATRACKER_NEW_NOTE_STATE
     jr z, update_new_note; do wait time after new note (can be 0)
-    cp a, DELAY_STATE
+    cp a, ATRACKER_DELAY_STATE
     jr z, update_delay
-    cp a, PLAY_STATE
+    cp a, ATRACKER_PLAY_STATE
     ; jr z; UNUSED STATE ?
-    cp a, FETCH_STATE
+    cp a, ATRACKER_FETCH_STATE
     jr z, fetch_routine
     ret ; just in case but shouldn't reach
 
@@ -201,7 +179,7 @@ fetch_routine:
 ; -------------------------
 ; _note_instruction_read(a = instruction read)
 ; set note in tracker memory
-; set tracker state to NEW_NOTE_STATE
+; set tracker state to ATRACKER_NEW_NOTE_STATE
 ; returns handle
 ; -------------------------
 _note_instruction_read:
@@ -291,7 +269,7 @@ _return_tracker_set:
 ; do control of tracker block instruction
 ; block control instruction : %00001?bb (+ $XX)
 ;   bb : 
-;       00 -> block end (returned to pushed block), if empty stack : END_STATE
+;       00 -> block end (returned to pushed block), if empty stack : ATRACKER_END_STATE
 ;       01 -> reset block stack
 ;       10 -> jump to tracker block $XX
 ;       11 -> call to tracker block $XX

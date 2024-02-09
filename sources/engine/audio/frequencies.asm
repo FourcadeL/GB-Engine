@@ -107,6 +107,8 @@
 ; C3 is C2, F4 is F3 ets ...
 ;------------------------------------------------------------------------------------------
 Audio_get_note_frequency12::
+Audio_get_note_frequency3:: ; should be written later
+Audio_get_note_frequency4:: ; should be wwritten later
     ;---high part---
 	ld		b, %00000111
 	cp		a, %00100100 ;111

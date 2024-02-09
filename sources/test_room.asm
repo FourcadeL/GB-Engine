@@ -9,6 +9,7 @@ INCLUDE "engine.inc"
 INCLUDE "debug.inc"
 INCLUDE "charmap.inc"
 INCLUDE "utils.inc"
+INCLUDE "tracker.inc"
 
 
 
@@ -65,8 +66,10 @@ room_main::
     ld a, [PAD_pressed]
     cp a, PAD_START
     jr nz, .nottrackerupdate
+    push bc
     ld bc, _t_struct_inst
     call tracker_step
+    pop bc
 .nottrackerupdate
     jr .loop2
 
@@ -101,7 +104,7 @@ room_init:
 
     SECTION "TEST_TRACKER_VARIABLES", WRAM0
 
-_t_struct_inst:     DS 10 + 4*3 ; trop moche mais flemme de gérer les includes des structs pour du debug
+_t_struct_inst:     DS SIZEOF_tracker_struct
 
     SECTION "tracker dummy", ROM0, ALIGN[8]
 _tracker_dummy_track:
