@@ -100,104 +100,16 @@ Audio_init::
 
 
 
-
-
-
-
 ;--------------------------------------------------------------------------
 ;- Audio_update()       
-;-			  Doit être appelé une fois par frame pour gérer les sons     -
+;-		Called once per frame
+; 		Handle tracker updates
+; 		Handle audio register and frequencies updates
 ;--------------------------------------------------------------------------
-
 Audio_update::
-
-	ld		hl, _update_frame
-	ldi		a, [hl]
-	ld		b, [hl] ; counter
-	inc		b
-	ld		[hl], b ; counter
-	cp		a, b
-	jr		nz, .skip_song_engine
-	ld		a, $00
-	ld		[hl], a ; counter
-
-	;------engine execution------
-	;===tracker_update===
-	;CH1
-	ld		hl, _CH1_track + wait_timer
-	ld		a, [hl]
-	dec		a
-	ld		[hl], a
-	cp		a, $00	; calcul de temps ok (le compteur est mis à 2, une frame est sautée + lecture de l'instruction d'attente, donc 2)
-	jr		nz, .skip_CH1_update
-	ld		a, $01
-	ld		[hl], a
-	;------execution-----
-	ld		de, _CH1_track
-	call 	Audio_tracker_step
-	;--------------------
-.skip_CH1_update
-
-
-	;CH2
-	ld		hl, _CH2_track + wait_timer
-	ld		a, [hl]
-	dec		a
-	ld		[hl], a
-	cp		a, $00
-	jr		nz, .skip_CH2_update
-	ld		a, $01
-	ld		[hl], a
-	;------execution-----
-	ld		de, _CH2_track
-	call	Audio_tracker_step
-	;--------------------
-.skip_CH2_update
-
-	
-	;CH3
-	ld		hl, _CH3_track + wait_timer
-	ld		a, [hl]
-	dec		a
-	ld		[hl], a
-	cp		a, $00
-	jr		nz, .skip_CH3_update
-	ld		a, $01
-	ld		[hl], a
-	;------execution-----
-	ld		de, _CH3_track
-	call	Audio_tracker_step
-	;--------------------
-.skip_CH3_update
-
-
-	;CH4
-	ld		hl, _CH4_track + wait_timer
-	ld		a, [hl]
-	dec		a
-	ld		[hl], a
-	cp		a, $00
-	jr		nz, .skip_CH4_update
-	ld		a, $01
-	ld		[hl], a
-	;------execution-----
-	ld		de, _CH4_track
-	call	Audio_tracker_step
-	;--------------------
-.skip_CH4_update
-
-
-	;===hardware_update===
-	call	Audio_hardware_update
-	
-
-
-	;-----------------------------
-.skip_song_engine:
+	call handle_trackers
+	call handle_new_notes
 	ret
-
-
-
 
 
 
@@ -210,89 +122,31 @@ Audio_update::
 ;| +-------------------------------------------------------------------------+ |
 ;+-----------------------------------------------------------------------------+
 
+
 ;------------------------------------------------------------------------------------------
-;- Audio_hardware_update()  
-;-			  asigns : modifie la structure associée à la chaine
-;-   		modifie les registres hardware en fonction des
-;-			informations du tracker en mémoire										   -
+;- handle_trackers()  
+;-	if tracker counter tripped update all channels trackers
+; 		set bit 7 of _tracker_stepped if stepped
 ;------------------------------------------------------------------------------------------
+handle_trackers:
+	ld hl, _trackers_update_counter
+	dec [hl]
+	ret nz ; no counter trip
+	ld a, [_trackers_speed]
+	inc a
+	ld [hl], a ; reset counter
 
-Audio_hardware_update::
-	;===CH1===
-	ld		de, _CH1_track
-	ld		hl, restart_note
-	add		hl, de
-	ld		a, [hl]
-	cp		a, $00
-	jr		z, .not_new_note_CH1 ;new note to play ?
-	;----note_update----
-	ld		a, $00
-	ld		[hl], a	;new note bool reset
-	ld		hl, curr_note
-	add		hl, de
-	ld		a, [hl]
-	call	Audio_get_note_frequency12
-	ld		a, [rNR14]
-	and		a, %01000000
-	or		a, %10000000
-	or		a, b
-	ld		[rNR14], a
-	ld		a, c
-	ld		[rNR13], a
-.not_new_note_CH1
-	;----effect_update----
+	ld bc, _CH1_track
+	call tracker_step
+	ld bc, _CH2_track
+	call tracker_step
+	ld bc, _CH3_track
+	call tracker_step
+	ld bc, _CH4_track
+	call tracker_step
 
-	;===CH2===
-	ld		de, _CH2_track
-	ld		hl, restart_note
-	add		hl, de
-	ld		a, [hl]
-	cp		a, $00
-	jr		z, .not_new_note_CH2 ;new note to play ?
-	;----note_update----
-	ld		a, $00
-	ld		[hl], a	;new note bool reset
-	ld		hl, curr_note
-	add		hl, de
-	ld		a, [hl]
-	call	Audio_get_note_frequency12
-	ld		a, [rNR24]
-	and		a, %01000000
-	or		a, %10000000
-	or		a, b
-	ld		[rNR24], a
-	ld		a, c
-	ld		[rNR23], a
-.not_new_note_CH2
-	;----effect_update----
-
-	;===CH3===
-	ld		de, _CH3_track
-	ld		hl, restart_note
-	add		hl, de
-	ld		a, [hl]
-	cp		a, $00
-	jr		z, .not_new_note_CH3 ;new note to play ?
-	;----note_update----
-	ld		a, $00
-	ld		[hl], a	;new note bool reset
-	ld		hl, curr_note
-	add		hl, de
-	ld		a, [hl]
-	call	Audio_get_note_frequency12
-	ld		a, [rNR34]
-	and		a, %01000000
-	or		a, %10000000
-	or		a, b
-	ld		[rNR34], a
-	ld		a, c
-	ld		[rNR33], a
-.not_new_note_CH3
-	;----effect_update----
-
-	;===CH4===
-	ld		de, _CH4_track
-
+	ld hl, _trackers_stepped
+	set 7, [hl] ; tracker stepped
 	ret
 
 
