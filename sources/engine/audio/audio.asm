@@ -149,169 +149,70 @@ handle_trackers:
 	set 7, [hl] ; tracker stepped
 	ret
 
+; --------------------------------------------------------------------
+; handle_new_notes()
+; 	if tracker has been stepped and a tracker is in a new note step
+; 		updates hardware register for new note
+; --------------------------------------------------------------------
+handle_new_notes:
+	ld hl, _trackers_stepped
+	bit 7, [hl]
+	ret z ; no trackers step -> return
+	res 7, [hl] ; note handling -> reset tracker step flag
 
+	ld bc, _CH1_track
+	call tracker_new_note_state
+	jr nz, .skip_CH1_new_note
+	call tracker_get_note
+	call Audio_get_note_frequency12
+	call _update_CH1_freq
+.skip_CH1_new_note
 
+	ld bc, _CH2_track
+	call tracker_new_note_state
+	jr nz, .skip_CH2_new_note
+	call tracker_get_note
+	call Audio_get_note_frequency12
+	call _update_CH2_freq
+.skip_CH2_new_note
 
+	ld bc, _CH3_track
+	call tracker_new_note_state
+	jr nz, .skip_CH3_new_note
+	call tracker_get_note
+	call Audio_get_note_frequency3
+	call _update_CH3_freq
+.skip_CH3_new_note
 
-;------------------------------------------------------------------------------------------
-;- Audio_tracker_step(de = adresse de la structure de tracker de la chaine)  
-;-			  asigns : modifie la structure associée à la chaine
-;-   												   -
-;------------------------------------------------------------------------------------------
-
-Audio_tracker_step::
-	ld		hl, block_addr
-	add		hl, de
-	ld		b, [hl]
-	inc 	hl
-	ld		c, [hl]
-	ld		hl, tracker
-	add		hl, de
-	ld		a, [hl]
-	;increment tracker
-	inc		[hl]
-	;instruction addr
-	add		a, c
-	ld		c, a
-	ld		a, $00
-	adc		a, b
-	ld		b, a
-	ld		a, [bc]
-	cp		a, %10000000
-	jr		nc, .control
-	;~note information~
-	ld		hl, curr_note
-	add		hl, de
-	ld		[hl], a
-	ld		hl, restart_note
-	add		hl, de
-	inc		[hl]
-	ret
-.control
-	;~control information~
-	cp		a, %11000000
-	jr		c, .not_wait_control
-	;|-> temps d'attente sur la chaine
-	and		a, %00111111
-	ld		hl, wait_timer
-	add		hl, de
-	ld		[hl], a
-	ret
-.not_wait_control
-	cp		a, %10100000
-	jr		c, .not_repeat_control
-	;|-> repeat set value
-	and		a, %00011111
-	ld		hl, repeat_counter
-	add		hl, de
-	ld		[hl], a
-	jr		Audio_tracker_step	;read next instruction byte
-.not_repeat_control
-	cp		a, %10010000
-	jr		c, .not_instrument_control
-	;|-> instrument set value
-	and		a, %00001111
-	ld		hl, curr_instr
-	add		hl, de
-	ld		[hl], a
-	jr		Audio_tracker_step	;read next instruction byte
-.not_instrument_control
-	cp		a, %10001000
-	jr		c, .not_effect_control
-	;|-> effect set value
-	and		a, %00000111
-	ld		hl, curr_effect
-	add		hl, de
-	ld		[hl], a
-	jr		Audio_tracker_step	;read next instruction byte
-.not_effect_control
-	cp		a, %10000111
-	jr		c, .not_total_return_cond
-	;|-> retour total conditionnel
-	ld		hl, repeat_counter
-	add		hl, de
-	ld		a, [hl]
-	or		a, a
-	jr		z, Audio_tracker_step	;condition not matched, read next
-	dec		[hl]
-	ld		hl, tracker
-	add		hl, de
-	ld		[hl], $00
-	jr		Audio_tracker_step	;condition matched, read next (0)
-.not_total_return_cond
-	cp		a, %10000110
-	jr		c, .not_total_return
-	;|-> retour total
-	ld		hl, tracker
-	add		hl, de
-	ld		[hl], $00
-	jr		Audio_tracker_step	;returned, read next
-.not_total_return
-	cp		a, %10000101
-	jr		c, .not_return_cond
-	;|-> retour conditionnel
-	ld		hl, repeat_counter
-	add		hl, de
-	ld		a, [hl]
-	or		a, a
-	jp		z, Audio_tracker_step	;condition not matched, read next
-	dec		[hl]
-	ld		hl, return_tracker
-	add		hl, de
-	ld		a, [hl]
-	ld		hl, tracker
-	add		hl, de
-	ld		[hl], a
-	jp		Audio_tracker_step	;condition matched, read next (saved)
-.not_return_cond
-	cp		a, %10000100
-	jr		c, .not_return
-	;|-> retour
-	ld		hl, return_tracker
-	add		hl, de
-	ld		a, [hl]
-	ld		hl, tracker
-	add		hl, de
-	ld		[hl], a
-	jp		Audio_tracker_step	;returned, read next
-.not_return
-	cp		a, %10000011
-	jr		c, .not_next_block
-	;|-> next block (bc already contains current instruction's address)
-	ld		hl, block_addr
-	add		hl, de
-	inc		bc
-	ld		a, [bc]
-	ldi		[hl], a
-	inc		bc
-	ld		a, [bc]
-	ld		[hl], a
-	ld		hl, tracker
-	add		hl, de
-	ld		[hl], $00
-	jp		Audio_tracker_step	;next block prepared, read next
-.not_next_block
-	cp		a, %10000010
-	jr		c, .not_unused
-	;|-> unused
-.not_unused
-	cp		a, %10000001
-	jr		c, .not_return_set
-	;|-> return tracker set
-	ld		hl, tracker
-	add		hl, de
-	ld		a, [hl]
-	ld		hl, return_tracker
-	add		hl, de
-	ld		[hl], a
-	jp		Audio_tracker_step	;saved, read next
-.not_return_set
-	;|-> stop actual note
-
+	ld bc, _CH4_track
+	call tracker_new_note_state
+	jr nz, .skip_CH4_new_note
+	call tracker_get_note
+	call Audio_get_note_frequency4
+	call _update_CH4_freq
+.skip_CH4_new_note
 	ret
 
-
-
+; ------------------------
+; frequencies updates
+; 	fixed instrument parameters now
+; 	to be implemented later
+; ------------------------
+_update_CH1_freq:
+	MEMBSET [rNR10], $00
+    MEMBSET [rNR11], $80
+    MEMBSET [rNR12], $F1
+    MEMBSET [rNR13], c
+    ld a, b
+    or %11000000
+    ld [rNR14], a
+	ret
+_update_CH2_freq:
+	ret
+_update_CH3_freq:
+	ret
+_update_CH4_freq:
+	ret
 ;------------------------------------------------------------------------------------------
 ;- Audio_set_CH3_wave_pattern(hl = pattern addr)
 ; expected pattern size is 16 bytes
