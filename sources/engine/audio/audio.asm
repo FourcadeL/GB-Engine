@@ -208,8 +208,20 @@ _update_CH1_freq:
     ld [rNR14], a
 	ret
 _update_CH2_freq:
+	MEMBSET [rNR21], $C0
+    MEMBSET [rNR22], $F1
+    MEMBSET [rNR23], c
+    ld a, b
+    or %11000000
+    ld [rNR24], a
 	ret
 _update_CH3_freq:
+	MEMBSET [rNR31], $80
+    MEMBSET [rNR32], %00100000
+    MEMBSET [rNR33], c
+    ld a, b
+    or %11000000
+    ld [rNR34], a
 	ret
 _update_CH4_freq:
 	ret
