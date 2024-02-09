@@ -104,7 +104,11 @@ room_init:
     SECTION "tracker dummy", ROM0, ALIGN[8]
 _tracker_dummy_track:
     DB %10001011 ; call to block
+    DB HIGH(_tracker_GAM_track)
+    DB %10001011 ; call to block
     DB HIGH(_tracker_ACDLL_track)
+    DB %10001011 ; call to block
+    DB HIGH(_tracker_ALCF_track)
     DB %10000100 ; global return
 
     SECTION "track 1", ROM0, ALIGN[8]
@@ -119,6 +123,8 @@ _tracker_ACDLL_track:
     DB 12, 16, 14, 14
     DB %11000111 ; set waiting time to 7
     DB 12
+    DB %10001011 ; call to block
+    DB HIGH(_tracker_GAM_track)
     DB %10000111 ; conditionnal return to return tracker
     DB %11000001 ; set wainting time to 1
     DB 14, 14, 14, 14
@@ -128,7 +134,42 @@ _tracker_ACDLL_track:
     DB 14, 12, 11, 9
     DB %11000111 ; set waiting time to 7
     DB 7
+    DB %10001011 ; call to block
+    DB HIGH(_tracker_GAM_track)
     DB %10001000 ; block end
+
+    SECTION "track 2", ROM0, ALIGN[8]
+_tracker_ALCF_track:
+    DB %11000001 ; wait 1
+    DB 24
+    DB %11000000 ; wait 0
+    DB 24, 28, 28, 26, 28, 26
+    DB %11000001 ; wait 1
+    DB 24
+    DB %11000000 ; wait 0
+    DB 24, 28, 28, 26
+    DB %11000001 ; wait 1
+    DB 28, 28
+    DB %11000000 ; wait 0
+    DB 28, 26, 24, 28, 31, 28
+    DB %11000001 ; wait 1
+    DB 31
+    DB %11000000 ; wait 0
+    DB 31, 28, 24, 28
+    DB %11000011 ; wait 3
+    DB 26
+    DB %10001011 ; call to block
+    DB HIGH(_tracker_GAM_track)
+    DB %10001011 ; call to block
+    DB HIGH(_tracker_ACDLL_track)
+    DB %10001000 ; block end
+
+    SECTION "track 3", ROM0, ALIGN[8]
+_tracker_GAM_track:
+    DB %11000000 ; wait 0
+    DB 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36
+    DB %10001000 ; block end
+
 
     SECTION "Test_data", ROM0
 
