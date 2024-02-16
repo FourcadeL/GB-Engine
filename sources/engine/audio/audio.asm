@@ -11,7 +11,7 @@
 	INCLUDE "tracker.inc"
 
 
-
+def BLANK_NOTE = %01010100 
 
 
 
@@ -107,8 +107,8 @@ Audio_init::
 ; 		Handle audio register and frequencies updates
 ;--------------------------------------------------------------------------
 Audio_update::
-	call handle_trackers
 	call handle_new_notes
+	call handle_trackers
 	ret
 
 
@@ -163,68 +163,130 @@ handle_new_notes:
 	ld bc, _CH1_track
 	call tracker_new_note_state
 	jr nz, .skip_CH1_new_note
-	call tracker_get_note
-	call Audio_get_note_frequency12
-	call _update_CH1_freq
+	call _update_CH1_note
 .skip_CH1_new_note
 
 	ld bc, _CH2_track
 	call tracker_new_note_state
 	jr nz, .skip_CH2_new_note
-	call tracker_get_note
-	call Audio_get_note_frequency12
-	call _update_CH2_freq
+	call _update_CH2_note
 .skip_CH2_new_note
 
 	ld bc, _CH3_track
 	call tracker_new_note_state
 	jr nz, .skip_CH3_new_note
-	call tracker_get_note
-	call Audio_get_note_frequency3
-	call _update_CH3_freq
+	call _update_CH3_note
 .skip_CH3_new_note
 
 	ld bc, _CH4_track
 	call tracker_new_note_state
 	jr nz, .skip_CH4_new_note
-	call tracker_get_note
-	call Audio_get_note_frequency4
-	call _update_CH4_freq
+	call _update_CH4_note
 .skip_CH4_new_note
 	ret
 
+
 ; ------------------------
-; frequencies updates
-; 	fixed instrument parameters now
-; 	to be implemented later
+; notes update
+; 	handle blank note
+; 	use data from instrument saved parameters
 ; ------------------------
-_update_CH1_freq:
-	MEMBSET [rNR10], $00
-    MEMBSET [rNR11], $80
-    MEMBSET [rNR12], $F1
-    MEMBSET [rNR13], c
-    ld a, b
-    or %11000000
-    ld [rNR14], a
+
+; --------------------------------------------------------------------
+; _update_CH1_note() |current working tracker must have been initialized to CH1 tracker|
+; 		updates hardware registers for channel 1 to play
+; 		the note of the currently working tracker
+; -----------------------------------------------------------------
+_update_CH1_note:
+	call tracker_get_note
+	ld hl, _CH1_blank_instrument
+	cp a, BLANK_NOTE ; is blank note
+	jr z, .set_registers
+		; note is not blank -> get frequency and use standard CH1 instrument
+		call Audio_get_note_frequency12
+		ld hl, _CH1_instrument
+.set_registers
+	MEMBSET [rNR10], [hl+]
+	MEMBSET [rNR11], [hl+]
+	MEMBSET [rNR12], [hl+]
+	MEMBSET [rNR13], c
+	ld a, b
+	and %00000111
+	or [hl]
+	ld [rNR14], a
 	ret
-_update_CH2_freq:
-	MEMBSET [rNR21], $C0
-    MEMBSET [rNR22], $F1
-    MEMBSET [rNR23], c
-    ld a, b
-    or %11000000
-    ld [rNR24], a
+
+; ------------------------------------------------------------------
+; _update_CH2_note() |current working tracker must have been initialized to CH2 tracker|
+; 		updates hardware registers for channel 2 to play
+; 		the note of the currently working tracker
+; -----------------------------------------------------------------
+_update_CH2_note:
+	call tracker_get_note
+	ld hl, _CH2_blank_instrument
+	cp a, BLANK_NOTE ; is blank note
+	jr z, .set_registers
+		; note is not blank -> get frequency and use standard CH2 instrument
+		call Audio_get_note_frequency12
+		ld hl, _CH2_instrument
+.set_registers
+	MEMBSET [rNR21], [hl+]
+	MEMBSET [rNR22], [hl+]
+	MEMBSET [rNR23], c
+	ld a, b
+	and %00000111
+	or [hl]
+	ld [rNR24], a
 	ret
-_update_CH3_freq:
-	MEMBSET [rNR31], $80
-    MEMBSET [rNR32], %00100000
-    MEMBSET [rNR33], c
-    ld a, b
-    or %11000000
-    ld [rNR34], a
+
+; ------------------------------------------------------------------
+; _update_CH3_note() |current working tracker must have been initialized to CH3 tracker|
+; 		updates hardware registers for channel 3 to play
+; 		the note of the currently working tracker
+; -----------------------------------------------------------------
+_update_CH3_note:
+	call tracker_get_note
+	ld hl, _CH3_blank_instrument
+	cp a, BLANK_NOTE ; is blank note
+	jr z, .set_registers
+		; note is not blank -> get frequency and use standard CH3 instrument
+		call Audio_get_note_frequency3
+		ld hl, _CH3_instrument
+.set_registers
+	MEMBSET [rNR31], [hl+]
+	MEMBSET [rNR32], [hl+]
+	MEMBSET [rNR33], c
+	ld a, b
+	and %00000111
+	or [hl]
+	ld [rNR34], a
 	ret
-_update_CH4_freq:
+
+; ------------------------------------------------------------------
+; _update_CH4_note() |current working tracker must have been initialized to CH4 tracker|
+; 		updates hardware registers for channel 4 to play
+; 		the note of the currently working tracker
+; -----------------------------------------------------------------
+_update_CH4_note:
+	call tracker_get_note
+	ld hl, _CH4_blank_instrument
+	cp a, BLANK_NOTE ; is blank note
+	jr z, .set_registers
+		; note is not blank -> get frequency and use standard CH4 instrument
+		call Audio_get_note_frequency4
+		ld hl, _CH4_instrument
+.set_registers
+	MEMBSET [rNR41], [hl+]
+	MEMBSET [rNR42], [hl+]
+	MEMBSET [rNR43], c
+	ld a, b
+	and %00000111
+	or [hl]
+	ld [rNR44], a
 	ret
+
+
+
 ;------------------------------------------------------------------------------------------
 ;- Audio_set_CH3_wave_pattern(hl = pattern addr)
 ; expected pattern size is 16 bytes
@@ -246,10 +308,67 @@ Audio_set_wave_pattern::
 	ret
 
 
+; ---------------------------------
+; _set_CH2_instrument(hl = pointer to instrument data)
+; ---------------------------------
+_set_CH2_instrument:
+	ld de, _CH2_instrument
+	inc hl
+	jr __set_CH_instrument_common
+; ---------------------------------
+; _set_CH3_instrument(hl = pointer to instrument data)
+; ---------------------------------
+_set_CH3_instrument:
+	ld de, _CH3_instrument
+	inc hl
+	jr __set_CH_instrument_common
+; ---------------------------------
+; _set_CH4_instrument(hl = pointer to instrument data)
+; ---------------------------------
+_set_CH4_instrument:
+	ld de, _CH4_instrument
+	inc hl
+	jr __set_CH_instrument_common
+; ---------------------------------
+; _set_CH1_instrument(hl = pointer to instrument data)
+; ---------------------------------
+_set_CH1_instrument:
+	ld de, _CH1_instrument
+	ld a, [hl+]
+	ld [de], a
+	inc de
+__set_CH_instrument_common:
+	ld b, 3
+	call memcopy_fast
+	ret
 
+	SECTION "Blank_Instruments", ROMX
+	; small section of save register for "instruments"
+	; stopping play of the note on each channel
+_CH1_blank_instrument:
+	DB %00000000 ; NR10 (no sweep)
+	DB %00111111 ; NR11 (duty and smallest length play)
+	DB %00001000 ; NR12 (volume = 0 ; sweep up to avoid pop)
+	DB %10000000 ; NR14 (retriggers channel to mute audio)
+_CH2_blank_instrument:
+	DB %00111111 ; NR21 (duty and smallest length play)
+	DB %00001000 ; NR22 (volume = 0 ; sweep up to avoid pop)
+	DB %10000000 ; NR14 (retriggers channel to mute audio)
+_CH3_blank_instrument:
+	DB %11111111 ; NR31 (smallest length play)
+	DB %00000000 ; NR32 (volume to 0)
+	DB %10000000 ; NR34 (retriggers channel)
+_CH4_blank_instrument:
+	DB %00111111 ; NR41 (smallest length play)
+	DB %00001000 ; NR42 (volume = 0 ; sweep up to avoid pop)
+	DB %10000000 ; NR44 (retriggers channel to mute audio)
 
-
-
+_test_instrument1:
+	DB $00, $80, $F1, $C0
+_test_instrument2:
+	DB $00, $C0, $F1, $C0
+_test_instrument3:
+	DB $00, $80, $20, $C0
 ;+-----------------------------------------------------------------------------+
 ;| +-------------------------------------------------------------------------+ |
 ;| |                          VARIABLES                                      | |
@@ -262,6 +381,11 @@ Audio_set_wave_pattern::
 _trackers_speed:		DS 1 ; update speed of tracker (0 -> once per call, 1 -> every two call, etc)
 _trackers_update_counter:	DS 1 ; update counter of tracker
 _trackers_stepped:	DS 1 ; %bxxxxxxx -> b : 1 if tracker has been stepped
+
+_CH1_instrument: DS 4 ; saved register of NR10 - NR11 - NR12 and NR14  to use as parameters for the note
+_CH2_instrument: DS 3 ; saved register of NR21 NR22 NR24 to use as parameters for the new note
+_CH3_instrument: DS 3 ; saved registers NR31 NR32 NR34 to use as parameters fot new note
+_CH4_instrument: DS 3 ; saved registers NR41 NR42 NR44 to use as parameters for new note
 
 ;channel 1 tracker
 _CH1_track:			DS SIZEOF_tracker_struct

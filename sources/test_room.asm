@@ -89,9 +89,10 @@ room_init:
     call Audio_set_wave_pattern
 
 
-    ld c, HIGH(_tracker_dummy_track)
-    ld b, c
+    ld b, HIGH(_tracker_dummy_track)
+    ld c, HIGH(_tracker_blank_track)
     push bc
+    ld b, c
     push bc
     ld b, 12 ; tracker speed
     call Audio_init
@@ -110,6 +111,16 @@ _tracker_dummy_track:
     DB %10001011 ; call to block
     DB HIGH(_tracker_ALCF_track)
     DB %10000100 ; global return
+
+    SECTION "track 0", ROM0, ALIGN[8]
+_tracker_blank_track:
+    DB %11111111 ; set waiting time to 127
+    DB %01010100 ; play blanck note
+    DB %00010110 ; play note
+    DB %01010100 ; play blanck note
+    DB %01010100 ; play blanck note
+    DB %01010100 ; play blanck note
+    DB %10000100 ; total return
 
     SECTION "track 1", ROM0, ALIGN[8]
 _tracker_ACDLL_track:
