@@ -69,7 +69,7 @@ set_new_note_state:
 set_end_state:
     ld c, ATRACKER_END_STATE
     jr set_state
-set_fetch_state:
+set_fetch_state::
     ld c, ATRACKER_FETCH_STATE
     ; jr set_state
 set_state:
@@ -132,7 +132,7 @@ tracker_step::
 ; tracker_update
 ; update state of current working tracker
 ; --------------------------
-tracker_update:
+tracker_update::
     GET_CURRENT_TRACKER_ELEM_ADDR tracker_state
     ld a, [hl]
     cp a, ATRACKER_END_STATE
@@ -149,7 +149,6 @@ tracker_update:
 
 update_new_note:
     call set_delay_state
-    PRINT_DEBUG "D : new note"
     jr tracker_update
 
 update_delay:

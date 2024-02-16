@@ -65,7 +65,7 @@ Audio_init::
 	ld hl, _trackers_update_counter
 	ld a, $01
 	ld [hl], a ; reset counter (1 to force update of first frame)
-	ld hl, _trackers_stepped
+	ld hl, _trackers_flags
 	res 7, [hl] ; reset tracker stepped
 
 	; ---- init 4 channel trackers -------
@@ -94,21 +94,35 @@ Audio_init::
 	ld bc, _CH4_track
 	ld e, [hl] ; e <- $ZZ
 	call tracker_init
-
 	ret
 
-
+; -----------------------------------------------
+; Audio_set_instruments_sheet_pointer(de = pointer)
+; 	/!\ de must be a 6 ALIGNED pointer (%XX000000)
+; -----------------------------------------------
+Audio_set_instruments_sheet_pointer::
+	ld hl, _instruments_sheet_pointer
+	ld a, e
+	ld [hl+], a
+	ld [hl], d
+	ret
 
 
 ;--------------------------------------------------------------------------
 ;- Audio_update()       
 ;-		Called once per frame
 ; 		Handle tracker updates
+; 		Handle Volume and instrument changes (notes parameters)
 ; 		Handle audio register and frequencies updates
 ;--------------------------------------------------------------------------
 Audio_update::
 	call handle_new_notes
 	call handle_trackers
+.loop_for_parameters
+	call handle_note_parameters
+	ld hl, _trackers_flags
+	bit 5, [hl]
+	jr nz, .loop_for_parameters ; loop (multiple parameters command can chain)
 	ret
 
 
@@ -145,7 +159,7 @@ handle_trackers:
 	ld bc, _CH4_track
 	call tracker_step
 
-	ld hl, _trackers_stepped
+	ld hl, _trackers_flags
 	set 7, [hl] ; tracker stepped
 	ret
 
@@ -155,7 +169,7 @@ handle_trackers:
 ; 		updates hardware register for new note
 ; --------------------------------------------------------------------
 handle_new_notes:
-	ld hl, _trackers_stepped
+	ld hl, _trackers_flags
 	bit 7, [hl]
 	ret z ; no trackers step -> return
 	res 7, [hl] ; note handling -> reset tracker step flag
@@ -185,13 +199,169 @@ handle_new_notes:
 .skip_CH4_new_note
 	ret
 
+; -------------------------------------------
+; handle_note_parameters()
+;  		If tracker has been stepped, tracker is in new note state
+; 		and the note is a contrôl note
+; 		execute contrôl and force step tracker again until new note
+; -------------------------------------------
+handle_note_parameters:
+	ld hl, _trackers_flags
+	bit 7, [hl]
+	ret z ; no tracker step -> return
+	res 5, [hl] ; reset parameter set flag
+
+	ld bc, _CH1_track
+	call tracker_new_note_state
+	jr nz, .skip_CH1
+	call tracker_get_note
+	cp a, (BLANK_NOTE + 1)
+	jr c, .skip_CH1 ; carry -> standard note
+	call _update_CH1_parameter
+	call set_fetch_state
+	call tracker_update
+	ld hl, _trackers_flags
+	set 5, [hl] ; set modified parameter flag
+.skip_CH1
+
+	ld bc, _CH2_track
+	call tracker_new_note_state
+	jr nz, .skip_CH2
+	call tracker_get_note
+	cp a, (BLANK_NOTE + 1)
+	jr c, .skip_CH2 ; carry -> standard note
+	call _update_CH2_parameter
+	call set_fetch_state
+	call tracker_update
+	ld hl, _trackers_flags
+	set 5, [hl] ; set modified parameter flag
+.skip_CH2
+
+	ld bc, _CH3_track
+	call tracker_new_note_state
+	jr nz, .skip_CH3
+	call tracker_get_note
+	cp a, (BLANK_NOTE + 1)
+	jr c, .skip_CH3 ; carry -> standard note
+	call _update_CH3_parameter
+	call set_fetch_state
+	call tracker_update
+	ld hl, _trackers_flags
+	set 5, [hl] ; set modified parameter flag
+.skip_CH3
+
+	ld bc, _CH4_track
+	call tracker_new_note_state
+	jr nz, .skip_CH4
+	call tracker_get_note
+	cp a, (BLANK_NOTE + 1)
+	jr c, .skip_CH4 ; carry -> standard note
+	call _update_CH4_parameter
+	call set_fetch_state
+	call tracker_update
+	ld hl, _trackers_flags
+	set 5, [hl] ; set modified parameter flag
+.skip_CH4
+	ret
+
+; --------------------------------------
+; notes parameters update
+; 		handle note parameter
+; --------------------------------------
+; ----------------------------------------------------------------------------
+; _update_CH1_parameter(a = note parameter) |current working tracker is CH1|
+; 	update instrument and hardware register for channel 1
+; ----------------------------------------------------------------------------
+_update_CH1_parameter:
+	bit 5, a
+	jr z, .3bitParameter
+	bit 4, a
+	jr z, .volumeParameter
+		; instrumentParameter
+		call _get_instrument_pointer ; hl <- pointer to new_instrument
+		call _set_CH1_instrument
+		ret
+.volumeParameter
+	ld hl, _CH1_instrument
+	inc hl
+	inc hl
+	call _set_instrument_volume
+	ret
+.3bitParameter
+	; unused
+	ret
+
+; ----------------------------------------------------------------------------
+; _update_CH2_parameter(a = note parameter) |current working tracker is CH2|
+; 	update instrument and hardware register for channel 2
+; ----------------------------------------------------------------------------
+_update_CH2_parameter:
+	bit 5, a
+	jr z, .3bitParameter
+	bit 4, a
+	jr z, .volumeParameter
+		; instrumentParameter
+		call _get_instrument_pointer ; hl <- pointer to new_instrument
+		call _set_CH2_instrument
+		ret
+.volumeParameter
+	ld hl, _CH2_instrument
+	inc hl
+	call _set_instrument_volume
+	ret
+.3bitParameter
+	; unused
+	ret
+
+; ----------------------------------------------------------------------------
+; _update_CH3_parameter(a = note parameter) |current working tracker is CH3|
+; 	update instrument and hardware register for channel 3
+; ----------------------------------------------------------------------------
+_update_CH3_parameter:
+	bit 5, a
+	jr z, .3bitParameter
+	bit 4, a
+	jr z, .volumeParameter
+		; instrumentParameter
+		call _get_instrument_pointer ; hl <- pointer to new_instrument
+		call _set_CH3_instrument
+		ret
+.volumeParameter
+	ld hl, _CH3_instrument
+	inc hl
+	call _set_instrument_volume
+	ret
+.3bitParameter
+	; unused
+	ret
+
+; ----------------------------------------------------------------------------
+; _update_CH4_parameter(a = note parameter) |current working tracker is CH4|
+; 	update instrument and hardware register for channel 4
+; ----------------------------------------------------------------------------
+_update_CH4_parameter:
+	bit 5, a
+	jr z, .3bitParameter
+	bit 4, a
+	jr z, .volumeParameter
+		; instrumentParameter
+		call _get_instrument_pointer ; hl <- pointer to new_instrument
+		call _set_CH4_instrument
+		ret
+.volumeParameter
+	ld hl, _CH4_instrument
+	inc hl
+	call _set_instrument_volume
+	ret
+.3bitParameter
+	; unused
+	ret
 
 ; ------------------------
 ; notes update
 ; 	handle blank note
 ; 	use data from instrument saved parameters
 ; ------------------------
-
 ; --------------------------------------------------------------------
 ; _update_CH1_note() |current working tracker must have been initialized to CH1 tracker|
 ; 		updates hardware registers for channel 1 to play
@@ -287,6 +457,7 @@ _update_CH4_note:
 
 
 
+
 ;------------------------------------------------------------------------------------------
 ;- Audio_set_CH3_wave_pattern(hl = pattern addr)
 ; expected pattern size is 16 bytes
@@ -342,6 +513,35 @@ __set_CH_instrument_common:
 	call memcopy_fast
 	ret
 
+; ----------------------------------------
+; _set_instrument_volume(a = volume contrôl byte, hl = pointer to memory update)
+; 		sets new volume value on bytes %XXXX.... of shadow NRX2
+; ----------------------------------------
+_set_instrument_volume:
+	and a, %00001111
+	swap a
+	ld b, a
+	ld a, [hl]
+	and a, %00001111
+	or a, b
+	ld [hl], a
+	ret
+
+; ---------------------------------------------
+; _get_instrument_pointer(a = instrument instruction) -> hl = pointer to 4 bytes instrument(based on the "instrument sheet pointer")
+; ---------------------------------------------
+_get_instrument_pointer:
+	and a, %00001111
+	sla a
+	sla a ; a <- a*4
+	ld b, a
+	ld hl, _instruments_sheet_pointer
+	ld a, [hl+]
+	or a, b
+	ld h, [hl]
+	ld l, a
+	ret
+
 	SECTION "Blank_Instruments", ROMX
 	; small section of save register for "instruments"
 	; stopping play of the note on each channel
@@ -363,12 +563,7 @@ _CH4_blank_instrument:
 	DB %00001000 ; NR42 (volume = 0 ; sweep up to avoid pop)
 	DB %10000000 ; NR44 (retriggers channel to mute audio)
 
-_test_instrument1:
-	DB $00, $80, $F1, $C0
-_test_instrument2:
-	DB $00, $C0, $F1, $C0
-_test_instrument3:
-	DB $00, $80, $20, $C0
+
 ;+-----------------------------------------------------------------------------+
 ;| +-------------------------------------------------------------------------+ |
 ;| |                          VARIABLES                                      | |
@@ -380,7 +575,9 @@ _test_instrument3:
 
 _trackers_speed:		DS 1 ; update speed of tracker (0 -> once per call, 1 -> every two call, etc)
 _trackers_update_counter:	DS 1 ; update counter of tracker
-_trackers_stepped:	DS 1 ; %bxxxxxxx -> b : 1 if tracker has been stepped
+_trackers_flags:	DS 1 ; %bxcxxxxx -> b : 1 if tracker has been stepped
+;							 -> c : 1 if a note parameter has been updated
+_instruments_sheet_pointer: DS 2 ; addr pointer to the page of instruments (6 ALIGN : %XXXXXXXX %XX000000)
 
 _CH1_instrument: DS 4 ; saved register of NR10 - NR11 - NR12 and NR14  to use as parameters for the note
 _CH2_instrument: DS 3 ; saved register of NR21 NR22 NR24 to use as parameters for the new note

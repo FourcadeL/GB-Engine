@@ -98,16 +98,26 @@ room_init:
     call Audio_init
     pop bc
     pop bc
+    ld de, _instruments_sheet
+    call Audio_set_instruments_sheet_pointer
     ret
 
+    SECTION "instruments sheet", ROMX, ALIGN[6]
+_instruments_sheet:
+    DB $00, $00, $F1, $C0
+    DB $00, $C0, $F1, $C0
+    DB $00, $80, $F0, $80
 
 
     SECTION "tracker dummy", ROM0, ALIGN[8]
 _tracker_dummy_track:
+    DB %01110000 ; set instrument 0
     DB %10001011 ; call to block
     DB HIGH(_tracker_GAM_track)
+    DB %01110001 ; set innstrument 1
     DB %10001011 ; call to block
     DB HIGH(_tracker_ACDLL_track)
+    DB %01110010 ; set innstrument 2
     DB %10001011 ; call to block
     DB HIGH(_tracker_ALCF_track)
     DB %10000100 ; global return
@@ -115,11 +125,12 @@ _tracker_dummy_track:
     SECTION "track 0", ROM0, ALIGN[8]
 _tracker_blank_track:
     DB %11111111 ; set waiting time to 127
-    DB %01010100 ; play blanck note
+    DB %01110000 ; set instrument 0
+    DB %01010100 ; play blank note
     DB %00010110 ; play note
-    DB %01010100 ; play blanck note
-    DB %01010100 ; play blanck note
-    DB %01010100 ; play blanck note
+    DB %01010100 ; play blank note
+    DB %01010100 ; play blank note
+    DB %01010100 ; play blank note
     DB %10000100 ; total return
 
     SECTION "track 1", ROM0, ALIGN[8]
@@ -177,8 +188,46 @@ _tracker_ALCF_track:
 
     SECTION "track 3", ROM0, ALIGN[8]
 _tracker_GAM_track:
-    DB %11000000 ; wait 0
-    DB 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36
+    DB %11000010 ; wait 2
+    DB %01110010 ; set instrument 2
+    DB %01100010 ; set volume 2
+    DB 24
+    DB %01110001 ; set instrument 1
+    DB %01100011 ; set volume 3
+    DB 25
+    DB %01110010 ; set instrument 2
+    DB %01100100 ; set volume 4
+    DB 26
+    DB %01110001 ; set instrument 1
+    DB %01100101 ; set volume 5
+    DB 27
+    DB %01110010 ; set instrument 2
+    DB %01100110 ; set volume 6
+    DB 28
+    DB %01110001 ; set instrument 1
+    DB %01100111 ; set volume 7
+    DB 29
+    DB %01110010 ; set instrument 2
+    DB %01101000 ; set volume 8
+    DB 30
+    DB %01110001 ; set instrument 1
+    DB %01101001 ; set volume 9
+    DB 31
+    DB %01110010 ; set instrument 2
+    DB %01101010 ; set volume A
+    DB 32
+    DB %01110001 ; set instrument 1
+    DB %01101011 ; set volume B
+    DB 33
+    DB %01110010 ; set instrument 2
+    DB %01101100 ; set volume C
+    DB 34
+    DB %01110001 ; set instrument 1
+    DB %01101101 ; set volume D
+    DB 35
+    DB %01110010 ; set instrument 2
+    DB %01101110 ; set volume E
+    DB 36
     DB %10001000 ; block end
 
 
