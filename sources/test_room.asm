@@ -94,7 +94,7 @@ room_init:
     push bc
     ld b, c
     push bc
-    ld b, 12 ; tracker speed
+    ld b, 6 ; tracker speed
     call Audio_init
     pop bc
     pop bc
@@ -106,12 +106,17 @@ room_init:
 _instruments_sheet:
     DB $00, $00, $F1, $C0
     DB $00, $C0, $F1, $C0
-    DB $00, $80, $F0, $80
+    DB $00, $80, $C0, $80
 
 
     SECTION "tracker dummy", ROM0, ALIGN[8]
 _tracker_dummy_track:
-    DB %01110000 ; set instrument 0
+    DB %01110010 ; set instrument 2
+    DB %10100110 ; set repeat counter 6
+    DB %10000001 ; return tracker set
+    DB %10001011 ; call to block
+    DB HIGH(_gradius_main)
+    DB %10000111 ; conditional return tracker
     DB %10001011 ; call to block
     DB HIGH(_tracker_GAM_track)
     DB %01110001 ; set innstrument 1
@@ -125,9 +130,15 @@ _tracker_dummy_track:
     SECTION "track 0", ROM0, ALIGN[8]
 _tracker_blank_track:
     DB %11111111 ; set waiting time to 127
-    DB %01110000 ; set instrument 0
     DB %01010100 ; play blank note
-    DB %00010110 ; play note
+    DB %01010100 ; play blank note
+    DB %01010100 ; play blank note
+    DB %01010100 ; play blank note
+    DB %01010100 ; play blank note
+    DB %01010100 ; play blank note
+    DB %01010100 ; play blank note
+    DB %01010100 ; play blank note
+    DB %01010100 ; play blank note
     DB %01010100 ; play blank note
     DB %01010100 ; play blank note
     DB %01010100 ; play blank note
@@ -228,6 +239,157 @@ _tracker_GAM_track:
     DB %01110010 ; set instrument 2
     DB %01101110 ; set volume E
     DB 36
+    DB %10001000 ; block end
+
+
+    SECTION "track gradius", ROMX, ALIGN[8]
+_gradius_main:
+    DB %11000001 ; wait 1
+    DB %00100100
+    DB %11000010 ; wait 2
+    DB %00100100
+    DB %11000000 ; wait 0
+    DB %00100100
+    DB %11000001 ; wait 1
+    DB %00100100
+    DB %00100110
+    DB %00100110
+    DB %00011111
+    DB %00011111
+    DB %00100111
+    DB %11000011 ; wait 3
+    DB %00100111
+    DB %11000001 ; wait 1
+    DB %00100111
+    DB %00101001
+    DB %00101001
+    ; ------L
+    DB %11000000 ; wait 0
+    DB %00011111
+    DB %11000001 ; wait 1
+    DB %00011111
+    DB %11000000 ; wait 0
+    DB %00011111
+    DB %11000111 ; wait 7
+    DB %00101011
+    DB %11000000 ; wait 0
+    DB %00101001
+    DB %00101000
+    DB %00100100
+    DB %11000100 ; wait 4
+    DB %00011111
+    DB %11000000 ; wait 0
+    DB %00011101
+    DB %00011100
+    DB %00011000
+    DB %11000100 ; wait 4
+    DB %00010011
+    DB %11000010 ; wait 2
+    DB %00011100
+    DB %00011111
+    DB %11000001 ; wait 1
+    DB %00100100
+    ; --------L
+    DB %11000111 ; wait 7
+    DB %00101011
+    DB %11000000 ; wait 0
+    DB %00101001
+    DB %00101000
+    DB %00100100
+    DB %11000100 ; wait 4
+    DB %00011111
+    DB %11000000 ; wait 0
+    DB %00011101
+    DB %00011100
+    DB %00011000
+    DB %11000100 ; wait 4
+    DB %00010011
+    DB %11000010 ; wait 2
+    DB %00011111
+    DB %00100100
+    DB %11000001 ; wait 1
+    DB %00101000
+    DB %11000111 ; wait 7
+    DB %00101011
+    ; --------------L
+    DB %11000000 ; wait 0
+    DB %00101001
+    DB %00101000
+    DB %00100100
+    DB %11000010 ; wait 2
+    DB %00011101
+    DB %11000000 ; wait 0
+    DB %00011010
+    DB %00011100
+    DB %11000010 ; wait 2
+    DB %00011101
+    DB %00011100
+    DB %11000001 ; wait 1
+    DB %00011101
+    DB %11000010 ; wait 2
+    DB %00011111
+    DB %00011101
+    DB %11000001 ; wait 1
+    DB %00011111
+    DB %11000000 ; wait 0
+    DB %00100000
+    DB %00100010
+    DB %00100100
+    DB %00100110
+    DB %00100111
+    DB %00100110
+    DB %00100100
+    DB %00100010
+    ; ----------L
+    DB %00100000
+    DB %00100010
+    DB %00100000
+    DB %00011111
+    DB %00011101
+    DB %00011111
+    DB %00011101
+    DB %00011011
+    DB %11000010 ; wait 2
+    DB %00011010
+    DB %00011101
+    DB %00100010
+    DB %00100111
+    DB %11000011 ; wait 3
+    DB %00101100
+    ; -----------L
+    DB %11000111 ; wait 7
+    DB %00101011
+    DB %11000000 ; wait 0
+    DB %00101001
+    DB %00101000
+    DB %00100100
+    DB %11000010 ; wait 2
+    DB %00011111
+    DB %11000000 ; wait 0
+    DB %00011111
+    DB %11000001 ; wait 1
+    DB %00100100
+    DB %11000000 ; wait 0
+    DB %00100110
+    DB %11000001 ; wait 1
+    DB %00100111
+    DB %11000100 ; wait 4
+    DB %00100111
+    DB %11000000 ; wait 0
+    DB %00100111
+    DB %11000001 ; wait 1
+    DB %00101001
+    DB %11000100 ; wait 4
+    DB %00101001
+    DB %11000000 ; wait 0
+    DB %00101001
+    DB %11000001 ; wait 1
+    DB %00101011
+    DB %00101011
+    DB %11000000 ; wait 0
+    DB %00101001
+    DB %11001001 ; wait 9
+    DB %00101011
     DB %10001000 ; block end
 
 
