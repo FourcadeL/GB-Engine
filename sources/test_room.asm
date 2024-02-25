@@ -89,8 +89,8 @@ room_init:
     call Audio_set_wave_pattern
 
 
-    ld b, HIGH(_tracker_dummy_track)
-    ld c, HIGH(_tracker_blank_track)
+    ld b, HIGH(_tracker_main_1)
+    ld c, HIGH(_track_main_2)
     push bc
     ld b, HIGH(_track_main_3)
     ld c, HIGH(_tracker_blank_track)
@@ -107,26 +107,36 @@ room_init:
 _instruments_sheet:
     DB $00, $80, $50, $80 ; main square
     DB $00, $C0, $F1, $C0
-    DB $00, $10, $40, $80 ; main wave
+    DB $00, $10, $20, $80 ; main wave
 
     SECTION "track main 3", ROMX, ALIGN[8]
 _track_main_3:
     DB %01110010 ; set instrument 2
-    DB %10100110 ; set repeat counter 6
+    DB %10101110 ; set repeat counter 14
     DB %10000001 ; return tracker set
     DB %10001011 ; call to block
     DB HIGH(_gradius_bass)
     DB %10000111 ; conditional return tracker
-    DB %10100110 ; set repeat counter 6
+    DB %10001011 ; call to block
+    DB HIGH(_tracker_blank_track)
+
+    SECTION "track main 2", ROMX, ALIGN[8]
+_track_main_2:
+    DB %01110000 ; set instrument 0
+    DB %10101110 ; set repeat counter 14
     DB %10000001 ; return tracker set
+    DB %10001011 ; call to block
+    DB HIGH(_gradius_main_2)
+    DB %10000111 ; conditional return tracker
     DB %10001011 ; call to block
     DB HIGH(_tracker_blank_track)
     
 
-    SECTION "tracker dummy", ROM0, ALIGN[8]
-_tracker_dummy_track:
+    SECTION "tracker main 1", ROM0, ALIGN[8]
+_tracker_main_1:
     DB %01110000 ; set instrument 0
-    DB %10100110 ; set repeat counter 6
+    DB %01101110 ; set volume 14
+    DB %10101110 ; set repeat counter 14
     DB %10000001 ; return tracker set
     DB %10001011 ; call to block
     DB HIGH(_gradius_main)
@@ -408,8 +418,137 @@ _gradius_main:
     DB %01010100 ; play blank note
     DB %10001000 ; block end
 
-
     SECTION "track gradius 2", ROMX, ALIGN[8]
+_gradius_main_2:
+    DB %01101110 ; set volume 14
+    DB %11000001 ; wait 1
+    DB 33
+    DB %11000010 ; wait 2
+    DB 33
+    DB %11000000 ; wait 0
+    DB 33
+    DB %11000001 ; wait 1
+    DB 33
+    DB 35
+    DB 35
+    DB 26
+    DB 26
+    DB 36
+    DB %11000011 ; wait 3
+    DB 36
+    DB %11000001 ; wait 1
+    DB 36
+    DB 38
+    DB 38
+    DB %11000000 ; wait 0
+    DB 26
+    DB %11000001 ; wait 1
+    DB 26
+    DB %11000000 ; wait 0
+    DB 26
+    ; ------L
+    DB %01101010 ; set volume 10
+    DB %11000111 ; wait 7
+    DB 40
+    DB %11000011 ; wait 3
+    DB %01010100 ; play blank
+    DB %01101110 ; set volume 14
+    DB %11000000 ; wait 0
+    DB 41
+    DB 40
+    DB 36
+    DB 31
+    DB %11000011 ; wait 3
+    DB %01010100 ; play blank
+    DB %11000000 ; wait 0
+    DB 41
+    DB 40
+    DB 36
+    DB 31
+    DB %01101010 ; set volume 10
+    DB %11000010 ; wait 2
+    DB 36
+    DB 40
+    DB %11000001 ; wait 1
+    DB 43
+    ; --------L
+    DB %11000111 ; wait 7
+    DB 40
+    DB %11000011 ; wait 3
+    DB %01010100 ; play blank
+    DB %01101110 ; set volume 14
+    DB %11000000 ; wait 0
+    DB 41
+    DB 40
+    DB 36
+    DB 31
+    DB %11000011 ; wait 3
+    DB %01010100 ; play blank
+    DB %11000000 ; wait 0
+    DB 41
+    DB 40
+    DB 36
+    DB 31
+    DB %01101010 ; set volume 10
+    DB %11000010 ; wait 2
+    DB 36
+    DB 40
+    DB %11000001 ; wait 1
+    DB 43
+    DB %11000111 ; wait 7
+    DB 36
+    DB 38
+    ; --------------L
+    DB 38
+    DB 40
+    DB %11000011 ; wait 3
+    DB 36
+    DB 38
+    DB 39
+    DB 41
+    ; --------------L
+    DB %11000010 ; wait 2
+    DB 43
+    DB %01101110 ; set volume 14
+    DB 24
+    DB 29
+    DB 34
+    DB %11000011 ; wait 3
+    DB 39
+    DB %01101010 ; set volume 10
+    DB %11000111 ; wait 7
+    DB 40
+    DB %11000101 ; wait 5
+    DB %01010100 ; play blank
+    DB %11000001 ; wait 1
+    DB 27
+    ; -----------------L
+    DB %11000000 ; wait 0
+    DB 29
+    DB %11000001 ; wait 1
+    DB 31
+    DB %11000100 ; wait 4
+    DB 31
+    DB %11000000 ; wait 0
+    DB 31
+    DB %11000001 ; wait 1
+    DB 33
+    DB %11000100 ; wait 4
+    DB 33
+    DB %11000000 ; wait 0
+    DB 38
+    DB %11000001 ; wait 1
+    DB 40
+    DB 40
+    DB %11000000 ; wait 0
+    DB 38
+    DB %11001000 ; wait 8
+    DB 40
+    DB %11000000 ; wait 0
+    DB %01010100 ; play blank note
+    DB %10001000 ; block end
+
+    SECTION "track gradius bass", ROMX, ALIGN[8]
 _gradius_bass:
     DB %11000001 ; wait 1
     DB 29
