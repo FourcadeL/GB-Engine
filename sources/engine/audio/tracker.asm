@@ -24,6 +24,9 @@ INCLUDE "hardware.inc"
 INCLUDE "debug.inc"
 INCLUDE "tracker.inc"
 
+; TODO UNALIGNED TRACKER IMPLEMENTATION (structure of tracker.inc has been initialized)
+; DONE for easy instruction
+; TO DO for stack operations
 
 
 ;--------------------------------
@@ -78,15 +81,17 @@ set_state:
     ret
 
 ; -------------------------------
-; tracker_init(bc = addr of working tracker to initialize, e = High addr of first tracker block)
+; tracker_init(bc = addr of working tracker to initialize, de = addr of tracker block)
 ;   init a tracker at addr bc
 ;   for track block in de
 ;   every other values are set to 0 (except stack save and tracker state)
 ; -------------------------------
 tracker_init::
     call set_current_working_tracker
-    GET_CURRENT_TRACKER_ELEM_ADDR block_Haddr
+    GET_CURRENT_TRACKER_ELEM_ADDR block_Laddr
     ld a, e
+    ld [hl+], a
+    ld a, d
     ld [hl+], a
     ld b, SIZEOF_tracker_struct - 1
     ld d, $00
@@ -98,6 +103,15 @@ tracker_init::
     ld a, e
     ld [hl+], a
     ld [hl], d
+    call set_end_state
+    ret
+
+; -------------------------------
+; tracker_start(bc = addr of working tracker to start)
+;   tracker at bc is set to fetch_state
+; -------------------------------
+tracker_start::
+    call set_current_working_tracker
     call set_fetch_state
     ret
 
@@ -175,12 +189,17 @@ update_delay:
 ; - update memory state
 ; --------------------------
 fetch_routine:
-    GET_CURRENT_TRACKER_ELEM_ADDR block_Haddr
+    GET_CURRENT_TRACKER_ELEM_ADDR block_Laddr
     ld a, [hl+]
-    ld b, [hl]
+    ld e, a
+    ld a, [hl+]
+    ld d, a ; de <- block base addr
+    ld c, [hl] ; c <- tracker value
     inc [hl] ; tracker counter update
-    ld l, b
-    ld h, a
+    ld h, d
+    ld l, e
+    ld b, $00
+    add hl, bc
     ld a, [hl] ; a <- tracker instruction
     bit 7, a
     jr z, _note_instruction_read ;v-- else : control instruction 
@@ -234,7 +253,7 @@ _set_repeat_counter_instruction:
     ld c, a
     GET_CURRENT_TRACKER_ELEM_ADDR repeat_counter
     ld [hl], c
-    jr fetch_routine
+    jp fetch_routine
 
 
 ; ------------------------
@@ -378,8 +397,8 @@ _new_block_instruction:
         ld sp, hl ; sp <- tracker recursive stack
 
         GET_CURRENT_TRACKER_ELEM_ADDR block_Haddr
-        ld a, [hl+]
-        ld c, [hl]
+        ld a, [hl+] ; a <- block H addr
+        ld c, [hl] ; c <- current tracker
         inc c
         ld b, a
         push bc ; pushed block H addr and tracker

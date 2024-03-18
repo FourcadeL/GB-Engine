@@ -87,10 +87,10 @@ room_init:
     ld hl, __Wave_Pattern_Sawtooth_start
     ; ld hl, __Wave_Pattern_Triangle_start
     call Audio_set_wave_pattern
-    ; ld hl, song_0
-    ld hl, gradius
+    ld hl, song_0
+    ; ld hl, gradius
     call load_audio_song
-
+    call Audio_start_song
     ret
 
 load_audio_song:

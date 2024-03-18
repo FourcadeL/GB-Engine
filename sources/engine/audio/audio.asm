@@ -49,10 +49,10 @@ Audio_off::
 ;  		
 ; 		Initialises tracker speed to b
 ; 		Initializes channels trackers with block start addr pushed on stack
-; 			CH1 : $WW
-; 			CH2 : $XX
-; 			CH3 : $YY
-; 			CH4 : $ZZ
+; 			CH1 : $WW00
+; 			CH2 : $XX00
+; 			CH3 : $YY00
+; 			CH4 : $ZZ00
 ;--------------------------------------------------------------------------
 Audio_init::
 	MEMBSET [rNR52], $FF ; enable all channels
@@ -72,28 +72,88 @@ Audio_init::
 	ld bc, _CH1_track
 	ld hl, sp+5
 	ld a, [hl-]
-	ld e, a ; e <- $WW
+	ld e, $00
+	ld d, a ; de <- $WW00
 	push hl
 	call tracker_init ; CH1 init
 
 	pop hl
 	ld bc, _CH2_track
 	ld a, [hl-]
-	ld e, a ; e <- $XX
+	ld e, $00
+	ld d, a ; de <- $XX00
 	push hl
 	call tracker_init ; CH2 init
 
 	pop hl
 	ld bc, _CH3_track
 	ld a, [hl-]
-	ld e, a ; e <- $YY
+	ld e, $00
+	ld d, a ; de <- $YY00
 	push hl
 	call tracker_init ; CH3 init
 
 	pop hl
 	ld bc, _CH4_track
-	ld e, [hl] ; e <- $ZZ
+	ld e, $00
+	ld d, [hl] ; de <- $ZZ00
 	call tracker_init
+	ret
+
+; ------------------------------------------------------------------------
+; Audio_load_song(hl = songAddr)
+; Initializes channels trackers with block start addr at song addr
+; Song addr contains $WWWW ; $XXXX ; $YYYY ; $ZZZZ (little endian)
+; 			CH1 : $WWWW
+; 			CH2 : $XXXX
+; 			CH3 : $YYYY
+; 			CH4 : $ZZZZ
+;--------------------------------------------------------------------------
+Audio_load_song::
+	ld a, [hl+]
+	ld e, a
+	ld a, [hl+]
+	ld d, a ; de <- $WWWW
+	ld bc, _CH1_track
+	push hl
+	call tracker_init ; CH1 set
+	pop hl
+	ld a, [hl+]
+	ld e, a
+	ld a, [hl+]
+	ld d, a ; de <- $XXXX
+	push hl
+	ld bc, _CH2_track
+	call tracker_init ; CH2 set
+	pop hl
+	ld a, [hl+]
+	ld e, a
+	ld a, [hl+]
+	ld d, a ; de <- $YYYY
+	ld bc, _CH3_track
+	push hl
+	call tracker_init ; CH3 set
+	pop hl
+	ld a, [hl+]
+	ld e, a
+	ld d, [hl] ; de <- $ZZZZ
+	ld bc, _CH4_track
+	call tracker_init ; CH4 set
+	ret
+
+; -----------------------------------------------
+; Audio_start_song
+;		Start trackers to start playing audio
+;------------------------------------------------
+Audio_start_song::
+	ld bc, _CH1_track
+	call tracker_start
+	ld bc, _CH2_track
+	call tracker_start
+	ld bc, _CH3_track
+	call tracker_start
+	ld bc, _CH4_track
+	call tracker_start
 	ret
 
 ; -----------------------------------------------
