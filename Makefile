@@ -69,8 +69,9 @@ OBJ = $(ASMFILES:.asm=.obj)
 #####################################################################
 ##                   Build and dependancies                        ##
 
-all: 	$(TMPBIN)
-	@rm -f $(OBJ)
+all:	tmp_build
+
+tmp_build:	$(TMPBIN)
 
 build:	$(BIN)
 	@rm -f $(OBJ)
@@ -79,8 +80,8 @@ final:	$(FINALBIN)
 	@rm -f $(OBJ)
 
 rebuild:
-	@make clean
-	@make
+	make clean
+	make
 	@rm -f $(OBJ)
 
 clean:
