@@ -26,7 +26,7 @@ INCLUDE "tracker.inc"
 
 ; TODO UNALIGNED TRACKER IMPLEMENTATION (structure of tracker.inc has been initialized)
 ; DONE for easy instruction
-; TO DO for stack operations
+; TO DO for stack operations and new addr block read
 
 
 ;--------------------------------
@@ -306,7 +306,7 @@ _return_tracker_set:
 ;------------------------
 ; _block_control_instruction(a = instruction read)
 ; do control of tracker block instruction
-; block control instruction : %00001?bb (+ $XX)
+; block control instruction : %00001?bb (+ $XX $XX)
 ;   bb : 
 ;       00 -> block end (returned to pushed block), if empty stack : ATRACKER_END_STATE
 ;       01 -> reset block stack
@@ -334,22 +334,28 @@ _block_control_instruction:
         ld h, d
         ld l, e
         ld sp, hl ; sp <- tracker recursive stack
+        ; change context --------------------------------
 
         pop de ; pop repeat_counter and return tracker value
-        GET_CURRENT_TRACKER_ELEM_ADDR block_Haddr
-        pop bc ; pop block_Haddr and tracker value
-        ld a, b
-        ld [hl+], a
-        ld [hl], c
         GET_CURRENT_TRACKER_ELEM_ADDR repeat_counter
         ld a, d
-        ld [hl+], a
-        ld [hl], e
+        ld [hl+], a ; set reapeat_counter value
+        ld [hl], e ; set return_tracker value
 
+        GET_CURRENT_TRACKER_ELEM_ADDR block_Laddr
+        pop de ; pop tracker_value and $XX
+        pop bc ; pop block_addr ($HHLL)
+        ld a, c
+        ld [hl+], a ; set block_Laddr
+        ld a, b
+        ld [hl+], a ; set block_Haddr
+        ld [hl], d ; set tracker_value
+        
+        GET_CURRENT_TRACKER_ELEM_ADDR stack_save
         ld d, h
-        ld e, l
-        inc de ; de is the stack save addr
+        ld e, l ; de is the stack save addr
 
+        ;-----------------------------------------------
         ld hl, sp + 0
         ld a, l
         ld [de], a
@@ -380,10 +386,10 @@ _block_control_instruction:
 ;------------------------
 ; _block_control_instruction(a = instruction read)
 ; do control of tracker block instruction
-; block control instruction : %00001?1b + $XX
+; block control instruction : %00001?1b + $ll $HH
 ;   bb :
-;       10 -> jump to tracker block $XX
-;       11 -> call to tracker block $XX
+;       10 -> jump to tracker block $HHll
+;       11 -> call to tracker block $HHll
 ; -----------------------
 _new_block_instruction:
     bit 0, a
@@ -396,12 +402,18 @@ _new_block_instruction:
         ld [_execution_stack_pointer_save], sp ; saved execution stack pointer
         ld sp, hl ; sp <- tracker recursive stack
 
-        GET_CURRENT_TRACKER_ELEM_ADDR block_Haddr
-        ld a, [hl+] ; a <- block H addr
-        ld c, [hl] ; c <- current tracker
-        inc c
-        ld b, a
-        push bc ; pushed block H addr and tracker
+        ; change context --------------------------------
+
+        GET_CURRENT_TRACKER_ELEM_ADDR block_Laddr
+        ld a, [hl+]
+        ld c, a ; c <- block L addr
+        ld a, [hl+]
+        ld b, a ; bc <- block addr
+        ld d, [hl] ; d <- current tracker
+        inc d
+        inc d   ; double increment next instruction after addr
+        push bc ; pushed block addr
+        push de ; pushed tracker value + $XX
 
         GET_CURRENT_TRACKER_ELEM_ADDR repeat_counter
         ld a, [hl+]
@@ -412,7 +424,8 @@ _new_block_instruction:
         ld d, h
         ld e, l
         inc de ; de is the stack save addr
-        
+
+        ;------------------------------------------------
         ld hl, sp + 0
         ld a, l
         ld [de], a
@@ -429,14 +442,24 @@ _new_block_instruction:
         ld sp, hl ; restored execution stack pointer
     ei
 .new_block_read_and_context_change
-    GET_CURRENT_TRACKER_ELEM_ADDR block_Haddr
+    GET_CURRENT_TRACKER_ELEM_ADDR block_Laddr
     push hl
     ld a, [hl+]
-    ld l, [hl]
-    ld h, a
-    ld a, [hl] ; a <- next block H addr
+    ld e, a
+    ld a, [hl+]
+    ld d, a ; de <- block base addr
+    ld c, [hl] ; c <- tracker value
+    ld h, d
+    ld l, e
+    ld b, $00
+    add hl, bc
+    ld a, [hl+]
+    ld c, a
+    ld b, [hl] ; ba <- next block addr
     pop hl
-    ld [hl+], a ; set new block addr
+    ld [hl+], a ; set new block Laddr
+    ld a, b
+    ld [hl+], a ; set new block Haddr
     ld a, $00
     ld [hl], a ; set new tracker to 0
     GET_CURRENT_TRACKER_ELEM_ADDR repeat_counter

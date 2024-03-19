@@ -43,16 +43,11 @@ Audio_off::
 
 
 ;--------------------------------------------------------------------------
-;- Audio_init(b=trackers speed ; StackPush : $WWXX $YYZZ)       
+;- Audio_init(b=trackers speed)       
 ;-		Initialisation basique des registres audio (peut être modifié)
 ;-		volumes max toutes les chaines sur tout les terminaux
 ;  		
 ; 		Initialises tracker speed to b
-; 		Initializes channels trackers with block start addr pushed on stack
-; 			CH1 : $WW00
-; 			CH2 : $XX00
-; 			CH3 : $YY00
-; 			CH4 : $ZZ00
 ;--------------------------------------------------------------------------
 Audio_init::
 	MEMBSET [rNR52], $FF ; enable all channels
@@ -67,37 +62,6 @@ Audio_init::
 	ld [hl], a ; reset counter (1 to force update of first frame)
 	ld hl, _trackers_flags
 	res 7, [hl] ; reset tracker stepped
-
-	; ---- init 4 channel trackers -------
-	ld bc, _CH1_track
-	ld hl, sp+5
-	ld a, [hl-]
-	ld e, $00
-	ld d, a ; de <- $WW00
-	push hl
-	call tracker_init ; CH1 init
-
-	pop hl
-	ld bc, _CH2_track
-	ld a, [hl-]
-	ld e, $00
-	ld d, a ; de <- $XX00
-	push hl
-	call tracker_init ; CH2 init
-
-	pop hl
-	ld bc, _CH3_track
-	ld a, [hl-]
-	ld e, $00
-	ld d, a ; de <- $YY00
-	push hl
-	call tracker_init ; CH3 init
-
-	pop hl
-	ld bc, _CH4_track
-	ld e, $00
-	ld d, [hl] ; de <- $ZZ00
-	call tracker_init
 	ret
 
 ; ------------------------------------------------------------------------
