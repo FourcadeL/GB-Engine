@@ -113,8 +113,9 @@ room_init:
     call Audio_init
     ld de, _instruments_sheet
     call Audio_set_instruments_sheet_pointer
-    ld hl, song_0
+    ; ld hl, song_0
     ; ld hl, song_1
+    ld hl, song_2
     call Audio_load_song
     call Audio_start_song
     

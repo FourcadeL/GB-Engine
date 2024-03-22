@@ -11,7 +11,7 @@
 	INCLUDE "tracker.inc"
 
 
-def BLANK_NOTE = %01010100 
+def BLANK_NOTE = %01011111
 
 
 
