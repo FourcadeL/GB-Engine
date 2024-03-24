@@ -31,7 +31,7 @@ song_2::
 
 	SECTION "songblock_0", ROMX
 Smain1:
-	DB $70 ; Set Instrument(0) 
+	DB $70 ; Set Instrument(0)
 	DB $A3 ; RepeatSet(3) 
 	DB $81 ; SetReturnTrack 
 	DB $C0 ; Set wait (0) 

@@ -30,61 +30,61 @@ room_main::
 .loop2
     push bc
     push de
-    ld c, $01
-    ld hl, $984E
-    call vram_set_fast
     call getInput
     call fwf_automaton_update
     call wait_vbl
+    call display_song_nb
     call Audio_update
-    pop de
-    pop bc
-    ld a, [PAD_pressed]
-    cp a, PAD_B
-    call z, playNoise15
+    ; ld a, [PAD_pressed]
+    ; cp a, PAD_B
+    ; call z, playNoise15
     ld a, [PAD_pressed]
     cp a, PAD_A
-    call z, playNoise7
+    call z, Audio_start_song
     ld a, [PAD_pressed]
     cp a, PAD_UP
     jr nz, .skip_increm
-        inc bc
-        inc d
+        call load_inc_song
 .skip_increm
     ld a, [PAD_pressed]
     cp a, PAD_DOWN
     jr nz, .skip_decrem
-        dec bc
-        dec d
+        call load_dec_song
 .skip_decrem
-    
+    pop bc
+    pop de
     jr .loop2
 
-playNoise15:
-    push bc
-    push de
-    ld a, [bc]
-    ld e, a
-    MEMBSET [rNR41], $00
-    MEMBSET [rNR42], $F0
-    MEMBSET [rNR43], e
-    MEMBSET [rNR44], $C0
-    pop de
-    pop bc
+
+display_song_nb:
+    ld a, [_song_select_pointer_offset]
+    add a, $80
+    ld d, a
+    ld c, $01
+    ld hl, $984E
+    call vram_set_fast
     ret
 
-playNoise7:
-    push bc
-    push de
-    ld a, [bc]
-    set 3, a
-    ld e, a
-    MEMBSET [rNR41], $00
-    MEMBSET [rNR42], $F0
-    MEMBSET [rNR43], e
-    MEMBSET [rNR44], $C0
-    pop de
-    pop bc
+load_inc_song:
+    call Audio_pause_song
+    ld hl, _song_select_pointer_offset
+    inc [hl]
+    ld a, [hl]
+    jr _common_load_new_song
+load_dec_song:
+    call Audio_pause_song
+    ld hl, _song_select_pointer_offset
+    dec [hl]
+    ld a, [hl]
+_common_load_new_song:
+    sla a
+    sla a
+    sla a
+    ld c, a
+    ld b, $00
+    ld hl, song_0
+    add hl, bc
+    call Audio_load_song
     ret
 
 room_init:
@@ -94,7 +94,7 @@ room_init:
     call fwf_automaton_set_display_width
     ld a, 18
     call fwf_automaton_set_display_height
-    ld a, $00
+    ld a, $03
     call fwf_automaton_set_timer
     ld a, $00
     call fwf_automaton_set_blank_tile_id
@@ -111,14 +111,13 @@ room_init:
     call Audio_set_wave_pattern
     ld b, 6 ; tracker speed
     call Audio_init
-    ld de, _instruments_sheet
-    call Audio_set_instruments_sheet_pointer
-    ; ld hl, song_0
+    ld hl, song_0
     ; ld hl, song_1
-    ld hl, song_2
+    ; ld hl, song_2
     call Audio_load_song
-    call Audio_start_song
     
+    ld hl, _song_select_pointer_offset
+    ld [hl], $00
     ret
 
 
@@ -126,8 +125,8 @@ room_init:
     SECTION "Test_data", ROM0
 
     _text:
-        DB " \n \n   TEST AUDIO\n \n Test du moteur audio :\n \n \n Push B pour tester de jouer une note\n \n Push A pour une note WAVE\n \n"
-        DB "Le tracker audio devrait se lancer tout seul et boucler ;)\\0"
+        DB " \n \n   TEST AUDIO\n \nTest du moteur audio \n \nUp / Down :\nselect song\n \nA : test play\n \n"
+        DB "     Enjoy ;)\\0"
 
     _aud:
         DB $00, $01, $02, $03, $04, $05, $06, $07
@@ -155,3 +154,6 @@ room_init:
     INCBIN "triangle.bin"
     __Wave_Pattern_Triangle_end:
     
+
+    SECTION "quick selection", WRAM0
+_song_select_pointer_offset: DS 1

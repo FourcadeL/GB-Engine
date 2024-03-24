@@ -372,7 +372,7 @@ update_display_addr_new_char:
     ret
 update_display_addr_new_line:
     ld a, [_current_display_col]
-    cp a, $00 ; no blank new line
+    cp a, $00 ; no blank new line (because linefull newline would waste a line)
     ret z
     ld a, [_current_display_row]
     inc a

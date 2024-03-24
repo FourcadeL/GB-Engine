@@ -23,7 +23,7 @@ block_Laddr             RB 1 ; Low byte of block addr
 block_Haddr             RB 1 ; High byte of block addr
 tracker_value           RB 1 ; current value of tracker on the 256 steps
 tracker_state           RB 1 ; current state of the tracker
-current_note            RB 1 ; currently playing note
+instrument_handler_addr RB 2 ; associated instrument handler addr (littel endian)
 delay_value             RB 1 ; current value of the default delay
 delay_counter           RB 1 ; current delay counter
 repeat_counter          RB 1 ; current value of the default repeat
@@ -35,4 +35,4 @@ SIZEOF_tracker_struct	RB 0
 ;-----------
 
 
-    ENDC ;HARDWARE_INC
+    ENDC ; TRACKER_INC

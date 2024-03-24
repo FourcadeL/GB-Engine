@@ -23,6 +23,7 @@ DEF ATRACKER_END_STATE = %10000100
 INCLUDE "hardware.inc"
 INCLUDE "debug.inc"
 INCLUDE "tracker.inc"
+INCLUDE "instruments.inc"
 
 ; TODO UNALIGNED TRACKER IMPLEMENTATION (structure of tracker.inc has been initialized)
 ; DONE for easy instruction
@@ -81,21 +82,37 @@ set_state:
     ret
 
 ; -------------------------------
-; tracker_init(bc = addr of working tracker to initialize, de = addr of tracker block)
+; tracker_init(StackPush : $XXXX(addr of instrument handler)
+;                          $YYYY(addr of tracker block)
+;                           bc = addr of working tracker to initialize) 
 ;   init a tracker at addr bc
 ;   for track block in de
+;   with instrument handler in
 ;   every other values are set to 0 (except stack save and tracker state)
 ; -------------------------------
 tracker_init::
     call set_current_working_tracker
+    ld hl, sp+2
+    ld a, [hl+]
+    ld e, a
+    ld d, [hl] ; de <- addr of tracker block
     GET_CURRENT_TRACKER_ELEM_ADDR block_Laddr
     ld a, e
     ld [hl+], a
     ld a, d
     ld [hl+], a
-    ld b, SIZEOF_tracker_struct - 1
+    ld b, SIZEOF_tracker_struct - 2
     ld d, $00
     call memset_fast
+
+    ld hl, sp+4
+    ld a, [hl+]
+    ld e, a
+    ld d, [hl] ; de <- addr of instrument handler
+    GET_CURRENT_TRACKER_ELEM_ADDR instrument_handler_addr
+    ld a, e
+    ld [hl+], a
+    ld [hl], d
     GET_CURRENT_TRACKER_ELEM_ADDR tracker_stack_base
     ld d, h
     ld e, l
@@ -115,14 +132,34 @@ tracker_start::
     call set_fetch_state
     ret
 
+; -------------------------------
+; tracker_pause(bc = addr of working tracker to pause)
+;   tracker at bc plays blank note then set itself to end state
+; -------------------------------
+tracker_pause::
+    call set_current_working_tracker
+    GET_CURRENT_TRACKER_ELEM_ADDR instrument_handler_addr
+    ld a, [hl+]
+    ld e, a
+    ld d, [hl] ; de <- instrument handler addr
+    ld hl, CH_flags
+    add hl, de
+    set 0, [hl] ; new note flag for handler
+    ld hl, CH_note_value
+    add hl, de
+    ld [hl], BLANK_NOTE ; blank note to play in handler
+    call set_end_state
+    ret
+
+
 ; -------------------------------------------------------
 ; tracker_get_note()
 ;   -> a : current note of the currently working tracker
 ; /!\ currently working tracker should already be initialized
 ;   (with a call to tracker new note state for example)
 ; -------------------------------------------------------
-tracker_get_note::
-    GET_CURRENT_TRACKER_ELEM_ADDR current_note
+tracker_get_note:: ; TODO REMOVE CHANGE IN PARADIGM
+    ; GET_CURRENT_TRACKER_ELEM_ADDR current_note
     ld a, [hl]
     ret
 
@@ -204,13 +241,13 @@ fetch_routine:
     bit 7, a
     jr z, _note_instruction_read ;v-- else : control instruction 
     bit 6, a
-    jr nz, _set_delay_counter_instruction
+    jp nz, _set_delay_counter_instruction
     bit 5, a
-    jr nz, _set_repeat_counter_instruction
+    jp nz, _set_repeat_counter_instruction
     bit 3, a
     jp nz, _block_control_instruction
     bit 2, a
-    jr nz, _return_instruction
+    jp nz, _return_instruction
     bit 0, a
     jp nz, _return_tracker_set
     PRINT_DEBUG "W [invalid inst]"
@@ -218,16 +255,78 @@ fetch_routine:
 
 ; -------------------------
 ; _note_instruction_read(a = instruction read)
-; set note in tracker memory
-; set tracker state to ATRACKER_NEW_NOTE_STATE
+;       %0110XXXX are volume control notes
+;       %0101XXXX are instrument control notes
+;       otherwise : standard note
+;           set note in instrument handler
+;           set new note flag in instrument handler
+;           set tracker state to ATRACKER_NEW_NOTE_STATE
 ; returns handle
 ; -------------------------
 _note_instruction_read:
     ld c, a
-    GET_CURRENT_TRACKER_ELEM_ADDR current_note
-    ld [hl], c
-    call set_new_note_state
+    and a, %11110000
+    cp a, %01100000
+    jr z, _volume_control_note
+    cp a, %01110000
+    jr z, _instrument_control_note
+    ; standard note
+        GET_CURRENT_TRACKER_ELEM_ADDR instrument_handler_addr
+        ld a, [hl+]
+        ld e, a
+        ld d, [hl] ; de <- instrument handler addr
+        ld hl, CH_flags
+        add hl, de
+        set 0, [hl]
+        ld hl, CH_note_value
+        add hl, de
+        ld [hl], c
+        call set_new_note_state
     ret
+
+;--------------------
+;_volume_control_note(c = instruction read)
+; set new volume in instrument handler
+; set new volume flag in instrument handler
+; fetch next instruction
+;---------------------
+_volume_control_note:
+    ld a, c
+    and a, %00001111
+    ld c, a
+    GET_CURRENT_TRACKER_ELEM_ADDR instrument_handler_addr
+    ld a, [hl+]
+    ld e, a
+    ld d, [hl] ; de <- instrument handler addr
+    ld hl, CH_flags
+    add hl, de
+    set 1, [hl]
+    ld hl, CH_curr_volume
+    add hl, de
+    ld [hl], c
+    jp fetch_routine
+
+;--------------------
+;_instrument_control_note(c = instruction read)
+; set new instrument in instrument handler
+; set new instrument flag in instrument handler
+; fetch next instruction
+;---------------------
+_instrument_control_note:
+    ld a, c
+    and a, %00001111
+    ld c, a
+    GET_CURRENT_TRACKER_ELEM_ADDR instrument_handler_addr
+    ld a, [hl+]
+    ld e, a
+    ld d, [hl] ; de <- instrument handler addr
+    ld hl, CH_flags
+    add hl, de
+    set 2, [hl]
+    ld hl, CH_curr_instrument_index
+    add hl, de
+    ld [hl], c
+    jp fetch_routine
 
 ; --------------------------
 ; _set_delay_counter_instruction(a = instruction read)
@@ -240,7 +339,7 @@ _set_delay_counter_instruction:
     ld c, a
     GET_CURRENT_TRACKER_ELEM_ADDR delay_value
     ld [hl], c
-    jr fetch_routine
+    jp fetch_routine
 
 ; ----------------------
 ; _set_repeat_counter_instruction(a = instruction read)
