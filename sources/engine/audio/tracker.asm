@@ -25,11 +25,6 @@ INCLUDE "debug.inc"
 INCLUDE "tracker.inc"
 INCLUDE "instruments.inc"
 
-; TODO UNALIGNED TRACKER IMPLEMENTATION (structure of tracker.inc has been initialized)
-; DONE for easy instruction
-; TO DO for stack operations and new addr block read
-
-
 ;--------------------------------
 ; GET_CURRENT_TRACKER_ELEM_ADDR
 ; set hl to the addr of the element in \1
@@ -133,10 +128,10 @@ tracker_start::
     ret
 
 ; -------------------------------
-; tracker_pause(bc = addr of working tracker to pause)
+; tracker_stop(bc = addr of working tracker to pause)
 ;   tracker at bc plays blank note then set itself to end state
 ; -------------------------------
-tracker_pause::
+tracker_stop::
     call set_current_working_tracker
     GET_CURRENT_TRACKER_ELEM_ADDR instrument_handler_addr
     ld a, [hl+]
@@ -152,16 +147,6 @@ tracker_pause::
     ret
 
 
-; -------------------------------------------------------
-; tracker_get_note()
-;   -> a : current note of the currently working tracker
-; /!\ currently working tracker should already be initialized
-;   (with a call to tracker new note state for example)
-; -------------------------------------------------------
-tracker_get_note:: ; TODO REMOVE CHANGE IN PARADIGM
-    ; GET_CURRENT_TRACKER_ELEM_ADDR current_note
-    ld a, [hl]
-    ret
 
 ; --------------------------------------------------------
 ; tracker_new note_state(bc = addr of working tracker)

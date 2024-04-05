@@ -40,21 +40,28 @@ room_main::
     ; call z, playNoise15
     ld a, [PAD_pressed]
     cp a, PAD_A
-    call z, Audio_start_song
+    call z, load_and_start_song
+    ld a, [PAD_pressed]
     ld a, [PAD_pressed]
     cp a, PAD_UP
     jr nz, .skip_increm
-        call load_inc_song
+        call inc_song
 .skip_increm
     ld a, [PAD_pressed]
     cp a, PAD_DOWN
     jr nz, .skip_decrem
-        call load_dec_song
+        call dec_song
 .skip_decrem
     pop bc
     pop de
     jr .loop2
 
+load_and_start_song:
+    ld hl, _song_select_pointer_offset
+    ld a, [hl]
+    call _common_load_new_song
+    call Audio_start_song
+    ret
 
 display_song_nb:
     ld a, [_song_select_pointer_offset]
@@ -65,23 +72,28 @@ display_song_nb:
     call vram_set_fast
     ret
 
-load_inc_song:
-    call Audio_pause_song
+inc_song:
+    call Audio_stop_song
     ld hl, _song_select_pointer_offset
     inc [hl]
-    ld a, [hl]
-    jr _common_load_new_song
-load_dec_song:
-    call Audio_pause_song
+    ret
+    
+dec_song:
+    call Audio_stop_song
     ld hl, _song_select_pointer_offset
     dec [hl]
-    ld a, [hl]
+    ret
+
+
 _common_load_new_song:
-    sla a
-    sla a
-    sla a
-    ld c, a
     ld b, $00
+    sla a
+    rl b
+    sla a
+    rl b
+    sla a
+    rl b
+    ld c, a
     ld hl, song_0
     add hl, bc
     call Audio_load_song

@@ -141,19 +141,19 @@ Audio_start_song::
 	ret
 
 ; ------------------------------------------------
-; Audio_pause_song
+; Audio_stop_song
 ;		Play blank note on each instrument
-; 		And set trackers to ends tate (wating to be awaken)
+; 		And set trackers to end state
 ; ------------------------------------------------
-Audio_pause_song::
+Audio_stop_song::
 	ld bc, _CH1_track
-	call tracker_pause
+	call tracker_stop
 	ld bc, _CH2_track
-	call tracker_pause
+	call tracker_stop
 	ld bc, _CH3_track
-	call tracker_pause
+	call tracker_stop
 	ld bc, _CH4_track
-	call tracker_pause
+	call tracker_stop
 	ret
 
 ;--------------------------------------------------------------------------
