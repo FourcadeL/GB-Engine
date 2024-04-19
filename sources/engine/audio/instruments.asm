@@ -30,8 +30,9 @@
 ;--------------------------------------------------------------------------
 Instruments_update::
     call _handle_instruments_changes
-    call _handle_volume_changes
     call _handle_note_changes
+    call _dynamic_volume_update
+    call _handle_volume_changes
     call _handle_hardware   ; only this call is responsible for hardware registers changes, other functions simply update instruments states variables
     ret
 
@@ -93,6 +94,88 @@ _handle_note_changes:
     ld hl, _CH4_instru + CH_flags
     bit 0, [hl]
     call nz, _ch4_note_change
+    ret
+
+
+_dynamic_volume_update:
+    ld hl, _CH1_instru + CH_VOL_state
+    bit 0, [hl]
+    call nz, _ch1_dynamic_volume_update
+    ld hl, _CH2_instru + CH_VOL_state
+    bit 0, [hl]
+    call nz, _ch2_dynamic_volume_update
+    ld hl, _CH3_instru + CH_VOL_state
+    bit 0, [hl]
+    call nz, _ch3_dynamic_volume_update
+    ld hl, _CH4_instru + CH_VOL_state
+    bit 0, [hl]
+    call nz, _ch4_dynamic_volume_update
+    ret
+
+;------------------ Dynamic volume change routines ----------
+_ch1_dynamic_volume_update:
+    ld de, _CH1_instru
+    jr _common_dynamic_volume_update
+_ch2_dynamic_volume_update:
+    ld de, _CH2_instru
+    jr _common_dynamic_volume_update
+_ch3_dynamic_volume_update:
+    ld de, _CH3_instru
+    jr _common_dynamic_volume_update
+_ch4_dynamic_volume_update:
+    ld de, _CH4_instru
+    ; jr _common_dynamic_volume_update
+_common_dynamic_volume_update:
+    ld hl, CH_flags
+    add hl, de ; hl <- current instrument flags
+    set 1, [hl] ; new volume set (should change registers and replay note)
+        ; get current modifier
+    ld hl, CH_VOL_modifiers_table
+    add hl, de ; hl <- addr of pointer to modifier table
+    ld a, [hl+]
+    ld b, [hl]
+    ld hl, CH_VOL_modifier_index
+    add hl, de ; hl <- addr of index to modifier table
+    add a, [hl]
+    inc [hl]
+    jr nc, .finalize_modifier_addr
+    inc b
+.finalize_modifier_addr
+    ld c, a ; bc <- addr to current modifier
+    ld a, [bc] ; a <- current modifier
+    cp a, %10000000 ; end sequence of modifier table
+        jr z, _common_dynamic_volume_shut_off
+    and a, %00011111
+    ld hl, CH_VOL_base_volume
+    add hl, de
+    ld b, [hl] ; b <- base volume
+        ; ------ apply modifier to base volume
+        ; see note on 5 bit modifier for detail 
+    add a, b
+    push af
+    pop hl ; l gives the result of half carry on bit 5
+    bit 4, a
+    jr z, .set_new_current_volume ; bit 4 to 0 -> addition or substraction is ok
+    bit 5, l
+    jr z, .semi_overflow_correct_substraction
+    ld a, $0F ; correct addition
+    jr .set_new_current_volume
+.semi_overflow_correct_substraction
+    ld a, $00; correct substraction
+.set_new_current_volume
+    and a, %00001111
+    ld hl, CH_curr_volume
+    add hl, de
+    ld [hl], a
+    ret
+_common_dynamic_volume_shut_off:
+    ; ld hl, CH_VOL_modifier_index
+    ; add hl, de (hl is already addr of modifier index)
+    ld a, $00
+    ld [hl], a
+    ld hl, CH_VOL_state
+    add hl, de
+    ld [hl], a ; reset state to stopped
     ret
 
 ; ---------------- Hardware change routines ----------
@@ -216,6 +299,12 @@ _ch4_note_change:
     call Audio_get_note_frequency4
     pop de
 _common_note_change: ; de is the base addr of instrument to change | bc is the frequency to use
+    ld hl, CH_VOL_state
+    add hl, de
+    set 0, [hl] ; wake up dynamic volume modifier
+    ld hl, CH_VOL_modifier_index
+    add hl, de
+    ld [hl], $00 ; reset modifier index
     ld hl, CH_hardware_registers + 3
     add hl, de
     ld [hl], c
@@ -294,6 +383,7 @@ _common_instrument_change: ; hl is the base addr of instrument to change
     ld c, a ; bc <- pointer to instrument to use
     pop de
     ld hl, CH_hardware_registers ; TODO should be merged with previous values
+        ; ------ copy of instrument in shadow hardware registers
     add hl, de ; hl <- pointer to copy data
     ld a, [bc]
     inc bc
@@ -307,6 +397,13 @@ _common_instrument_change: ; hl is the base addr of instrument to change
     inc hl
     ld a, [bc]
     ld [hl], a ; set of shadow NRX4
+        ; ------ copy of pointer to volume modulation table
+    inc bc ; bc <- volume modulation table pointer
+    ld hl, CH_VOL_modifiers_table
+    add hl, de ; hl <- pointer to CH_VOL_modifiers_table of current instrument
+    ld [hl], c
+    inc hl
+    ld [hl], b
     ret
 
 ; ------------------------------------------------------------

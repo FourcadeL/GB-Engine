@@ -283,11 +283,7 @@ _volume_control_note:
     ld a, [hl+]
     ld e, a
     ld d, [hl] ; de <- instrument handler addr
-    ld hl, CH_flags
-    add hl, de
-    set 1, [hl]
-    ld hl, CH_curr_volume
-    ; ld hl, CH_VOL_base_volume
+    ld hl, CH_VOL_base_volume
     add hl, de
     ld [hl], c
     jp fetch_routine

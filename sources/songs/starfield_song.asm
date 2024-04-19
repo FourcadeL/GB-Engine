@@ -22,12 +22,17 @@ _instruments_lookup::
 SECTION "instruments", ROMX
 inst_1:
 	DB $00, $80, $50, $80
+	DB $00, $1F, $1D, %10000000
+	; DB $00, $1F, %10000000
 inst_2:
 	DB $00, $C0, $F1, $C0
+	DB $00, %10000000
 inst_3:
 	DB $00, $10, $20, $80
+	DB $00, $02, %10000000
 inst_4:
 	DB $00, $00, $F0, $C0
+	DB $00, %10000000
 
 	SECTION "songs lookup", ROMX
 song_0::

@@ -164,12 +164,7 @@ Audio_stop_song::
 ; 		Handle audio register and frequencies updates
 ;--------------------------------------------------------------------------
 Audio_update::
-	ld hl, _trackers_flags
-	bit 7, [hl]
-	jr z, .no_instrument_update
-		res 7, [hl]
-		call Instruments_update
-.no_instrument_update
+	call Instruments_update ; called every frame
 	call handle_trackers
 	ret
 
