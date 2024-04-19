@@ -287,6 +287,7 @@ _volume_control_note:
     add hl, de
     set 1, [hl]
     ld hl, CH_curr_volume
+    ; ld hl, CH_VOL_base_volume
     add hl, de
     ld [hl], c
     jp fetch_routine

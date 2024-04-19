@@ -286,10 +286,12 @@ _common_instrument_change: ; hl is the base addr of instrument to change
     add hl, bc ; hl <- pointer to instrument to use index
     ld a, [hl] ; a <- instrument to use index
     sla a
-    sla a
-    ld b, HIGH(_instruments_sheet) ; /!\ instruments_sheet should be a 6 ALIGNED table
-    add a, LOW(_instruments_sheet)
-    ld c, a ; bc <- instrument pointer
+    ld h, HIGH(_instruments_lookup) ; /!\ instruments_lookup should be a 6 ALIGNED table
+    add a, LOW(_instruments_lookup)
+    ld l, a ; hl <- pointer to instrument loockup
+    ld a, [hl+]
+    ld b, [hl]
+    ld c, a ; bc <- pointer to instrument to use
     pop de
     ld hl, CH_hardware_registers ; TODO should be merged with previous values
     add hl, de ; hl <- pointer to copy data

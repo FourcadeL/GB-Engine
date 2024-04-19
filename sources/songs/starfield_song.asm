@@ -12,13 +12,22 @@
 
 
 
-SECTION "instruments sheet", ROMX, ALIGN[6]
-_instruments_sheet::
-	 DB $00, $80, $50, $80
-	 DB $00, $C0, $F1, $C0
-	 DB $00, $10, $20, $80
-	 DB $00, $00, $F0, $C0
+SECTION "instruments lookup", ROMX, ALIGN[6]
+_instruments_lookup::
+	DB LOW(inst_1), HIGH(inst_1)
+	DB LOW(inst_2), HIGH(inst_2)
+	DB LOW(inst_3), HIGH(inst_3)
+	DB LOW(inst_4), HIGH(inst_4)
 
+SECTION "instruments", ROMX
+inst_1:
+	DB $00, $80, $50, $80
+inst_2:
+	DB $00, $C0, $F1, $C0
+inst_3:
+	DB $00, $10, $20, $80
+inst_4:
+	DB $00, $00, $F0, $C0
 
 	SECTION "songs lookup", ROMX
 song_0::
