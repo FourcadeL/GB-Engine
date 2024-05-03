@@ -29,8 +29,10 @@ CH_hardware_registers       RB 5    ; 5 saved register NRX0 - NRX1 - NRX2 - NRX3
 CH_curr_volume              RB 1    ; channel current volume
 
     ;---------dynamic volume dedicated variables--------
-CH_VOL_state                RB 1    ; dynamic volume state flag %bbbbbbba
-;                                                               |-> active : when set current volume will be modified
+CH_VOL_state                RB 1    ; dynamic volume state flag %bbbbbbwa
+;                                                                      ||-> active : when set current volume will be modified
+;                                                                      |-> wait state : when set dynamic volume automaton is on wait
+CH_VOL_wait_counter         RB 1    ; counter wait before next dynamic volume update
 CH_VOL_base_volume          RB 1    ; base volume of the channel when a note is triggered
 CH_VOL_modifier_index       RB 1    ; index to modifier
 CH_VOL_modifiers_table      RB 2    ; pointer to the modifiers table

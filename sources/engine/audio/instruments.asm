@@ -126,9 +126,14 @@ _ch4_dynamic_volume_update:
     ld de, _CH4_instru
     ; jr _common_dynamic_volume_update
 _common_dynamic_volume_update:
-    ld hl, CH_flags
-    add hl, de ; hl <- current instrument flags
-    set 1, [hl] ; new volume set (should change registers and replay note)
+    ld hl, CH_VOL_state
+    add hl, de
+    push hl
+    bit 1, [hl]
+        call nz, _common_dynamic_volume_do_wait
+    pop hl
+    bit 1, [hl]
+        ret nz
         ; get current modifier
     ld hl, CH_VOL_modifiers_table
     add hl, de ; hl <- addr of pointer to modifier table
@@ -143,6 +148,8 @@ _common_dynamic_volume_update:
 .finalize_modifier_addr
     ld c, a ; bc <- addr to current modifier
     ld a, [bc] ; a <- current modifier
+    bit 6, a ; (%01xxxxxx) -> set wait control sequence
+        jr nz, _common_dynamic_volume_set_wait
     cp a, %10000000 ; end sequence of modifier table
         jr z, _common_dynamic_volume_shut_off
     and a, %00011111
@@ -167,10 +174,31 @@ _common_dynamic_volume_update:
     ld hl, CH_curr_volume
     add hl, de
     ld [hl], a
+    ld hl, CH_flags
+    add hl, de ; hl <- current instrument flags
+    set 1, [hl] ; new volume set (should change registers and replay note)
+    ret
+_common_dynamic_volume_set_wait:
+    and a, %00111111
+    ld hl, CH_VOL_wait_counter
+    add hl, de
+    ld [hl], a
+    ld hl, CH_VOL_state
+    add hl, de
+    set 1, [hl]
+    ret
+_common_dynamic_volume_do_wait:
+    ld hl, CH_VOL_wait_counter
+    add hl, de ; hl <- addr of channel volume wait counter
+    dec [hl]
+    ret nz
+    ld hl, CH_VOL_state
+    add hl, de
+    res 1, [hl]
     ret
 _common_dynamic_volume_shut_off:
-    ; ld hl, CH_VOL_modifier_index
-    ; add hl, de (hl is already addr of modifier index)
+    ld hl, CH_VOL_modifier_index
+    add hl, de ; hl <- addr of modifier index
     ld a, $00
     ld [hl], a
     ld hl, CH_VOL_state
