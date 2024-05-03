@@ -40,3 +40,16 @@ CH_VOL_modifiers_table      RB 2    ; pointer to the modifiers table
 SIZEOF_instrument_struct    RB 0
 
     ENDC ;INSTRUMENT_INC
+
+
+; NOTES for instrument dynamic volume :
+; Each instrument is associated with a dynamic volume update sequence after its 4 bytes of instrument declaration
+; the instruction sequence is terminated with byte %1000000 (volume modifier is set to idle until next note)
+;   instruments have a base current volume (on 4 bits)
+;   volume modifier allows modification of played volume :
+;   (played volume = base volume + 5bit signed modifier)
+; the instruction are as follow :
+; %10000000 -> sequence terminaison string
+; %000xxxxx -> modifier value 5 bit modifier for volume (signed value)
+; %01xxxxxx -> wait instruction : will wait xxxxxx update tick before next volume update
+; (/!\ %01000001 is the smallest duration  %01000000 will actually wait for %111111 ticks)

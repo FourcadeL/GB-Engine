@@ -778,6 +778,7 @@ Gwave:
 	SECTION "songblock_9", ROMX
 mainNoise:
 	DB $73 ; Set Instrument(3) 
+	DB $6A ; Set Volume(10) 
 	DB $C3 ; Set wait (3). . . 
 	DB $00 ; C2 
 	DB $01 ; C#2 
