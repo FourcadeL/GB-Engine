@@ -18,6 +18,12 @@ RGBFIX  = rgbfix
 #####################################################################
 
 #####################################################################
+##																   ##
+ARIACOMP = ./aria
+##																   ##
+#####################################################################
+
+#####################################################################
 ##						ASSEMBLY FLAGS							   ##
 
 ASMFLAGS = -H -l
@@ -50,13 +56,21 @@ BIN := $(BUILDNAME).$(EXT)
 MYSOURCES := $(shell find $(SOURCE) -type d -print)
 SOURCES := $(foreach dir,$(MYSOURCES),$(CURDIR)/$(dir))
 
-ASMFILES := $(foreach dir,$(MYSOURCES),$(wildcard $(dir)/*.asm))
+SONGFILES := $(foreach dir,$(MYSOURCES), $(wildcard $(dir)/*.sng))
+
+# Tells Make to keep intermediate .asm songfiles
+.SECONDARY: $(SONGFILES:.sng=.asm)
+
+# Construct the global asm files pool while avoiding duplicates
+ASMPURE := $(foreach dir,$(MYSOURCES),$(wildcard $(dir)/*.asm)) #every asm file (found in directories)
+ASMFILES := $(filter-out $(SONGFILES:.sng=.asm), $(ASMPURE)) $(SONGFILES:.sng=.asm) #filter out every song-generated asm duplicate files from the complete list of asm
 
 # Make it include all source folders - Add a '/' at the end of the path
 INCLUDES := $(foreach dir,$(MYSOURCES),-i $(dir)/)
 
 # Prepare object paths
 OBJ = $(ASMFILES:.asm=.obj)
+
 
 ##                                                                 ##
 #####################################################################
@@ -87,6 +101,9 @@ rebuild:
 clean:
 	@echo rm $(OBJ) $(BIN) $(NAME).sym $(NAME).map
 	@rm -f $(OBJ) $(BIN) $(NAME).sym $(NAME).map
+
+%.asm : %.sng
+	$(ARIACOMP) -o $@ -f $<
 
 %.obj : %.asm
 	@echo rgbasm $@ $<

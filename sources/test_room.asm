@@ -94,7 +94,7 @@ _common_load_new_song:
     sla a
     rl b
     ld c, a
-    ld hl, song_0
+    ld hl, songs_start
     add hl, bc
     call Audio_load_song
     ret
