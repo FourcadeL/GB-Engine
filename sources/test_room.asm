@@ -122,8 +122,10 @@ room_init:
     ; ld hl, __Wave_Pattern_Triangle_start
     call Audio_set_wave_pattern
     ld b, 6 ; tracker speed
+    ; ld b, 7
+    ; ld b, 64
     call Audio_init
-    ld hl, song_0
+    ld hl, songs_start
     ; ld hl, song_1
     ; ld hl, song_2
     call Audio_load_song
