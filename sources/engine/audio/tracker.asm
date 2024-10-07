@@ -262,10 +262,10 @@ _note_instruction_read:
         ld d, [hl] ; de <- instrument handler addr
         ld hl, CH_flags
         add hl, de
-        set 0, [hl]
+        set 0, [hl] ; new note flag set
         ld hl, CH_note_value
         add hl, de
-        ld [hl], c
+        ld [hl], c ; new note value set
         call set_new_note_state
     ret
 

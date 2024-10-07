@@ -330,6 +330,7 @@ _common_note_change: ; de is the base addr of instrument to change | bc is the f
     ld hl, CH_VOL_state
     add hl, de
     set 0, [hl] ; wake up dynamic volume modifier
+    res 1, [hl] ; reset wait state of dynamic volume modifier
     ld hl, CH_VOL_modifier_index
     add hl, de
     ld [hl], $00 ; reset modifier index
@@ -347,7 +348,6 @@ _common_note_change: ; de is the base addr of instrument to change | bc is the f
 ; ------------- Volume change routines -----------
 ; change volume in shadow registers
 ; because instruments are still just hardware default values
-; and we have no fine handling of volume
 _ch1_volume_change:
     ld hl, _CH1_instru + CH_flags
     ld de, _CH1_instru
