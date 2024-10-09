@@ -209,6 +209,8 @@ _common_dynamic_volume_shut_off:
 ; ---------------- Hardware change routines ----------
 _ch1_handle_hardware:
     res 7, [hl]
+    bit 6, [hl]
+    ret nz ; return if handle is taken
     ld de, _CH1_instru
     ld hl, CH_note_value
     add hl, de
@@ -227,6 +229,8 @@ _ch1_handle_hardware:
     ret
 _ch2_handle_hardware:
     res 7, [hl]
+    bit 6, [hl]
+    ret nz ; return if handle is taken
     ld de, _CH2_instru
     ld hl, CH_note_value
     add hl, de
@@ -244,6 +248,8 @@ _ch2_handle_hardware:
     ret
 _ch3_handle_hardware:
     res 7, [hl]
+    bit 6, [hl]
+    ret nz ; return if handle is taken
     ld de, _CH3_instru
     ld hl, CH_note_value
     add hl, de
@@ -261,6 +267,8 @@ _ch3_handle_hardware:
     ret
 _ch4_handle_hardware:
     res 7, [hl]
+    bit 6, [hl]
+    ret nz ; return if handle is taken
     ld de, _CH4_instru
     ld hl, CH_note_value
     add hl, de

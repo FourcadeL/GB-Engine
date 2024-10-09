@@ -18,10 +18,12 @@ def BLANK_NOTE = %01011111
 
 ;-------------------
 RSRESET
-CH_flags                    RB 1    ; channel flags %Sbbbbyxa
-;                                                    |    |||-> new note set
-;                                                    |    ||-> new volume set
-;                                                    |    |-> new instrument set
+CH_flags                    RB 1    ; channel flags %SHbbbyxa
+;                                                    ||   |||-> new note set
+;                                                    ||   ||-> new volume set
+;                                                    ||   |-> new instrument set
+;                                                    ||
+;                                                    ||-> Handle taken (while this bit is set, no hardware update will occur)
 ;                                                    |-> Global state changed (needs a hardware update ?)
 CH_note_value               RB 1    ; channel note to play
 CH_curr_instrument_index    RB 1
