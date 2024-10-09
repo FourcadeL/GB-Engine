@@ -39,7 +39,7 @@ INCLUDE "instruments.inc"
 ; 
 ; set in init state with newly requested sfx
 ; ---------------------------
-sfx_request:
+sfx_request::
     ld [_sfx_requested_control_byte], a
     MEMBSET [_sfx_saved_state_b_request], [_sfx_automaton_state]
     jr set_init_state ; saves a "ret"

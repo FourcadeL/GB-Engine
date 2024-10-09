@@ -7,6 +7,7 @@
 
     SECTION "SFX_lookup", ROMX, ALIGN[6]
 sfx_lookup::
+    DB LOW(sfx_data_0), HIGH(sfx_data_0)
     DB LOW(sfx_data_1), HIGH(sfx_data_1)
     DB LOW(sfx_data_2), HIGH(sfx_data_2)
     DB LOW(sfx_data_3), HIGH(sfx_data_3)
@@ -38,10 +39,11 @@ sfx_lookup::
     DB LOW(sfx_data_29), HIGH(sfx_data_29)
     DB LOW(sfx_data_30), HIGH(sfx_data_30)
     DB LOW(sfx_data_31), HIGH(sfx_data_31)
-    DB LOW(sfx_data_32), HIGH(sfx_data_32)
 
 
     SECTION "SFX_values_table", ROMX
+sfx_data_0:
+    DB $00, $80, $F3, $83, $87, $03, $00, $80, $F3, $C1, $87, $FF, $1F
 sfx_data_1:
 sfx_data_2:
 sfx_data_3:
@@ -73,6 +75,5 @@ sfx_data_28:
 sfx_data_29:
 sfx_data_30:
 sfx_data_31:
-sfx_data_32:
     DB $00, $00, $00, $00, $00, $FF, $00
 
