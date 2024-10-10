@@ -98,8 +98,6 @@ _common_load_new_song:
     ret
 
 room_init:
-    ld c, $01
-    call fwf_init
     ld a, 20
     call fwf_automaton_set_display_width
     ld a, 18
@@ -137,8 +135,10 @@ room_init:
 
     _text:
         DB " \n \n   TEST AUDIO\n \nTest du moteur audio \n \nUp / Down :\nselect song\n \nA : test play\n \n"
-        DB "     Enjoy ;)\\0"
+        DB "     Enjoy ;)\n\\b", LOW(_tt2), HIGH(_tt2), "\\0"
 
+    _tt2:
+        DB "Hop, petit test en passant"
     _aud:
         DB $00, $01, $02, $03, $04, $05, $06, $07
         DB $14, $15, $16, $17

@@ -20,14 +20,16 @@
 
 
 
-	SECTION "Main",ROM0
+	SECTION "Main", ROM0
 
 
 Main::
 
 	call 	Main_init
 	PRINT_DEBUG "Main Init Done"
-	call room_main
+	; call room_main
+	call snd_test_main
+	ret
 
 	
 

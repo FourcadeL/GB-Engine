@@ -115,6 +115,8 @@ fwf_automaton_is_stopped::
     ret
 
 fwf_automaton_init::
+    ld c, $01
+    call fwf_init
     call update_display_addr_start_return
     ld a, $00
     ld [_current_timer_value], a
