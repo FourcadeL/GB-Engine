@@ -79,7 +79,7 @@ Main_init::
 	ld		[rLCDC],a
 
 	ld bc, Main_vblk
-	call irq_set_VBL
+	call irq_set_VBL ; set global VBlank
 
 
 	; on rétablit les interrupts
@@ -87,8 +87,16 @@ Main_init::
 	ret ; retour à l'exécution
 
 
+; --------------------------
+; Main VBlank routine to use 
+; Global VBlank
+; --------------------------
 Main_vblk:
+	; Video / VRAM actions
 	call call_DMA
+	call fwf_automaton_update
+	; Audio / Non VRAM actions
+	call Audio_update
 	ret
 
 

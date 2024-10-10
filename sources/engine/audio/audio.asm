@@ -159,12 +159,15 @@ Audio_stop_song::
 ;--------------------------------------------------------------------------
 ;- Audio_update()       
 ;-		Called once per frame
+; 		Handle sfx automaton update [registers update]
+; 		Handle instruments update (note, volume, instrument changes) [registers update]
 ; 		Handle tracker updates
 ; 		Handle Volume and instrument changes (notes parameters)
 ; 		Handle audio register and frequencies updates
 ;--------------------------------------------------------------------------
 Audio_update::
-	call Instruments_update ; called every frame
+	call sfx_update
+	call Instruments_update
 	call handle_trackers
 	ret
 

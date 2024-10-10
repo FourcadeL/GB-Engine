@@ -5,6 +5,9 @@
 ; by writing at execution level
 ; tile data on each tile slot
 
+; /!\ tile attribution gestion module
+; only fwf_text_displayer should make calls to fwf
+
 ; uses extended ascii table
 
 INCLUDE "hardware.inc"

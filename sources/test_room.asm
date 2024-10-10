@@ -28,20 +28,20 @@ room_main::
     ld bc, _aud ; partition start
     ld d, $80
 .loop2
-    push bc
-    push de
     call getInput
-    call fwf_automaton_update
     call wait_vbl
     call display_song_nb
-    call Audio_update
-    ; ld a, [PAD_pressed]
-    ; cp a, PAD_B
-    ; call z, playNoise15
+    ; play sfx if B button pressed----
+    ld a, [PAD_pressed]
+    cp a, PAD_B
+    ld a, %01000000
+    ; ld a, %10000000
+    ; ld a, %11000000
+    call z, sfx_request
+    ; --------------------------------
     ld a, [PAD_pressed]
     cp a, PAD_A
     call z, load_and_start_song
-    ld a, [PAD_pressed]
     ld a, [PAD_pressed]
     cp a, PAD_UP
     jr nz, .skip_increm
@@ -52,8 +52,6 @@ room_main::
     jr nz, .skip_decrem
         call dec_song
 .skip_decrem
-    pop bc
-    pop de
     jr .loop2
 
 load_and_start_song:
@@ -115,7 +113,6 @@ room_init:
     ld de, _text
     call fwf_automaton_set_read_addr
     call fwf_automaton_init
-    call fwf_automaton_update
 
     ; Audio initialisation
     ld hl, __Wave_Pattern_Sawtooth_start
