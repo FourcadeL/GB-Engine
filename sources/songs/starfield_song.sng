@@ -6,7 +6,7 @@ $00, $80, $50, $80;
 0, -2, 2, -3; // main square
 instrument base2 : 
 $00, $C0, $F1, $C0; 0;
-instrument base3 : 
+instrument wave1 : 
 $00, $10, $20, $80;
 0, 0, 0, 0, 0, 0, 2; // main wave 
 instrument noise :
@@ -101,7 +101,7 @@ block Smain1 : [withInstrument(base1){withVolume(10){
     call{SthemeB1}
     }}}]
 
-block Smainwave : [withInstrument(base3){withVolume(2){
+block Smainwave : [withInstrument(wave1){withVolume(2){
     loop{
     C3...............
     Ab2...............
@@ -190,7 +190,7 @@ block Gmain2 : [
         D5 E5 . E5 . D5 E5 ........ _}}}
         ]
 
-block Gwave :  [withInstrument(base3){loop{
+block Gwave :  [withInstrument(wave1){withVolume(2){loop{
     F4 . F4 .. F4 F4 . G4 . G4 . G3 . G3 .
     G#4 . G#4 ... G#4 . A#4 . A#4 . G3 G3 . G3
     repeat(8){C4 . C5 .}
@@ -198,7 +198,7 @@ block Gwave :  [withInstrument(base3){loop{
     repeat(4){A3 . A4 .}repeat(2){D3 . D4 .}repeat(2){E3 . E4 .}
     repeat(4){F3 . F4 .}repeat(4){G3 . G4 .}
     repeat(4){C4 . C5 .}Eb3 . Eb4 . Eb3 . Eb4 Eb4 F3 . F4 . F3 . F4 F4
-    C4 C4 . C4 . C4 C4 ........ _}}
+    C4 C4 . C4 . C4 C4 ........ _}}}
     ]
 
 block mainNoise : [
@@ -245,7 +245,7 @@ block GTransMain2 : [
         D5 E5 . E5 . D5 E5 ........ _}}}}
         ]
 
-block GTransWave :  [transpose(-4){withInstrument(base3){loop{
+block GTransWave :  [transpose(-4){withInstrument(wave1){loop{
     F4 . F4 .. F4 F4 . G4 . G4 . G3 . G3 .
     G#4 . G#4 ... G#4 . A#4 . A#4 . G3 G3 . G3
     repeat(8){C4 . C5 .}
@@ -286,7 +286,7 @@ block SCL2 : [
     }}]
 
 block SCLW : [
-    withInstrument(base3){
+    withInstrument(wave1){
         C#3...............................................B2...............................................A2.......................F#2.......................
         G#2......................_G#2.......................C#3...............................................C3...............................................C#3.......................F#3.......................
         B2......................_B2.......................E3.............................................._E3...............................................D3...............................................
@@ -319,7 +319,7 @@ block SLDL2 : [withInstrument(base1){withVolume(6){
     }}}
 ]
 
-block SLDLW : [withInstrument(base3){withVolume(2){
+block SLDLW : [withInstrument(wave1){withVolume(2){
     loop{
         G2.G2.G3.G2.G2 Bb2. A2 Bb2 C3 D3 . G2 . G2 . G3. G2. Bb2. Bb3 Bb2 C3 C#3 D3.
         G2.G2.G3.G2.G2 Bb2. A2 Bb2 C3 D3 . G2 . G2. G3.G2.Bb2 Bb2 Bb3 Bb2 C3 C3 C4 C3
@@ -346,7 +346,7 @@ block BHG1 : [withInstrument(base1){withVolume(10){
     }}}
 ]
 
-block BHGW : [withInstrument(base3){withVolume(2){
+block BHGW : [withInstrument(wave1){withVolume(2){
     loop{
         repeat(2){C3........... Ab2..... Bb2 .....}
         Bb2........... A2........... Eb2........... F2...........

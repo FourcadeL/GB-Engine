@@ -16,8 +16,13 @@
 _instruments_lookup::
 	DB LOW(base1), HIGH(base1)
 	DB LOW(base2), HIGH(base2)
-	DB LOW(base3), HIGH(base3)
+	DB LOW(wave1), HIGH(wave1)
 	DB LOW(noise), HIGH(noise)
+	DB LOW(noiseT1), HIGH(noiseT1)
+	DB LOW(noiseT2), HIGH(noiseT2)
+	DB LOW(noiseT3), HIGH(noiseT3)
+	DB LOW(noiseT4), HIGH(noiseT4)
+	DB LOW(noiseT5), HIGH(noiseT5)
 
 	SECTION "instruments", ROMX
 base1:
@@ -26,33 +31,108 @@ base1:
 base2:
 	DB $00, $C0, $F1, $C0
 	DB $00, $80
-base3:
+wave1:
 	DB $00, $10, $20, $80
 	DB $00, $45, $02, $80
 noise:
-	DB $00, $00, $F0, $C0
-	DB $01, $1F, $1B, $17, $11, $80
+	DB $00, $0F, $F3, $80
+	DB $02, $00, $11, $49, $1A, $80
+noiseT1:
+	DB $00, $2F, $F1, $C0
+	DB $00, $16, $41, $18, $80
+noiseT2:
+	DB $00, $2F, $F2, $C0
+	DB $00, $19, $1F, $18, $1E, $17, $80
+noiseT3:
+	DB $00, $27, $F2, $C0
+	DB $00, $16, $41, $00, $80
+noiseT4:
+	DB $00, $27, $F2, $C0
+	DB $00, $16, $43, $00, $80
+noiseT5:
+	DB $00, $01, $F5, $80
+	DB $00, $80
 
 
 	SECTION "songs lookup", ROMX
 songs_start::
-song_0_starfield::
+song_0_testNoiseInstru::
+	DB LOW(empty), HIGH(empty), LOW(empty), HIGH(empty), LOW(empty), HIGH(empty), LOW(noiseInstrumentBlock), HIGH(noiseInstrumentBlock)
+song_1_starfield::
 	DB LOW(Smain1), HIGH(Smain1), LOW(empty), HIGH(empty), LOW(Smainwave), HIGH(Smainwave), LOW(SmainNoise), HIGH(SmainNoise)
-song_1_mirroredmountains::
+song_2_mirroredmountains::
 	DB LOW(Gmain1), HIGH(Gmain1), LOW(Gmain2), HIGH(Gmain2), LOW(Gwave), HIGH(Gwave), LOW(empty), HIGH(empty)
-song_2_mirroredmountainsTrans::
+song_3_mirroredmountainsTrans::
 	DB LOW(GTransMain1), HIGH(GTransMain1), LOW(GTransMain2), HIGH(GTransMain2), LOW(GTransWave), HIGH(GTransWave), LOW(empty), HIGH(empty)
-song_3_testNoise::
+song_4_testNoise::
 	DB LOW(empty), HIGH(empty), LOW(empty), HIGH(empty), LOW(empty), HIGH(empty), LOW(mainNoise), HIGH(mainNoise)
-song_4_SCLune::
+song_5_SCLune::
 	DB LOW(SCL1), HIGH(SCL1), LOW(SCL2), HIGH(SCL2), LOW(SCLW), HIGH(SCLW), LOW(empty), HIGH(empty)
-song_5_silenceOfDaylight::
+song_6_silenceOfDaylight::
 	DB LOW(SLDL1), HIGH(SLDL1), LOW(SLDL2), HIGH(SLDL2), LOW(SLDLW), HIGH(SLDLW), LOW(empty), HIGH(empty)
-song_6_burningHeat::
+song_7_burningHeat::
 	DB LOW(BHG1), HIGH(BHG1), LOW(empty), HIGH(empty), LOW(BHGW), HIGH(BHGW), LOW(BHGN), HIGH(BHGN)
 
 
 	SECTION "songblock_0", ROMX
+noiseInstrumentBlock:
+	DB $74 ; Set Instrument(4) 
+	DB $6F ; Set Volume(15) 
+	DB $8B ; Call(noiseInstrumentBlockTest) 
+	DB LOW(noiseInstrumentBlockTest), HIGH(noiseInstrumentBlockTest)
+	DB $75 ; Set Instrument(5) 
+	DB $6F ; Set Volume(15) 
+	DB $8B ; Call(noiseInstrumentBlockTest) 
+	DB LOW(noiseInstrumentBlockTest), HIGH(noiseInstrumentBlockTest)
+	DB $76 ; Set Instrument(6) 
+	DB $6F ; Set Volume(15) 
+	DB $8B ; Call(noiseInstrumentBlockTest) 
+	DB LOW(noiseInstrumentBlockTest), HIGH(noiseInstrumentBlockTest)
+	DB $77 ; Set Instrument(7) 
+	DB $6F ; Set Volume(15) 
+	DB $8B ; Call(noiseInstrumentBlockTest) 
+	DB LOW(noiseInstrumentBlockTest), HIGH(noiseInstrumentBlockTest)
+	DB $78 ; Set Instrument(8) 
+	DB $6F ; Set Volume(15) 
+	DB $8B ; Call(noiseInstrumentBlockTest) 
+	DB LOW(noiseInstrumentBlockTest), HIGH(noiseInstrumentBlockTest)
+	DB $88 ; End 
+
+	SECTION "songblock_1", ROMX
+noiseInstrumentBlockTest:
+	DB $C3 ; Set wait (3). . . 
+	DB $12 ; F#3 
+	DB $13 ; G3 
+	DB $14 ; G#3 
+	DB $15 ; A3 
+	DB $16 ; A#3 
+	DB $17 ; B3 
+	DB $18 ; C4 
+	DB $19 ; C#4 
+	DB $1A ; D4 
+	DB $1B ; D#4 
+	DB $1C ; E4 
+	DB $1D ; F4 
+	DB $1E ; F#4 
+	DB $1F ; G4 
+	DB $20 ; G#4 
+	DB $21 ; A4 
+	DB $22 ; A#4 
+	DB $23 ; B4 
+	DB $24 ; C5 
+	DB $25 ; C#5 
+	DB $26 ; D5 
+	DB $27 ; D#5 
+	DB $28 ; E5 
+	DB $29 ; F5 
+	DB $2A ; F#5 
+	DB $2B ; G5 
+	DB $2C ; G#5 
+	DB $2D ; A5 
+	DB $2E ; A#5 
+	DB $88 ; End 
+
+	SECTION "songblock_2", ROMX
 Smain1:
 	DB $70 ; Set Instrument(0) 
 	DB $6A ; Set Volume(10) 
