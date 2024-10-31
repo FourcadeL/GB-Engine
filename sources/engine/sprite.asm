@@ -12,7 +12,7 @@
 
 ;compilation variables
 DEF max_sprites EQU 10	;nombre max de sprites gérés
-DEF mode_16 	EQU 0 	;mode d'affichage OBJ 8*16 (0-> mode 8*8  1-> mode 8*16)
+DEF mode_16 	EQU 1 	;mode d'affichage OBJ 8*16 (0-> mode 8*8  1-> mode 8*16)
 
 
 

@@ -27,10 +27,20 @@ Main::
 
 	call 	Main_init
 	PRINT_DEBUG "Main Init Done"
-	; call room_main
-	; call snd_test_main
-	call sprt_test_main
-	ret
+
+.loop
+	call wait_vbl
+	call getInput
+	ld a, [PAD_pressed]
+	cp a, PAD_START
+	call z, game_main
+	ld a, [PAD_pressed]
+	cp a, PAD_SELECT
+	call z, snd_test_main
+	ld a, [PAD_pressed]
+	or a
+	ret nz
+	jr .loop
 
 	
 
@@ -77,13 +87,22 @@ Main_init::
 	; redémarrage de l'écran
 	ld		a,LCDCF_ON ; écran activé
 	or 		LCDCF_BGON ; arriere plan activé
-	or		LCDCF_OBJON ; objects affichés
-	or		LCDCF_OBJ8 ; objects de type 8*8
 	ld		[rLCDC],a
+
+	; Audio init
+    ld hl, __Wave_Pattern_Sawtooth_start
+    ; ld hl, __Wave_Pattern_Triangle_start
+    call Audio_set_wave_pattern
+    ld b, 6 ; tracker speed
+    call Audio_init
+
+
+	; Sprites init
+	call 	Sprite_init
+
 
 	ld bc, Main_vblk
 	call irq_set_VBL ; set global VBlank
-
 
 	; on rétablit les interrupts
 	ei

@@ -49,12 +49,6 @@ snd_test_init:
     call fwf_automaton_set_read_addr
     call fwf_automaton_init
 
-    ; Audio init
-    ld hl, __Wave_Pattern_Sawtooth_start
-    ; ld hl, __Wave_Pattern_Triangle_start
-    call Audio_set_wave_pattern
-    ld b, 6 ; tracker speed
-    call Audio_init
 
     ; display
     call update_selector_display
@@ -228,14 +222,6 @@ validate_selection:
     SECTION "snd_test_room_data", ROMX
 _text:
     DB " \n   SOUND TEST\n \n \n \n   Song :\n \n   SFX id :\n \n   SFX channel:\n \n A : play\n B : stop\n \n  START to exit\\0"
-
-__Wave_Pattern_Sawtooth_start::
-    INCBIN "sawtooth.bin"
-__Wave_Pattern_Sawtooth_end:
-    
-__Wave_Pattern_Triangle_start::
-    INCBIN "triangle.bin"
-__Wave_Pattern_Triangle_end:
 
 _select_locations:
     DW $98A1, $98E1, $9921
