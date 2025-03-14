@@ -6,7 +6,7 @@
 
 
 	IF !DEF(ENGINE_INC)
-ENGINE_INC = 1
+DEF ENGINE_INC EQU 1
 
 ;+-----------------------------------------------------------------------------+
 ;| +-------------------------------------------------------------------------+ |
@@ -232,14 +232,14 @@ EXPORT PAD_pressed ; contient les inputs préssés à cette frame
 ; définitions IO.ASM
 ;----------------------------------------------
 
-PAD_START   EQU $80
-PAD_SELECT  EQU $40
-PAD_B       EQU $20
-PAD_A       EQU $10
-PAD_DOWN    EQU $08
-PAD_UP      EQU $04
-PAD_LEFT    EQU $02
-PAD_RIGHT   EQU $01
+DEF PAD_START   EQU $80
+DEF PAD_SELECT  EQU $40
+DEF PAD_B       EQU $20
+DEF PAD_A       EQU $10
+DEF PAD_DOWN    EQU $08
+DEF PAD_UP      EQU $04
+DEF PAD_LEFT    EQU $02
+DEF PAD_RIGHT   EQU $01
 
 
 

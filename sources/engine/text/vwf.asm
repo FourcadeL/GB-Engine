@@ -18,8 +18,8 @@
 
 
     ; données par défaut
-default_space       EQU 2   ; nombre de pixels de chaque espace
-default_line        EQU 8   ; nombre de pixels de chaque lignes
+DEF default_space       EQU 2   ; nombre de pixels de chaque espace
+DEF default_line        EQU 8   ; nombre de pixels de chaque lignes
 
 
 ;+-----------------------------------------------------------------------------+

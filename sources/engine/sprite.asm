@@ -11,8 +11,8 @@
 
 
 ;compilation variables
-max_sprites EQU 10	;nombre max de sprites gérés
-mode_16 	EQU 0 	;mode d'affichage OBJ 8*16 (0-> mode 8*8  1-> mode 8*16)
+DEF max_sprites EQU 10	;nombre max de sprites gérés
+DEF mode_16 	EQU 0 	;mode d'affichage OBJ 8*16 (0-> mode 8*8  1-> mode 8*16)
 
 
 
@@ -32,13 +32,13 @@ mode_16 	EQU 0 	;mode d'affichage OBJ 8*16 (0-> mode 8*8  1-> mode 8*16)
 ;sprite élément structure
 ;-----------
 RSRESET
-sprt_info_byte		RB 1  	;byte d'info sur les caractéristiques du sprite %O V H P D xx F   O->obj to bg priority	V->vertical flip 	H->horizontal flip 	P->palette 	D->display 	F->free (is reset if this slot is empty)
-sprt_size 			RB 1 	;byte d'info sur la dimention globale (taille max 8*8 OBJ) %hhhh llll 		h->hauteur 	l->largeur
-sprt_nb_obj 		RB 1 	;byte d'info sur le nombre d'objet composant le sprite (redondant avec sprite size mais plus rapide pour itérer)
-sprt_X_pos			RB 1	;position X du sprite (point en haut à gauche)
-sprt_Y_pos			RB 1	;position Y du sprite (point en haut à gauche)
-sprt_OAM_addr		RB 2	;adresse en OAM (mirror ou se trouve le sprite) (big endian)
-SIZEOF_sprt_struct	RB 0
+DEF sprt_info_byte		RB 1  	;byte d'info sur les caractéristiques du sprite %O V H P D xx F   O->obj to bg priority	V->vertical flip 	H->horizontal flip 	P->palette 	D->display 	F->free (is reset if this slot is empty)
+DEF sprt_size 			RB 1 	;byte d'info sur la dimention globale (taille max 8*8 OBJ) %hhhh llll 		h->hauteur 	l->largeur
+DEF sprt_nb_obj 		RB 1 	;byte d'info sur le nombre d'objet composant le sprite (redondant avec sprite size mais plus rapide pour itérer)
+DEF sprt_X_pos			RB 1	;position X du sprite (point en haut à gauche)
+DEF sprt_Y_pos			RB 1	;position Y du sprite (point en haut à gauche)
+DEF sprt_OAM_addr		RB 2	;adresse en OAM (mirror ou se trouve le sprite) (big endian)
+DEF SIZEOF_sprt_struct	RB 0
 ;-----------
 
 

@@ -14,7 +14,7 @@ INCLUDE "hardware.inc"
 INCLUDE "engine.inc"
 INCLUDE "debug.inc"
 
-NB_UNIQUE_TILES EQU 42 ; number of unique tiles available to the fwf text engine
+DEF NB_UNIQUE_TILES EQU 42 ; number of unique tiles available to the fwf text engine
                         ; can't be more than 127
 
 ;-------------------------------------------------------

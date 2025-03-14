@@ -150,7 +150,7 @@ wait_vbl::
     DB      $00,$00,$00 ;SuperGameboy
     DB      CART_ROM_MBC5_RAM_BAT ;CARTTYPE (MBC5+RAM+BATTERY)
     DB      $00          ;ROMSIZE
-    DB      CART_RAM_64K ;RAMSIZE (8KB)
+    DB      CART_SRAM_8KB ;RAMSIZE (8KB)
 
     DB      $01 ;Destination (0 = Japan, 1 = Non Japan)
     DB      $00 ;Manufacturer

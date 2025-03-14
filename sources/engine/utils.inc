@@ -3,7 +3,7 @@
 ; ##############################
 
     IF !DEF(UTILS_INC)
-UTILS_INC = 1
+DEF UTILS_INC EQU 1
 
 ;--------------------------------
 ;MEMBSET
