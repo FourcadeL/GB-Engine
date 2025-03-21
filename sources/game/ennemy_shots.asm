@@ -4,7 +4,7 @@
 
 
 ; compilation constants
-MAX_SHOTS EQU 20
+DEF MAX_SHOTS EQU 20
 
 
 INCLUDE "hardware.inc"
