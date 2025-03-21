@@ -11,7 +11,10 @@ game.map
 game.sym
 game.sav
 
-# ignore les fichers mac de mort
+# ignore generated song files
+sources/songs/*.asm
+
+# ignore lmac files
 .DS_Store
 
 
