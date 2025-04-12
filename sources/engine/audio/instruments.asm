@@ -1,4 +1,5 @@
 ;#####################################
+; Audio instruments handler
 ; hardware handling of audio register
 ; deals with :
 ; - notes frequency evaluation
@@ -23,10 +24,9 @@
 
     SECTION "Instruments_functions", ROM0
 ;--------------------------------------------------------------------------
-;- Instruments_update()       
-;-		Called by audio as much as required
-;       to update audio hardware registers
-; 		Handle audio register and frequencies updates
+; Instruments_update()
+; 	Called by audio as much as required
+; 	Handle audio register and frequencies updates
 ;--------------------------------------------------------------------------
 Instruments_update::
     call _handle_instruments_changes
@@ -355,7 +355,6 @@ _common_note_change: ; de is the base addr of instrument to change | bc is the f
 
 ; ------------- Volume change routines -----------
 ; change volume in shadow registers
-; because instruments are still just hardware default values
 _ch1_volume_change:
     ld hl, _CH1_instru + CH_flags
     ld de, _CH1_instru
@@ -389,7 +388,6 @@ _common_volume_change: ; de is the base addr of volume to change instru
 
 ; -------------Instrument change routines ---------
 ; change instruments directly in hardware registers to use
-; because instruments are still just hardware default values
 _ch1_instrument_change:
     ld hl, _CH1_instru + CH_flags
     jr _common_instrument_change

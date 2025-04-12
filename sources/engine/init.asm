@@ -1,6 +1,7 @@
 ;#####################################
-;definition init (se réferrer à engine.inc)
-;init sert à mettre en place le header de la ROM, les vecteurs d'interrupt et les fonctions de bas niveau d'exécution
+; Init
+; 	initial function and memory placement of interrupt code
+; 	Initialize ROM header, interrupt vectors and low level routines
 ;#####################################
 
 
@@ -51,7 +52,7 @@
 
     SECTION "VBL Interrupt Vector",ROM0[$0040]
     push    hl
-    ld 		hl, _vbl_flag ;flag d'exécution d'un vblank
+    ld 		hl, _vbl_flag ; vblank execution flag
     ld 		[hl], 1
     jr      int_VBlank
 
@@ -82,35 +83,35 @@
 ;| +-------------------------------------------------------------------------+ |
 ;+-----------------------------------------------------------------------------+
 
-;cette partie est placée ici car il n'y a pas la place d'écrire le code dans 8 octets
 int_VBlank:
 	ld 		hl,VBL_handler
 
 int_Common:
     push    af
 
-    ;récupère l'adresse de la fonction à exécuter
+    ; retrieve interrupt functio addr
     ld      a,[hl+]
     ld      h,[hl]
     ld      l,a
 
-    ;sauvegarde des registres restants
+    ; save registers
     push    bc
     push    de
     ;appel de hl
     CALL_HL
-    ;récupération des registres
+
+    ; restore registers
     pop     de
     pop     bc
 
     pop     af
     pop     hl
 
-    ;retour à l'exécution et réactivation des interrupts
+    ; execution return
     reti
 
 ;--------------------------------------------------------------------------
-;- wait_vbl()                                                             -
+; wait_vbl()
 ;--------------------------------------------------------------------------
 
 wait_vbl::
@@ -209,7 +210,7 @@ StartPoint:
 
 
 ;--------------------------------------------------------------------------
-;- Reset()                                                                -
+; Reset()
 ;--------------------------------------------------------------------------
 
 Reset::
@@ -218,11 +219,11 @@ Reset::
 
 
 ;--------------------------------------------------------------------------
-;- irq_set_VBL()    bc = function pointer                                 -
-;- irq_set_LCD()    bc = function pointer                                 -
-;- irq_set_TIM()    bc = function pointer                                 -
-;- irq_set_SIO()    bc = function pointer                                 -
-;- irq_set_JOY()    bc = function pointer                                 -
+; irq_set_VBL(bc = function pointer)
+; irq_set_LCD(bc = function pointer)
+; irq_set_TIM(bc = function pointer)
+; irq_set_SIO(bc = function pointer)
+; irq_set_JOY(bc = function pointer)
 ;--------------------------------------------------------------------------
 
 irq_set_VBL::
@@ -263,7 +264,7 @@ irq_set_handler:  ; hl = dest handler    bc = function pointer
 
 
 ;--------------------------------------------------------------------------
-;-                               Variables                                -
+;                                Variables
 ;--------------------------------------------------------------------------
 
 
@@ -278,7 +279,7 @@ SIO_handler:    DS 2
 JOY_handler:    DS 2
 
 
-;utilisation potentielle d'un stack à part en WorkRam
+; new stack definition in WorkRAM
 
 ;    SECTION "Stack",WRAM0[$CE00]
 

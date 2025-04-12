@@ -1,6 +1,8 @@
 ;#####################################
-;definition utils (se réferrer à engine.inc)
-;utils contient les fonctions utilitaires nécessaires au bon fonctionnement du programme
+; Utils functions
+; 	Memory management
+;	Multiplication routines
+;	Random generator
 ;#####################################
 
 
@@ -22,7 +24,7 @@
 
 
 ;----------------------------------------------------------------------
-;- memset(d = value ; hl = start address ; bc = copy size)
+; memset(d = value ; hl = start address ; bc = copy size)
 ;----------------------------------------------------------------------
 memset::
 	ld	[hl],d
@@ -34,7 +36,7 @@ memset::
 	ret
 
 ;-----------------------------------------------------------------
-;- memset_fast(d = value ; hl = start address ; b = copy size)
+; memset_fast(d = value ; hl = start address ; b = copy size)
 ;-----------------------------------------------------------------
 memset_fast::
 	ld [hl], d
@@ -47,7 +49,7 @@ memset_fast::
 
 
 ;----------------------------------------------------------------------
-;- memcopy(bc = size ; hl = source address ; de = destination address)
+; memcopy(bc = size ; hl = source address ; de = destination address)
 ;----------------------------------------------------------------------
 memcopy::
 	ld	a,[hli]
@@ -63,7 +65,7 @@ memcopy::
 
 
 ;--------------------------------------------------------------------------
-;- memcopy_fast(b = size ; hl = source address ; de = destination address)
+; memcopy_fast(b = size ; hl = source address ; de = destination address)
 ;--------------------------------------------------------------------------
 memcopy_fast::
 	ld a,[hli]
@@ -75,7 +77,7 @@ memcopy_fast::
 
 
 ;--------------------------------------------------------------------------
-;- mult_u8(b = n1, c = n2) -> a = n1 * n2 (8 bits return value)
+; mult_u8(b = n1, c = n2) -> a = n1 * n2 (8 bits return value)
 ;--------------------------------------------------------------------------
 mult_u8::
 	ld 		a, $00
@@ -121,7 +123,7 @@ mult_u8::
 	ret
 
 ;--------------------------------------------------------------------------
-;- mult_u816(b = n1, c = n2) -> hl = n1 * n2 (16 bits return value)
+; mult_u816(b = n1, c = n2) -> hl = n1 * n2 (16 bits return value)
 ;--------------------------------------------------------------------------
 mult_u816::
 	ld 		d, $00
@@ -176,10 +178,10 @@ mult_u816::
 	ret
 
 ;----------------------------------------
-;- tab_offset(b = num element,
-;-				c = elem size (in bytes),
-;-				hl = base addr)
-;-				-> hl = hl + b*c
+; tab_offset(b = num element,
+;	c = elem size (in bytes),
+;	hl = base addr)
+;	-> hl = hl + b*c
 ;----------------------------------------
 tab_offset::
 	push 	hl
@@ -190,7 +192,7 @@ tab_offset::
 
 
 ;----------------------------------------
-;- generateRandom() a = returned value
+; generateRandom() -> a = returned value
 ;----------------------------------------
 generateRandom::
 	ld 		hl, RandomX
@@ -216,7 +218,7 @@ generateRandom::
 	ld 		[hl], c ; ecriture de _RandomB
 	inc 	hl
 	ld 		[hl], a ; ecriture de _RandomC
-	ret ; a contient bien la valeur de C
+	ret ; content of a is the new random value
 
 
 

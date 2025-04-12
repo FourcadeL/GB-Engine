@@ -99,10 +99,10 @@
 
 ;------------------------------------------------------------------------------------------
 ; Audio_get_note_frequency12(a = note index) -> bc = gb frequency of note (11 bits)      
-; return the gb frequency to use for specified note
-; (channel 1 and 2)
-; for channel 3 : everything is shifted one octave down :
-; C3 is C2, F4 is F3 ets ...
+; 	return the gb frequency to use for specified note
+; 	(channel 1 and 2)
+; 	for channel 3 : everything is shifted one octave down :
+; 	C3 is C2, F4 is F3 ets ...
 ;------------------------------------------------------------------------------------------
 Audio_get_note_frequency12::
 Audio_get_note_frequency3:: ; should be written later
@@ -139,10 +139,10 @@ Audio_get_note_frequency3:: ; should be written later
 
 ;------------------------------------------------------------------------------------------
 ; Audio_get_note_frequency4(a = note index) -> c = gb frequency of note (8 bits)      
-; return the gb frequency to use for specified note
-; (channel 4) -> specify shift, divider and LFSR bit in c (b is 0)
-; notes 0 to 46 are with LFSR 15 bits
-; notes 47 to 93 are with LFSR 7 bits
+; 	return the gb frequency to use for specified note
+; 	(channel 4) -> specify shift, divider and LFSR bit in c (b is 0)
+; 	notes 0 to 46 are with LFSR 15 bits
+; 	notes 47 to 93 are with LFSR 7 bits
 ;------------------------------------------------------------------------------------------
 Audio_get_note_frequency4::
 	ld b, a ; b <- note index
