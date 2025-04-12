@@ -1,7 +1,7 @@
 ; ############################################
 ; Audio SFX handler
-; Define interface functions for play
-; of SFX
+; Defines interface functions for playback
+; of soud effects
 ;   (Priority is taken over notes played by "instruments"
 ;    then handle is returned)
 ; ############################################
@@ -34,7 +34,7 @@ INCLUDE "instruments.inc"
 ; sfx_request(a = sfx id)
 ;   description is %ccpxxxxx
 ;       cc is the channel of sfx : 00 = ch1 | 01 = ch2 | 10 = ch3 | 11 = ch4
-;       p is the priority : 1 = can't bu cut | 0 = can be cut
+;       p is the priority : 1 = can't be | 0 = can be cut
 ;       xxxxx is the index in sfx lookup
 ; 
 ; set in init state with newly requested sfx
@@ -71,8 +71,8 @@ set_state:
 
 ;--------------------
 ; update_delay()
-; decrease delay counter
-; if zero -> execute playing state
+;   decreases delay counter
+;   if zero -> execute playing state
 ;--------------------
 update_delay:
     ld hl, _wait_counter
@@ -83,8 +83,8 @@ update_delay:
 
 ;------------------------------
 ; sfx_update()
-; master routine for sfx
-; do current state actions
+;   master routine for sfx
+;   do current state actions
 ;------------------------------
 sfx_update::
     ld a, [_sfx_automaton_state]
@@ -105,9 +105,9 @@ sfx_update::
 
 ; -----------------
 ; update_finish()
-; decrease wait counter
-; when 0 : return handle to instrument
-; reset currently playing priority bit
+;   decreases wait counter
+;   when 0 : return handle to instrument
+;   reset currently playing priority bit
 ; -----------------
 update_finish:
     ld hl, _wait_counter
@@ -120,12 +120,11 @@ update_finish:
     ; ret
 
 
-
 ;----------------------
 ; update_init()
-; see if requested sfx has priority
-; True : return currently playing sfx handle, initialize new sfx and set to playing state
-; False : restore previous state do update
+;   see if requested sfx has priority
+;   True : return currently playing sfx handle, initialize new sfx and set to playing state
+;   False : restore previous state, do update
 ;----------------------
 update_init:
     ld hl, _sfx_effect_control_byte
@@ -158,9 +157,9 @@ update_init:
 
 ; --------------------
 ; update_control()
-; read control byte (increment next read addr)
-;   -> if $FF : read another control and set finishing state
-;   -> if $XX : set wait_counter and go in delay state
+;   read control byte (increment next read addr)
+;       -> if $FF : read another control and set finishing state
+;       -> if $XX : set wait_counter and go in delay state
 ; --------------------
 update_control:
     ld hl, _sfx_read_addr
@@ -190,8 +189,7 @@ update_control:
 
 ; -------------------
 ; update_playing()
-; read and set 4 or 5 bytes of NRXX
-; (dependence on _sfx_effect_control_byte)
+;   read and set 4 or 5 bytes of NRX0 to NRX4
 ; -------------------
 update_playing:
     ld hl, _sfx_read_addr

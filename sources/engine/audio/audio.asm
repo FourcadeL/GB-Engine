@@ -1,6 +1,6 @@
 ;#####################################
-;definition audio (compléter engine.inc)
-;audio contient les fonctions de manipulation et de gestion des sons, ainsi que tout le moteur sonore associé
+; Audio handler
+; Defines the main audio control routines
 ;#####################################
 
 
@@ -27,8 +27,9 @@ def BLANK_NOTE = %01011111
 
 
 ;--------------------------------------------------------------------------
-;- Audio_off()       
-;-			Stops all audio activity (overwrites audio control registers)                                -
+; Audio_off()       
+;	Stops all audio activity
+;	(overwrites audio control registers)                                -
 ;--------------------------------------------------------------------------
 
 Audio_off::
@@ -43,11 +44,9 @@ Audio_off::
 
 
 ;--------------------------------------------------------------------------
-;- Audio_init(b=trackers speed)       
-;-		Initialisation basique des registres audio (peut être modifié)
-;-		volumes max toutes les chaines sur tout les terminaux
-;  		
-; 		Initialises tracker speed to b
+; Audio_init(b=trackers speed)       
+;	Initialises audio registers and channels trackers
+; 	Initialises tracker speed to b
 ;--------------------------------------------------------------------------
 Audio_init::
 	MEMBSET [rNR52], $FF ; enable all channels
@@ -56,18 +55,18 @@ Audio_init::
 
 	; ---- init variables -----
 	ld hl, _trackers_speed
-	ld [hl], b ; init tracker speed
+	ld [hl], b 			; init tracker speed
 	ld hl, _trackers_update_counter
 	ld a, $01
-	ld [hl], a ; reset counter (1 to force update of first frame)
+	ld [hl], a 			; reset counter (1 to force update of first frame)
 	ld hl, _trackers_flags
-	res 7, [hl] ; reset tracker stepped
+	res 7, [hl] 		; reset tracker stepped
 	ret
 
 ; ------------------------------------------------------------------------
 ; Audio_load_song(hl = songAddr)
-; Initializes channels trackers with block start addr at song addr
-; Song addr contains $WWWW ; $XXXX ; $YYYY ; $ZZZZ (little endian)
+; 	Initialises channels trackers with block start addr at song addr
+; 	Song addr contains $WWWW ; $XXXX ; $YYYY ; $ZZZZ (little endian)
 ; 			CH1 : $WWWW
 ; 			CH2 : $XXXX
 ; 			CH3 : $YYYY
@@ -77,57 +76,57 @@ Audio_load_song::
 	ld a, [hl+]
 	ld e, a
 	ld a, [hl+]
-	ld d, a ; de <- $WWWW
+	ld d, a 			; de <- $WWWW
 	push hl
 	ld bc, _CH1_instru
 	push bc
 	push de
 	ld bc, _CH1_track
-	call tracker_init ; CH1 set
+	call tracker_init 	; CH1 set
 	pop de
 	pop de
 	pop hl
 	ld a, [hl+]
 	ld e, a
 	ld a, [hl+]
-	ld d, a ; de <- $XXXX
+	ld d, a 			; de <- $XXXX
 	push hl
 	ld bc, _CH2_instru
 	push bc
 	push de
 	ld bc, _CH2_track
-	call tracker_init ; CH2 set
+	call tracker_init 	; CH2 set
 	pop de
 	pop de
 	pop hl
 	ld a, [hl+]
 	ld e, a
 	ld a, [hl+]
-	ld d, a ; de <- $YYYY
+	ld d, a 			; de <- $YYYY
 	push hl
 	ld bc, _CH3_instru
 	push bc
 	push de
 	ld bc, _CH3_track
-	call tracker_init ; CH3 set
+	call tracker_init 	; CH3 set
 	pop de
 	pop de
 	pop hl
 	ld a, [hl+]
 	ld e, a
-	ld d, [hl] ; de <- $ZZZZ
+	ld d, [hl] 			; de <- $ZZZZ
 	ld bc, _CH4_instru
 	push bc
 	push de
 	ld bc, _CH4_track
-	call tracker_init ; CH4 set
+	call tracker_init 	; CH4 set
 	pop de
 	pop de
 	ret
 
 ; -----------------------------------------------
 ; Audio_start_song
-;		Start trackers to start playing audio
+;	Start trackers
 ;------------------------------------------------
 Audio_start_song::
 	ld bc, _CH1_track
@@ -142,8 +141,8 @@ Audio_start_song::
 
 ; ------------------------------------------------
 ; Audio_stop_song
-;		Play blank note on each instrument
-; 		And set trackers to end state
+;	Play blank note on each instrument
+; 	And set trackers to end state
 ; ------------------------------------------------
 Audio_stop_song::
 	ld bc, _CH1_track
@@ -157,13 +156,13 @@ Audio_stop_song::
 	ret
 
 ;--------------------------------------------------------------------------
-;- Audio_update()       
-;-		Called once per frame
-; 		Handle sfx automaton update [registers update]
-; 		Handle instruments update (note, volume, instrument changes) [registers update]
-; 		Handle tracker updates
-; 		Handle Volume and instrument changes (notes parameters)
-; 		Handle audio register and frequencies updates
+; Audio_update()       
+;	Called once per frame
+; 	Handle sfx automaton update [registers update]
+; 	Handle instruments update (note, volume, instrument changes) [registers update]
+; 	Handle tracker updates
+; 	Handle Volume and instrument changes (notes parameters)
+; 	Handle audio register and frequencies updates
 ;--------------------------------------------------------------------------
 Audio_update::
 	call sfx_update
@@ -179,9 +178,9 @@ Audio_update::
 
 
 ;------------------------------------------------------------------------------------------
-;- handle_trackers()  
-;-	if tracker counter tripped update all channels trackers
-; 		set bit 7 of _tracker_stepped if stepped
+; handle_trackers()  
+;	if tracker counter tripped update all channels trackers
+; 	set bit 7 of _tracker_stepped if stepped
 ;------------------------------------------------------------------------------------------
 handle_trackers:
 	ld hl, _trackers_update_counter
@@ -205,10 +204,10 @@ handle_trackers:
 	ret
 
 ;------------------------------------------------------------------------------------------
-;- Audio_set_CH3_wave_pattern(hl = pattern addr)
-; expected pattern size is 16 bytes
-;- CH3 is disabled during pattern copy to avoid audio pop
-;- sound output levels are reset after function call
+; Audio_set_CH3_wave_pattern(hl = pattern addr)
+;	 expected pattern size is 16 bytes
+;	 CH3 is disabled during pattern copy to avoid audio pop
+;	 sound output levels are reset after function call
 ;------------------------------------------------------------------------------------------
 Audio_set_wave_pattern::
 	; reset output level to prevent audio pop
@@ -235,21 +234,21 @@ Audio_set_wave_pattern::
 
 	SECTION "Audio_Variables", WRAM0
 
-_trackers_speed:		DS 1 ; update speed of tracker (0 -> once per call, 1 -> every two call, etc)
+_trackers_speed:			DS 1 ; update speed of tracker (0 -> once per call, 1 -> every two call, etc)
 _trackers_update_counter:	DS 1 ; update counter of tracker
-_trackers_flags:	DS 1 ; %bxxxxxxx -> b : 1 if tracker has been stepped
+_trackers_flags:			DS 1 ; %bxxxxxxx -> b : 1 if tracker has been stepped
 
 ;channel 1 tracker
-_CH1_track:			DS SIZEOF_tracker_struct
+_CH1_track:					DS SIZEOF_tracker_struct
 
 ;channel 2 tracker
-_CH2_track:			DS SIZEOF_tracker_struct
+_CH2_track:					DS SIZEOF_tracker_struct
 
 ;channel 3 tracker
-_CH3_track:			DS SIZEOF_tracker_struct
+_CH3_track:					DS SIZEOF_tracker_struct
 
 ;channel 4 tracker
-_CH4_track:			DS SIZEOF_tracker_struct
+_CH4_track:					DS SIZEOF_tracker_struct
 
 
 

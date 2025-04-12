@@ -1,8 +1,6 @@
 ;#############################
-; audio frequencies
-; definition of functions for
-; getting the correct frequencies
-; out of a note number
+; Audio frequencies handler
+; Handles frequency retrieval from note index
 ;##############################
 
     INCLUDE "hardware.inc"
@@ -100,10 +98,10 @@
     SECTION "Frequencies_Functions", ROM0
 
 ;------------------------------------------------------------------------------------------
-;- Audio_get_note_frequency12(a = note index) -> bc = gb frequency of note (11 bits)      
-;- return the gb frequency to use for specified note
-;- (channel 1 and 2)
-;- for channel 3 : everything is shifted one octave down :
+; Audio_get_note_frequency12(a = note index) -> bc = gb frequency of note (11 bits)      
+; return the gb frequency to use for specified note
+; (channel 1 and 2)
+; for channel 3 : everything is shifted one octave down :
 ; C3 is C2, F4 is F3 ets ...
 ;------------------------------------------------------------------------------------------
 Audio_get_note_frequency12::
@@ -140,11 +138,11 @@ Audio_get_note_frequency3:: ; should be written later
 	ret
 
 ;------------------------------------------------------------------------------------------
-;- Audio_get_note_frequency4(a = note index) -> c = gb frequency of note (8 bits)      
-;- return the gb frequency to use for specified note
-;- (channel 4) -> specify shift, divider and LFSR bit in c (b is 0)
-;- notes 0 to 46 are with LFSR 15 bits
-;- notes 47 to 93 are with LFSR 7 bits
+; Audio_get_note_frequency4(a = note index) -> c = gb frequency of note (8 bits)      
+; return the gb frequency to use for specified note
+; (channel 4) -> specify shift, divider and LFSR bit in c (b is 0)
+; notes 0 to 46 are with LFSR 15 bits
+; notes 47 to 93 are with LFSR 7 bits
 ;------------------------------------------------------------------------------------------
 Audio_get_note_frequency4::
 	ld b, a ; b <- note index
@@ -170,6 +168,12 @@ Audio_get_note_frequency4::
 ; section is aligned so address caclulation is straight forward and quicker
 __Audio_Frequencies12_Table_start:
 INCBIN "audio_table.bin"
+; %9D2C, %6B07, %23ca, %c777, %5812, %da9b, %4e16, %b583
+; %11e5, %633c, %ac89, %edce, %270b, %5b42, %8972, %b29e
+; %d6c4, %f7e7, %1406, %2d21, %4439, %594f, %6b62, %7b73
+; %8a83, %9790, %a29d, %aca7, %b6b1, %beba, %c5c1, %cbc8
+; %d1ce, %d6d4, %dbd9, %dfdd, %e2e1, %e6e4, %e9e7, %ebea
+; %edec, %efee
 
 	SECTION "Audio_Frequencies_Table4", ROM0, ALIGN[6]
 ; registers values for channel 4
