@@ -69,8 +69,8 @@ DEF SIZEOF_sprt_struct	RB 0
 Sprite_init::
 	;mise à 0 de l'OAM mirror
 	ld 		d, $00
-	ld 		hl, OAM_mirror
-	ld 		bc, OAM_mirror_end - OAM_mirror
+	ld 		hl, Shadow_OAM
+	ld 		bc, $A0
 	call 	memset
 
 	;mise à 0 des variables
@@ -81,8 +81,8 @@ Sprite_init::
 
 	;OAM libre à la base de l'OAM mirror
 	ld 		hl, _free_OAM_addr
-	ld 		b, HIGH(OAM_mirror)
-	ld 		a, LOW(OAM_mirror)
+	ld 		b, HIGH(Shadow_OAM)
+	ld 		a, $00
 	ldi		[hl], a
 	ld 		[hl], b
 
@@ -346,7 +346,7 @@ Sprite_delete_entry::
 	ld 		h, a ; hl <- adresse de l'objet juste après le sprite dans l'OAM | de <- adresse du premier objet du sprite dans l'OAM
 						;mettre dans b OAM_mirror_end - hl
 	push 	de 					;(peut être superflu)
-	ld 		de, OAM_mirror_end
+	ld 		de, Shadow_OAM + $00A0
 	ld 		a, e
 	sub 	a, l
 	ld 		b, a
@@ -362,7 +362,7 @@ Sprite_delete_entry::
 	;met à zero les valeurs restantes dans l'OAM (cache les sprite inutilisés)
 	push 	de
 		;mettre dans b : (OAM_mirror_end - de)/4
-	ld 		bc, OAM_mirror_end
+	ld 		bc, Shadow_OAM + $00A0
 	ld 		a, c
 	sub 	a, e
 	ld 		b, a

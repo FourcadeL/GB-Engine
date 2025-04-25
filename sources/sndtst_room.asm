@@ -225,14 +225,6 @@ validate_selection:
 
 
 
-
-
-
-
-
-
-
-
     SECTION "snd_test_room_data", ROMX
 _text:
     DB " \n   SOUND TEST\n \n \n \n   Song :\n \n   SFX id :\n \n   SFX channel:\n \n A : play\n B : stop\n \n  START to exit\\0"

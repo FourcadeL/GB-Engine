@@ -84,7 +84,7 @@ init_DMA::
 ;-		Call DMA routine in HRAM                                      -
 ;--------------------------------------------------------------------------
 call_DMA::
-	ld	a,OAM_mirror >> 8 ; 8 bit offset becaus only High part of adress matters
+	ld	a, HIGH(Shadow_OAM) ; High part of adress
 	jp	DMA_ROUTINE_HRAM
 
 
@@ -256,11 +256,7 @@ tilemap_win_block_copy::
 ;| |                          VARIABLES                                      | |
 ;| +-------------------------------------------------------------------------+ |
 ;+-----------------------------------------------------------------------------+
-	SECTION "Video_Variables",WRAM0[$C000]
-
-OAM_mirror:	DS $A0 ; copiée en OAM par la routine DMA
-OAM_mirror_end:
-
+	SECTION "Video_Variables",WRAM0
 
 _screen_control_save: DS 1
 

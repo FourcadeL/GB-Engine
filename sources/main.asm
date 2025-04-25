@@ -28,7 +28,8 @@ Main::
 	call 	Main_init
 	PRINT_DEBUG "Main Init Done"
 	; call room_main
-	call snd_test_main
+	; call snd_test_main
+	call sprt_test_main
 	ret
 
 	
