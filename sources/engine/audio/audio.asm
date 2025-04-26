@@ -22,7 +22,7 @@ def BLANK_NOTE = %01011111
 ;+-----------------------------------------------------------------------------+
 
 
-	SECTION "Audio_Functions",ROM0
+	SECTION "Audio_Functions", ROM0
 
 
 

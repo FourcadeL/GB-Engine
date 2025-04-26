@@ -15,7 +15,7 @@
 ;+-----------------------------------------------------------------------------+
 
 
-	SECTION "Video_Functions",ROM0
+	SECTION "Video_Functions", ROM0
 
 
 
