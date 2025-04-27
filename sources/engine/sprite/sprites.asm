@@ -23,6 +23,7 @@ INCLUDE "sprites.inc"
 ; Sprites_clear()
 ;	Mark all sprites as inactives and not displayed
 ;	(status byte = $00)
+;	Set next _low_SOAM value to $00
 ;------------------------------------------------
 Sprites_clear::
 	ld	b, MAX_SPRITE_NUMBER
@@ -31,10 +32,92 @@ Sprites_clear::
 .loop	
 	ld	l, a
 	ld	[hl], $00
-	dec	b
-	ret	z
 	add	a, SPRITE_STRUCTURE_SIZE	; sprite structure is 8 bytes long
-	jr	.loop
+	dec	b
+	jr	nz, .loop
+	ld	hl, _current_low_SOAM
+	ld	[hl], $00
+	ret	
+
+
+;------------------------------------------------
+; Sprites_display_current(b = Xpos, c = Ypos, a = displayList index)
+;	requires : _current_sprite_status_byte set up
+;	Sets up objects of sprites in SOAM
+;------------------------------------------------
+Sprites_display_current:
+	add	a, a		; get low addr of displayList
+	ld	h, HIGH(Shadow_OAM)
+	ld	l, a
+	ld	e, [hl]
+	inc	l
+	ld	d, [hl]		; de is addr to displayList
+
+	ld	a, [de]
+	or	a
+	ret	z		; return if no objects in displayList
+
+	inc	de
+	ld	[_current_sprite_nb_of_objects], a
+	ld	h, HIGH(Shadow_OAM)
+	ld	a, [_current_low_SOAM]
+	ld	l, a
+.loopOnObjects
+	ld	a, [de]		; Y pos offset
+	inc	de
+	add	a, c
+	add	a, $10		; 16 px offset for Y top screen
+	cp	$A0
+	jr	nc, .skipDisplayCauseY
+	ld	[hl+], a
+	ld	a, [de]
+	inc	de
+	add	a, b
+	add	a, $08		; 8 px offset for X left screen
+	cp	$A8
+	jr	nc, .skipDisplayCauseX
+	ld	[hl+], a
+	ld	a, [de]
+	inc	de
+	ld	[hl+], a
+	ld	a, [de]
+	inc	de
+	ld	[hl+], a
+
+	ld	a, [_nb_remaining_free_objects]
+	dec	a
+	ld	[_nb_remaining_free_objects], a
+	jr	z, .noFreeObjects
+	ld	a, $18		; next object is 6 ahead
+	add	l
+	cp	$A0
+	jr	c, .skipOverflowCase
+	sub	$A0
+.skipOverflowCase
+	ld	[_current_low_SOAM], a
+	ld	l, a
+.afterSkipEntry
+	ld	a, [_current_sprite_nb_of_objects]
+	dec	a
+	ret	z		; no more objects to display
+	ld	[_current_sprite_nb_of_objects], a
+	jr	.loopOnObjects
+
+
+.skipDisplayCauseY
+	inc	de
+	inc	de
+	inc	de
+	jr	.afterSkipEntry
+.skipDisplayCauseX
+	inc	de
+	inc	de
+	dec	hl
+	jr	.afterSkipEntry
+	
+.noFreeObjects
+	; TODO code when objects are full goes here
+
 
 
 ;------------------------------------------------
@@ -54,7 +137,15 @@ Sprites_multiplex::
 .loop_on_sprites		; hl is the base addr of current object
 	bit	0, [hl]		; display bit ?	
 	jr	z, .skip_display
-		; TODO : display code goes here
+	ld	a, [hl+]
+	ld	[_current_sprite_status_byte], a
+	ld	a, [hl]		; display list index of sprite
+	inc	l
+	ld	c, [hl]		; low Y pos of sprite
+	inc	l
+	inc	l
+	ld	b, [hl]		; low X pos of sprite
+	call	Sprites_display_current
 .skip_display
 	ld	hl, _current_sprite_index
 	inc	[hl]
@@ -65,14 +156,43 @@ Sprites_multiplex::
 	sla	l
 	cp	MAX_SPRITE_NUMBER
 	jr	nz, .loop_on_sprites
-;;;;;;;TODO
+; 	no return since remaining sprites should be masked after loop
 
 ;------------------------------------------
 ; Sprites_mask()
 ;	masks remaining unused objects
 ;------------------------------------------
 Sprites_mask:
-;; TODO mask code goes here (get remaining nb of objects, get current low of SOAM)
+	ld	h, HIGH(Shadow_OAM)
+	ld	a, [_current_low_SOAM]
+	ld	l, a
+	ld	a, [_nb_remaining_free_objects]
+	ld	c, a
+.loop
+	ld	[hl], $00	; set y pos of object out of bound
+	ld	a, $1C		; next object is +7
+	add	l
+	cp	$A0		; did we overflow SOAM
+	jr	c, .skipOverflowCase
+	sub	$A0
+.skipOverflowCase
+	ld	a, l
+	dec	c
+	jr	nz, .loop
+;	no ret since we have to finalize multiplexing
+
+;----------------------------------------------
+; Sprites_finalize_multiplexing(a = current low of SOAM)
+;	sets up new SOAM low for next object population
+;----------------------------------------------
+	add	a, $5C		; next starting object is +27
+	ld	[_current_low_SOAM], a
+	cp	$A0
+	ret	c		; new current low OAM is valid
+	sub	$A0
+	ld	[_current_low_SOAM], a
+	ret
+
 ;+---------------------------------------------------------------------+
 ;| +-----------------------------------------------------------------+ |
 ;| |                                                                 | |
@@ -85,7 +205,9 @@ Sprites_mask:
 
 _nb_remaining_free_objects:		DS 1 ; number of remaining free objects of shadow OAM in current multiplex pass
 _current_sprite_index:			DS 1 ; index of currently considered sprite
-
+_current_sprite_status_byte:		DS 1 ; status byte value of currently processed sprite
+_current_sprite_nb_of_objects:		DS 1 ; number of objects to display in currents sprite
+_current_low_SOAM:			DS 1 ; value of current low os shadow OAM
 
 
 ;+---------------------------------------------------------------------+
@@ -106,6 +228,10 @@ _current_sprite_index:			DS 1 ; index of currently considered sprite
 ;			  |
 ;			  +--------> active status : 1 = active
 ;		- b1 : Display list index
+;		- b2 : X pos low
+;		- b3 : ???
+;		- b4 : Y pos low
+;		- b5 : ???
 ;-------------------------------
 
 	SECTION "Sprite_Table", WRAM0, align[8]
