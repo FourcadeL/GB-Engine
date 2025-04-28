@@ -47,7 +47,7 @@ Sprites_clear::
 ;------------------------------------------------
 Sprites_display_current:
 	add	a, a		; get low addr of displayList
-	ld	h, HIGH(Shadow_OAM)
+	ld	h, HIGH(DisplayList_table)
 	ld	l, a
 	ld	e, [hl]
 	inc	l
@@ -116,7 +116,8 @@ Sprites_display_current:
 	jr	.afterSkipEntry
 	
 .noFreeObjects
-	; TODO code when objects are full goes here
+	ld	a, [_current_low_SOAM]
+	jr	Sprites_finalize_multiplexing
 
 
 
@@ -139,8 +140,7 @@ Sprites_multiplex::
 	jr	z, .skip_display
 	ld	a, [hl+]
 	ld	[_current_sprite_status_byte], a
-	ld	a, [hl]		; display list index of sprite
-	inc	l
+	ld	a, [hl+]		; display list index of sprite
 	ld	c, [hl]		; low Y pos of sprite
 	inc	l
 	inc	l
@@ -150,6 +150,7 @@ Sprites_multiplex::
 	ld	hl, _current_sprite_index
 	inc	[hl]
 	ld	a, [hl]
+	ld	h, HIGH(Sprite_table)
 	ld	l, a
 	sla	l
 	sla	l
@@ -176,7 +177,7 @@ Sprites_mask:
 	jr	c, .skipOverflowCase
 	sub	$A0
 .skipOverflowCase
-	ld	a, l
+	ld	l, a
 	dec	c
 	jr	nz, .loop
 ;	no ret since we have to finalize multiplexing
@@ -185,6 +186,7 @@ Sprites_mask:
 ; Sprites_finalize_multiplexing(a = current low of SOAM)
 ;	sets up new SOAM low for next object population
 ;----------------------------------------------
+Sprites_finalize_multiplexing::
 	add	a, $5C		; next starting object is +27
 	ld	[_current_low_SOAM], a
 	cp	$A0
@@ -228,9 +230,9 @@ _current_low_SOAM:			DS 1 ; value of current low os shadow OAM
 ;			  |
 ;			  +--------> active status : 1 = active
 ;		- b1 : Display list index
-;		- b2 : X pos low
+;		- b2 : Y pos low
 ;		- b3 : ???
-;		- b4 : Y pos low
+;		- b4 : X pos low
 ;		- b5 : ???
 ;-------------------------------
 

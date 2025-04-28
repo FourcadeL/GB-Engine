@@ -20,9 +20,32 @@ sprt_test_main::
 	call sprt_test_init
 .loop
 	call getInput
-	call wait_vbl
 
-	; main test code goes here
+	; basic movement
+	ld a, [PAD_hold]
+	cp PAD_UP
+	jr nz, .skipUP
+	ld hl, Sprite_table+2
+	dec [hl]
+.skipUP
+	cp PAD_DOWN
+	jr nz, .skipDOWN
+	ld hl, Sprite_table+2
+	inc [hl]
+.skipDOWN
+	cp PAD_RIGHT
+	jr nz, .skipRIGHT
+	ld hl, Sprite_table+4
+	inc [hl]
+.skipRIGHT
+	cp PAD_LEFT
+	jr nz, .skipLEFT
+	ld hl, Sprite_table+4
+	dec [hl]
+.skipLEFT
+
+	call wait_vbl
+	call Sprites_multiplex
 	jr .loop
 
 
@@ -45,6 +68,72 @@ sprt_test_init:
 	call fwf_automaton_init
 
 	;sprite init code goes here
+	call Sprites_clear
+
+	; initialize basic sprite
+	ld hl, Sprite_table
+	ld a, %10000001
+	ld [hl+], a
+	ld a, 0
+	ld [hl+], a
+	ld [hl+], a
+	ld [hl+], a
+	ld [hl+], a
+	ld hl, DisplayList_table
+	ld a, LOW(displayList1)
+	ld [hl+], a
+	ld a, HIGH(displayList1)
+	ld [hl+], a
+
+
+	ld hl, Sprite_table+8
+	ld a, %10000001
+	ld [hl+], a
+	ld a, 1
+	ld [hl+], a
+	ld a, 33
+	ld [hl+], a
+	ld a, 0
+	ld [hl+], a
+	ld a, 23
+	ld [hl+], a
+	ld hl, DisplayList_table+2
+	ld a, LOW(displayList2)
+	ld [hl+], a
+	ld a, HIGH(displayList2)
+	ld [hl+], a
+
+	ld hl, Sprite_table+16
+	ld a, %10000001
+	ld [hl+], a
+	ld a, 1
+	ld [hl+], a
+	ld a, 53
+	ld [hl+], a
+	ld a, 0
+	ld [hl+], a
+	ld a, 33
+	ld [hl+], a
+
+	ld hl, Sprite_table+24
+	ld a, %10000001
+	ld [hl+], a
+	ld a, 2
+	ld [hl+], a
+	ld a, 43
+	ld [hl+], a
+	ld a, 0
+	ld [hl+], a
+	ld a, 99
+	ld [hl+], a
+	ld hl, DisplayList_table+4
+	ld a, LOW(displayList3)
+	ld [hl+], a
+	ld a, HIGH(displayList3)
+	ld [hl+], a
+
+
+
 
 	ret
 
@@ -53,3 +142,35 @@ sprt_test_init:
 	SECTION "sprt_test_room_data", ROMX
 _text:
 	DB " SPRITE TEST :\n This window will have interactive elements\\0"
+
+; blank sprites test
+displayList1:
+	DB 4, 0, 0, 2, 0
+	DB 8, 0, 3, 0
+	DB 0, 8, 4, 0
+	DB 8, 8, 5, 0
+
+displayList2:
+	DB 12, 0, 0, 6, 0
+	DB 8, 0, 7, 0
+	DB 0, 8, 9, 0
+	DB 8, 8, 10, 0
+	DB 0, 16, 11, 0
+	DB 0, 24, 12, 0
+	DB 0, 32, 13, 0
+	DB 0, 40, 14, 0
+	DB 0, 48, 15, 0
+	DB 0, 56, 16, 0
+	DB 0, 64, 17, 0
+	DB 0, 72, 18, 0
+	
+displayList3:
+	DB 9, 0, 0, 30, 0
+	DB 8, 0, 31, 0
+	DB 16, 0, 45, 0
+	DB 24, 0, 87, 0
+	DB 32, 0, 65, 0
+	DB 40, 0, 66, 0
+	DB 48, 0, 98, 0
+	DB 56, 0, 45, 0
+	DB 64, 0, 78, 0
