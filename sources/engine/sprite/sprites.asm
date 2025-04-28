@@ -3,6 +3,9 @@
 ; Defines main sprite control routines
 ;######################################
 
+; terminology :
+;	object -> One OAM element
+;	sprite -> A group of objects with associated behaviours
 
 INCLUDE "hardware.inc"
 INCLUDE "debug.inc"
@@ -18,6 +21,25 @@ INCLUDE "sprites.inc"
 
 
 	SECTION "Sprites_Functions", ROM0
+
+;------------------------------------------
+; Sprites_init()
+;	Sets up correct objects size
+;	Clear sprites table
+;------------------------------------------
+Sprites_init::
+	; setup of correct object mode
+	ld	a, [rLCDC]
+IF		MODE_16 == 1
+	or	a, LCDCF_OBJ16
+ELSE
+	and a, %11111011	; not LCDCF_OBJ8
+ENDC
+	or	a, LCDCF_OBJON
+	ld	[rLCDC], a
+	; ret ; no ret since sprite table is cleared after init
+
+
 
 ;------------------------------------------------
 ; Sprites_clear()
@@ -117,6 +139,7 @@ Sprites_display_current:
 	
 .noFreeObjects
 	ld	a, [_current_low_SOAM]
+	pop	bc				; prevent execution return to sprite multiplex
 	jr	Sprites_finalize_multiplexing
 
 

@@ -229,11 +229,11 @@ validate_selection:
 _text:
     DB " \n   SOUND TEST\n \n \n \n   Song :\n \n   SFX id :\n \n   SFX channel:\n \n A : play\n B : stop\n \n  START to exit\\0"
 
-__Wave_Pattern_Sawtooth_start:
+__Wave_Pattern_Sawtooth_start::
     INCBIN "sawtooth.bin"
 __Wave_Pattern_Sawtooth_end:
     
-__Wave_Pattern_Triangle_start:
+__Wave_Pattern_Triangle_start::
     INCBIN "triangle.bin"
 __Wave_Pattern_Triangle_end:
 

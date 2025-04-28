@@ -68,13 +68,13 @@ sprt_test_init:
 	call fwf_automaton_init
 
 	;sprite init code goes here
-	call Sprites_clear
+	call Sprites_init
 
 	; initialize basic sprite
 	ld hl, Sprite_table
 	ld a, %10000001
 	ld [hl+], a
-	ld a, 0
+	ld a, 1
 	ld [hl+], a
 	ld [hl+], a
 	ld [hl+], a
@@ -133,8 +133,30 @@ sprt_test_init:
 	ld [hl+], a
 
 
-
-
+; AUDIO INIT TEST (plus sprites)
+; Audio init
+    ld hl, __Wave_Pattern_Sawtooth_start
+    ; ld hl, __Wave_Pattern_Triangle_start
+    call Audio_set_wave_pattern
+    ld b, 6 ; tracker speed
+    call Audio_init
+	
+	; request song 6
+; load and play song
+        ld a, 6
+        ld b, $00
+        sla a
+        rl b
+        sla a
+        rl b
+        sla a
+        rl b
+        ld c, a
+        ld hl, songs_start
+        add hl, bc
+        call Audio_load_song
+        call Audio_start_song
+        ret
 	ret
 
 
@@ -146,15 +168,15 @@ _text:
 ; blank sprites test
 displayList1:
 	DB 4, 0, 0, 2, 0
-	DB 8, 0, 3, 0
+	DB 16, 0, 3, 0
 	DB 0, 8, 4, 0
-	DB 8, 8, 5, 0
+	DB 16, 8, 5, 0
 
 displayList2:
 	DB 12, 0, 0, 6, 0
-	DB 8, 0, 7, 0
+	DB 16, 0, 7, 0
 	DB 0, 8, 9, 0
-	DB 8, 8, 10, 0
+	DB 16, 8, 10, 0
 	DB 0, 16, 11, 0
 	DB 0, 24, 12, 0
 	DB 0, 32, 13, 0
@@ -166,11 +188,11 @@ displayList2:
 	
 displayList3:
 	DB 9, 0, 0, 30, 0
-	DB 8, 0, 31, 0
-	DB 16, 0, 45, 0
-	DB 24, 0, 87, 0
-	DB 32, 0, 65, 0
-	DB 40, 0, 66, 0
-	DB 48, 0, 98, 0
-	DB 56, 0, 45, 0
-	DB 64, 0, 78, 0
+	DB 16, 0, 31, 0
+	DB 32, 0, 45, 0
+	DB 48, 0, 87, 0
+	DB 64, 0, 65, 0
+	DB 80, 0, 66, 0
+	DB 96, 0, 98, 0
+	DB 112, 0, 45, 0
+	DB 128, 0, 78, 0
