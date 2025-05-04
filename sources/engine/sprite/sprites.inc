@@ -21,5 +21,22 @@ DEF MAX_DISPLAYLIST_NUMBER 	EQU 20
 
 
 
+; Display list OAM attributes modes
+DEF DL_DEFAULT EQU %00000000
+;	FOR OAM FLAGS, SEE HARDWARE.INC DEFINITIONS
+;	@OAMF section
+
+
+
+;------------------------
+; INDEXOF(tile addr)
+;	returns the tile index associated to
+;	the given tile addr
+;------------------------
+MACRO INDEXOF
+	"(\1 - $8000) / 16"
+ENDM
+
+
 
 	ENDC ; SPRITES_INC

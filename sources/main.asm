@@ -98,8 +98,13 @@ Main_init::
 
 	; on rétablit les interrupts
 	ei
+
 	; initialisations 
+	ld b, 6
 	call Audio_init
+	ld hl, _test_waveform
+	call Audio_set_wave_pattern
+
 	call Sprites_init
 	ret ; retour à l'exécution
 
@@ -111,9 +116,6 @@ Main_init::
 Main_vblk:
 	; Video / VRAM actions
 	call call_DMA
-	call fwf_automaton_update
-	; Audio / Non VRAM actions
-	call Audio_update
 	ret
 
 
@@ -128,3 +130,6 @@ Main_vblk:
 _test_data_start:
 INCBIN "./engine/engine_data/test_tileset.bin"
 _test_data_end:
+
+_test_waveform:
+INCBIN "./engine/engine_data/waves/sawtooth.bin"

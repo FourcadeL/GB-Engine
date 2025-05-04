@@ -9,7 +9,12 @@ INCLUDE "hardware.inc"
 INCLUDE "engine.inc"
 INCLUDE "debug.inc"
 INCLUDE "utils.inc"
+INCLUDE "sprites.inc"
 INCLUDE "charmap.inc"
+
+
+DEF Player_sprite_entry EQUS "Sprite_table"
+DEF Player_displaylist_entry EQUS "DisplayList_table"
 
 
     SECTION "Player_code", ROMX
@@ -20,22 +25,30 @@ Player_init::
 	ld de, Player_vram_tiles
 	ld c, Player_tiles.end - Player_tiles
 	call vram_copy_fast
+
     ; reset variables
     ld      d, $00
     ld      hl, _player_variables_start
     ld      b, _player_variables_end - _player_variables_start
     call    memset_fast
 
-    ; create player sprite
-    ld      b, %00001000 ; sprite displayed
-    ld      c, $12      ; sprite height = 1 width = 2
-    call    Sprite_new ; new sprite
-    ld      [player_sprite_idx], a ;save sprite idx
-    
-    ld      hl, player_frame_1_tiles
-    ld      b, a
-    call    Sprite_set_tiles
+	; init sprite
+		; init sprite entry
+	ld hl, Player_sprite_entry
+	ld a, %10000001 	; player sprite active and displayed
+	ld [hl+], a
+	ld a, 0				; use display list entry 0
+	ld [hl+], a
+	ld [hl+], a
+	ld [hl+], a
+	ld [hl+], a
 
+		; init display list entry
+	ld hl, Player_displaylist_entry
+	ld a, LOW(player_dl_static)
+	ld [hl+], a
+	ld a, HIGH(player_dl_static)
+	ld [hl], a
     ret
 
 
@@ -71,27 +84,19 @@ Player_update::
 .skip_up
 
     ; SPRITE POSITION BASIC UPDATE
-    ld a, [player_sprite_idx]
-    ld b, a
-    ld a, [player_Xpos]
-    ld c, a
-    call Sprite_set_Xpos
-    ld a, [player_sprite_idx]
-    ld b, a
-    ld a, [player_Ypos]
-    ld c, a
-    call Sprite_set_Ypos
-    ld a, [player_sprite_idx]
-    call Sprite_update_OAM
+	ld hl, Player_sprite_entry + 2
+	ld a, [player_Ypos]
+	ld [hl], a
+
+	ld hl, Player_sprite_entry + 4
+	ld a, [player_Xpos]
+	ld [hl], a  
+	;TODO
+    
     ret
 
 
     
-; STATIC DATA FOR PLAYER
-player_frame_1_tiles:
-    DB $04, $06
-player_frame_2_tiles:
-    DB $08, $0A
 
 	SECTION "Player_variables", WRAM0
 _player_variables_start:
@@ -103,7 +108,10 @@ _player_variables_end:
 
 	SECTION "Player_display_lists", ROMX
 player_dl_static:
-	DB
+	DB 2
+	DB 0, 0, (tile1 - _VRAM)/16, 0
+	DB 0, 8, (tile1 - _VRAM)/16, OAMF_XFLIP
+
 
 
 ;+--------------------------------------------------------------------------+
@@ -114,7 +122,7 @@ player_dl_static:
 
 	SECTION "Player_tiles", ROMX
 Player_tiles:
-	LOAD "Player_VRAM", VRAM
+	LOAD "Player_VRAM", VRAM[$8000]
 Player_vram_tiles:
 tile1:
 	DB $00, $00, $01, $01, $03, $02, $03, $06, $02, $07, $0e, $27, $2f, $2e, $1f, $37

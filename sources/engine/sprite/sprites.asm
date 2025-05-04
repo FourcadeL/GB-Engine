@@ -268,6 +268,13 @@ Sprite_table::
 ; Display list table
 ;	This is a table of 2 bytes addresses
 ;	to display lists data
+;		Display list structure :
+;		 - Fist byte is the number N of objects
+;		 - N blocks of 4 bytes :
+;			- Y offset
+;			- X offset
+;			- Tile index
+;			- OAM attributes
 ;--------------------------------
 
 	SECTION "DisplayList_Table", WRAM0, align[8]
@@ -285,4 +292,4 @@ DisplayList_table::
 
 	SECTION "Shadow_OAM", WRAM0, align[8]
 Shadow_OAM::
-	DS	$A0
+	DS	OAM_COUNT*sizeof_OAM_ATTRS
