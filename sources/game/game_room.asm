@@ -30,12 +30,6 @@ game_main::
 
 
 game_init::
-    ; copy object tiles to VRAM
-    ld      hl, _objects_tiles
-    ld      bc, $0800
-    ld      de, _VRAM
-    call    vram_copy
-
     ; player init
     call    Player_init
 

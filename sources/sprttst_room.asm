@@ -132,31 +132,6 @@ sprt_test_init:
 	ld a, HIGH(displayList3)
 	ld [hl+], a
 
-
-; AUDIO INIT TEST (plus sprites)
-; Audio init
-    ld hl, __Wave_Pattern_Sawtooth_start
-    ; ld hl, __Wave_Pattern_Triangle_start
-    call Audio_set_wave_pattern
-    ld b, 6 ; tracker speed
-    call Audio_init
-	
-	; request song 6
-; load and play song
-        ld a, 6
-        ld b, $00
-        sla a
-        rl b
-        sla a
-        rl b
-        sla a
-        rl b
-        ld c, a
-        ld hl, songs_start
-        add hl, bc
-        call Audio_load_song
-        call Audio_start_song
-        ret
 	ret
 
 

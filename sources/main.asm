@@ -40,9 +40,10 @@ Main::
 	ld a, [PAD_pressed]
 	or a
 	ret nz
-	jr .loop
-
 	
+	; load the game main room by default for testing
+	call game_main
+	jr .loop
 
 
 ;---------------------------------------------
@@ -53,8 +54,6 @@ Main::
 
 
 Main_init::
-	; initialisations 
-	
 	; écriture des tiles de test
 	ld 		bc, _test_data_end - _test_data_start
 	ld		hl, _test_data_start
@@ -64,6 +63,10 @@ Main_init::
 	ld		hl, _test_data_start
 	ld		de, _VRAM + $0800
 	call 	vram_copy
+	ld bc, _test_data_end - _test_data_start
+	ld hl, _test_data_start
+	ld de, _VRAM + $0800 + $0800
+	call vram_copy
 
 
 
@@ -89,23 +92,15 @@ Main_init::
 	or 		LCDCF_BGON ; arriere plan activé
 	ld		[rLCDC],a
 
-	; Audio init
-    ld hl, __Wave_Pattern_Sawtooth_start
-    ; ld hl, __Wave_Pattern_Triangle_start
-    call Audio_set_wave_pattern
-    ld b, 6 ; tracker speed
-    call Audio_init
-
-
-	; Sprites init
-	call 	Sprite_init
-
 
 	ld bc, Main_vblk
 	call irq_set_VBL ; set global VBlank
 
 	; on rétablit les interrupts
 	ei
+	; initialisations 
+	call Audio_init
+	call Sprites_init
 	ret ; retour à l'exécution
 
 
