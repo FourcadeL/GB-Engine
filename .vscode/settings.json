@@ -1,0 +1,11 @@
+{
+    "makefile.configureOnOpen": false,
+
+    // same indentation on editor
+    "editor.detectIndentation": false,
+    "editor.tabSize": 4,
+	"editor.insertSpaces": false,
+	"files.exclude": {
+		"**/*.obj": true
+	}
+}
