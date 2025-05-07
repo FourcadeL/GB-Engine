@@ -63,10 +63,10 @@ Main_init::
 	ld		hl, _test_data_start
 	ld		de, _VRAM + $0800
 	call 	vram_copy
-	ld bc, _test_data_end - _test_data_start
-	ld hl, _test_data_start
-	ld de, _VRAM + $0800 + $0800
-	call vram_copy
+	;ld bc, _test_data_end - _test_data_start
+	;ld hl, _test_data_start
+	;ld de, _VRAM + $0800 + $0800
+	;call vram_copy
 
 
 
