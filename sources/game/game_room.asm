@@ -25,6 +25,7 @@ game_main::
     call    getInput
     
     call    Player_update
+	call	Ennemy_update
     call    ES_update
 	call	Sprites_multiplex
 	call 	Audio_update
@@ -34,8 +35,19 @@ game_main::
 game_init:
     ; player init
     call    Player_init
+	
+	; ennemy init
+	call Ennemy_init
 
     ; ennemy shots init
 ;    call    ES_init
     
+
+	call wait_vbl
+	; start audio track
+	ld hl, songs_start
+	ld bc, 7*8
+	add hl, bc
+	call Audio_load_song
+	; call Audio_start_song
     ret

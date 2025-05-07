@@ -21,25 +21,27 @@ INCLUDE "charmap.inc"
 DEF Player_sprite_entry EQUS "Sprite_table"
 DEF Player_displaylist_entry EQUS "DisplayList_table"
 
-DEF Player_x_speed EQU %00010001
-DEF Player_y_speed EQU %00001100
+DEF Player_x_speed EQU %00010101
+DEF Player_y_speed EQU %00001110
 DEF Player_boundary_left EQU $0070
 DEF Player_boundary_right EQU $0990
 DEF Player_boundary_up EQU $00C0
 DEF Player_boundary_down EQU $0880
 
+DEF Player_anim_counter_reset EQU 14
 
 	SECTION "Player_variables", WRAM0
 _player_variables_start:
-player_state::      DS 1
+player_state::      	DS 1
 ;	%xxxxxlrv
 ;		  ||+-> player has moved vertically
 ;		  ||
 ;		  |+-> player has moved right
 ;		  |
 ;		  +-> player has moved left
-player_Xpos::       DS 2
-player_Ypos::       DS 2
+player_anim_counter::	DS 1
+player_Xpos::       	DS 2
+player_Ypos::       	DS 2
 _player_variables_end:
 
 
@@ -70,14 +72,30 @@ Player_init::
 	ld [hl+], a
 	ld [hl+], a
 
-		; init display list entry
+	call Player_set_idle_frame
+    ret
+
+
+Player_set_idle_frame:
 	ld hl, Player_displaylist_entry
 	ld a, LOW(player_dl_static)
 	ld [hl+], a
-	ld a, HIGH(player_dl_static)
-	ld [hl], a
-    ret
+	ld [hl], HIGH(player_dl_static)
+	ret
 
+Player_set_right_frame:
+	ld hl, Player_displaylist_entry
+	ld a, LOW(player_dl_right)
+	ld [hl+], a
+	ld [hl], HIGH(player_dl_right)
+	ret
+
+Player_set_left_frame:
+	ld hl, Player_displaylist_entry
+	ld a, LOW(player_dl_left)
+	ld [hl+], a
+	ld [hl], HIGH(player_dl_left)
+	ret
 	
 Player_move_up:
 	ld hl, player_state
@@ -152,7 +170,7 @@ Player_reset_down_pos:
 	ret
 
 Player_update::
-    ; BASIC POSITION UPDATE
+    ; POSITION UPDATE
     ld a, [PAD_hold]
     and PAD_RIGHT
 	call nz, Player_move_right
@@ -169,8 +187,33 @@ Player_update::
     and PAD_UP
 	call nz, Player_move_up
 
+	; ANIMATION
+	ld a, [PAD_pressed]
+	and a, PAD_LEFT + PAD_RIGHT
+	ld b, a
+	ld a, [PAD_hold]
+	and a, PAD_LEFT + PAD_RIGHT
+	xor a, b				; new counter ?
+	jr nz, .noCounterReset
+	ld hl, player_anim_counter
+	ld [hl], Player_anim_counter_reset
+	call Player_set_idle_frame
+.noCounterReset
+	ld hl, player_anim_counter
+	dec [hl]
+	jr nz, .noFrameUpdate
+	ld a, [player_state]
+	and a, %00000100				; animation left ?
+	call nz, Player_set_left_frame
+	ld a, [player_state]
+	and a, %00000010				; animation right ?
+	call nz, Player_set_right_frame
+.noFrameUpdate
+	ld a, [player_state]
+	and a, %11111000			; reset animation flags
+	ld [player_state], a
 
-	; BOUDARIES apply
+	; BOUDARIES APPLY
 		; boundary X
 	ld hl, player_Xpos
 	ld a, [hl+]

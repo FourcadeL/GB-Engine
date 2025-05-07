@@ -6,15 +6,15 @@
 ;-------------
 
 ; 0 : slot 0 is always reserved for the player
-; 1 :
-; 2 :
-; 3 :
-; 4 :
-; 5 :
-; 6 :
-; 7 :
-; 8 :
-; 9 :
+; 1 : slot 1 is reserved for simple shots (displayed as 1 non-static display list)
+; 2 : ennemy slot 1
+; 3 : ennemy slot 2
+; 4 : ennemy slot 3
+; 5 : ennemy slot 4
+; 6 : ennemy slot 5
+; 7 : ennemy slot 6
+; 8 : ennemy slot 7
+; 9 : ennemy slot 8
 ; 10 :
 ; 11 :
 ; 12 :
@@ -33,7 +33,7 @@
 ;--------------
 
 ; 0 : Player display list addr (modified by player routines)
-; 1 :
+; 1 : Simple sots display list (points to WRAM and dynamically constructed)
 ; 2 : Rolling ennemy display list, shared by all ennemies (modified by ennemies routine) 
 ; 3 :
 ; 4 :
