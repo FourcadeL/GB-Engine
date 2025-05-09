@@ -159,6 +159,8 @@ Sprites_multiplex::
 	ld	[_current_sprite_index], a
 	ld	l, a
 .loop_on_sprites		; hl is the base addr of current object
+	bit 7, [hl]		; active bit ?
+	jr	z, .skip_display
 	bit	0, [hl]		; display bit ?	
 	jr	z, .skip_display
 	ld	a, [hl+]
@@ -257,6 +259,8 @@ _current_low_SOAM:			DS 1 ; value of current low os shadow OAM
 ;		- b3 : ???
 ;		- b4 : X pos low
 ;		- b5 : ???
+;		- b6 : multi purpose byte
+;		- b7 : multi purpose byte
 ;-------------------------------
 
 	SECTION "Sprite_Table", WRAM0, align[8]

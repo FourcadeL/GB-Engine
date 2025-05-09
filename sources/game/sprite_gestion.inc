@@ -21,10 +21,10 @@
 ; 13 :
 ; 14 :
 ; 15 :
-; 16 :
-; 17 :
-; 18 :
-; 19 :
+; 16 : explosion slot 1
+; 17 : explosion slot 2
+; 18 : explosion slot 3
+; 19 : explosion slot 4
 
 
 
@@ -46,12 +46,12 @@
 ; 11 :
 ; 12 :
 ; 13 :
-; 14 :
-; 15 :
-; 16 :
-; 17 :
-; 18 :
-; 19 :
+; 14 : Explosion frame 1
+; 15 : Explosion frame 2
+; 16 : Explosion frame 3
+; 17 : Explosion frame 4
+; 18 : Explosion frame 5
+; 19 : Explosion frame 6
 
 
 

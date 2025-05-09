@@ -26,6 +26,7 @@ game_main::
     
     call    Player_update
 	call	Ennemy_update
+	call	Explosion_update
     call    ES_update
 	call	Sprites_multiplex
 	call 	Audio_update
@@ -38,6 +39,9 @@ game_init:
 	
 	; ennemy init
 	call Ennemy_init
+	
+	; explosion init
+	call Explosion_init
 
     ; ennemy shots init
 ;    call    ES_init
