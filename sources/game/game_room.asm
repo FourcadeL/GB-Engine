@@ -30,6 +30,19 @@ game_main::
     call    ES_update
 	call	Sprites_multiplex
 	call 	Audio_update
+
+	; TESTING : RANDOM NEW EXPLOSION
+	ld a, [PAD_pressed]
+	and a, PAD_A
+	jr z, .loop
+	call generateRandom
+	and a, %01111111
+	push af
+	call generateRandom
+	and a, %01111111
+	pop bc
+	ld c, a
+	call Explosion_request
     jr      .loop ; new frame
 
 
@@ -53,5 +66,5 @@ game_init:
 	ld bc, 7*8
 	add hl, bc
 	call Audio_load_song
-	; call Audio_start_song
+	call Audio_start_song
     ret

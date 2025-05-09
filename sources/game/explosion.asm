@@ -15,6 +15,7 @@ INCLUDE "charmap.inc"
 
 DEF Explosion_sprite_first_entry EQUS "Sprite_table + 16*8"
 DEF Explosion_displaylist_first_entry EQUS "DisplayList_table + 14*2"
+DEF Explosion_display_list_first_entry_index EQU 14
 
 DEF Explosion_max_number EQU 4
 
@@ -50,28 +51,42 @@ Explosion_update::
 	add a, l
 	ld l, a
 	dec b
-	ret z
-	; jr nz, .loop
+	jr nz, .loop
+	ret
 
-
-	; TESTING : spawn sprite explosion
-	ld a, [PAD_pressed]
-	and PAD_A
-	jr z, .skipUpdate
+;----------------------------------------------
+; Explosion_request(b = xpos ; c = ypos)
+;	Resquest an explosion sprite at position specified by bc
+;
+;	If possible, adds explosion sprite to the explosion pool
+;	Else, do nothing
+;----------------------------------------------
+Explosion_request::
 	ld hl, Explosion_sprite_first_entry
+	ld d, Explosion_max_number
+.loop
+	bit 7, [hl]
+	jr z, _add_explosion_at_hl
+	ld a, 8
+	add a, l
+	ld l, a
+	dec d
+	ret z
+	jr .loop
+_add_explosion_at_hl:
 	ld a, %10000001
 	ld [hl+], a
-	ld a, 14
+	ld a, Explosion_display_list_first_entry_index
 	ld [hl+], a
-	ld a, 37
-	ld [hl+], a
-	ld [hl+], a
-	ld [hl+], a
-	ld [hl+], a
+	ld [hl], c
+	inc hl
+	inc hl
+	ld [hl], b
+	inc hl
+	inc hl
 	ld a, 0
 	ld [hl+], a
 	ld [hl+], a
-.skipUpdate
 	ret
 
 ;----------------------------------------------
@@ -105,7 +120,7 @@ Explosion_handle_current:
 	add a, l
 	ld l, a					; hl is addr of dl pointer
 	ld a, [de]
-	add a, %01000000
+	add a, %00110000
 	ld [de], a
 	jr nc, .finalize
 		; increment animation frame and counter
