@@ -57,7 +57,7 @@ game_init:
 	call Explosion_init
 
     ; ennemy shots init
-;    call    ES_init
+	call    ES_init
     
 
 	call wait_vbl
@@ -66,5 +66,5 @@ game_init:
 	ld bc, 7*8
 	add hl, bc
 	call Audio_load_song
-	call Audio_start_song
+	; call Audio_start_song
     ret
