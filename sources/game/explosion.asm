@@ -14,8 +14,8 @@ INCLUDE "sprites.inc"
 INCLUDE "charmap.inc"
 
 DEF Explosion_sprite_first_entry EQUS "Sprite_table + 16*8"
-DEF Explosion_displaylist_first_entry EQUS "DisplayList_table + 14*2"
-DEF Explosion_display_list_first_entry_index EQU 14
+DEF Explosion_displayList_first_entry EQUS "DisplayList_table + 14*2"
+DEF Explosion_displayList_first_entry_index EQU 14
 
 DEF Explosion_max_number EQU 4
 
@@ -32,7 +32,7 @@ Explosion_init::
 
 	; copy display lists in display list table
 	ld hl, static_dl_addrs
-	ld de, Explosion_displaylist_first_entry
+	ld de, Explosion_displayList_first_entry
 	ld b, static_dl_addrs.end - static_dl_addrs
 	call memcopy_fast
 
@@ -76,7 +76,7 @@ Explosion_request::
 _add_explosion_at_hl:
 	ld a, %10000001
 	ld [hl+], a
-	ld a, Explosion_display_list_first_entry_index
+	ld a, Explosion_displayList_first_entry_index
 	ld [hl+], a
 	ld [hl], c
 	inc hl
