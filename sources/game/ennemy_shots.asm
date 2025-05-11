@@ -28,11 +28,18 @@
 ; 	1 bytes tables are 4 ALIGNED
 ;	2 bytes tables are 5 ALIGNED
 ;
+;	Shots spawn :
+;		- only one ennemy shot may be spawned per frame (call of ES_update)
+;		for that, a spawn request is written by the ES_request_shot routine
+;		if multiple requests are fired in the same frame, subsequent requests will
+;		overwrite the firt ones
+;
 ;		/!\ WARNINGS
 ;	- Tables should be placed in memory as : Xposs :: Yposs and  Xspeeds :: Yspeeds
 ;		Position update computation relies on contiguity
 ; 	- es_number_of_displayed_shots should be addr after es_current_shot_index
 ;		variable access from relative addr
+;	- es_request variables should be kept in that order
 ; ###################################
 
 INCLUDE "hardware.inc"
@@ -64,6 +71,13 @@ es_number_of_displayed_shots:	DS 1 ; number of shots active and displayed this f
 
 es_animate_current_index: DS 1 ; index of current shot to animate
 es_animate_current_frame: DS 1 ; current frame of tile flip lags to use
+
+es_request_status: DS 1 ; es request status byte : bit 7 = 1 -> request
+es_request_Ypos: DS 2
+es_request_Xpos: DS 2
+es_request_Yspeed: DS 2
+es_request_Xspeed: DS 2
+
 _es_variables_end:
 
 	SECTION "ES_status_table", WRAM0, ALIGN[4]
@@ -153,61 +167,125 @@ ES_init::
 	dec d
 	jr nz, .tile_index_set_loop
 
-	; TESTING : adds 5 shots to display with various speeds
-	ld hl, es_status
-	ld a, %10000000
-	ld [hl+], a
-	ld [hl+], a
-	ld [hl+], a
-	ld [hl+], a
-	ld [hl], a
-    ld hl, es_Xspeeds
-    ld [hl], 1
-	inc hl
-	inc hl
-	ld [hl], 2
-	inc hl
-	inc hl
-	ld [hl], 3
-	inc hl
-	inc hl
-	ld [hl], 4
-	inc hl
-	inc hl
-	ld [hl], 5
-    ld hl, es_Yspeeds
-    ld [hl], 1
-	inc hl
-	inc hl
-	ld [hl], 3
-	inc hl
-	inc hl
-	ld [hl], 5
-	inc hl
-	inc hl
-	ld [hl], 7
-	inc hl
-	inc hl
-	ld [hl], 9
-    ; end test
-
 
     ret
 
 ES_update::
     call ES_update_positions
 	call ES_animate
+	call ES_handle_request
 	call ES_push_to_display
     ret
 
 
 ; ------------------
-; ES_spawn_shot()
-;  TODO : push position and speed
-; create active es shot
+; ES_request_shot(StackPush : $XSSS - 16 bit X speed
+;							$YSSS - 16 bit Y speed
+;							$XXXX - 16 bit X position
+;							$YYYY - 16 bit Y position)
+; 	
+;	sets up a shot request with specified position and speed
 ; ------------------
-ES_spawn_shot::
+ES_request_shot::
+	ld de, es_request_Ypos
+	ld hl, sp+2
+	ld a, [hl+]
+	ld [de], a
+	inc de
+	ld a, [hl]
+	ld [de], a
+	inc de
+	ld hl, sp+4
+	ld a, [hl+]
+	ld [de], a
+	inc de
+	ld a, [hl]
+	ld [de], a
+	inc de
+	ld hl, sp+6
+	ld a, [hl+]
+	ld [de], a
+	inc de
+	ld a, [hl]
+	ld [de], a
+	inc de
+	ld hl, sp+8
+	ld a, [hl+]
+	ld [de], a
+	inc de
+	ld a, [hl]
+	ld [de], a
+	ld hl, es_request_status
+	set 7, [hl]
+	ret
 
+
+
+
+; ----------------------------------------
+; ES_handle_request()
+;
+;	Spawn new es if requested
+; ----------------------------------------
+ES_handle_request:
+	ld hl, es_request_status
+	bit 7, [hl]
+	ret z				; ret if no request
+	res 7, [hl]			; reset request bit
+	ld b, 0
+	ld d, MAX_SHOTS
+	ld hl, es_status	; loop start to find addr and index of free slot
+.loop
+	bit 7, [hl]
+	jr z, _create_shot_at_hl_index_b
+	inc hl
+	inc b
+	dec d
+	jr nz, .loop
+	ret				; no free slot
+_create_shot_at_hl_index_b:
+	set 7, [hl]
+	ld a, b
+	add a, a
+	ld b, a
+	ld hl, es_request_Ypos		; Y pos
+	ld d, HIGH(es_Yposs)
+	ld a, b
+	add a, LOW(es_Yposs)
+	ld e, a
+	ld a, [hl+]
+	ld [de], a
+	inc de
+	ld a, [hl+]
+	ld [de], a
+	ld d, HIGH(es_Xposs)		; X pos
+	ld a, b
+	add a, LOW(es_Xposs)
+	ld e, a
+	ld a, [hl+]
+	ld [de], a
+	inc de
+	ld a, [hl+]
+	ld [de], a
+	ld d, HIGH(es_Yspeeds)		; Y speed
+	ld a, b
+	add a, LOW(es_Yspeeds)
+	ld e, a
+	ld a, [hl+]
+	ld [de], a
+	inc de
+	ld a, [hl+]
+	ld [de], a
+	ld d, HIGH(es_Xspeeds)		; X speed
+	ld a, b
+	add a, LOW(es_Xspeeds)
+	ld e, a
+	ld a, [hl+]
+	ld [de], a
+	inc de
+	ld a, [hl]
+	ld [de], a
+	ret
 
 ; ----------------------------------------
 ; ES_animate()

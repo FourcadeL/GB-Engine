@@ -71,8 +71,8 @@ Explosion_request::
 	add a, l
 	ld l, a
 	dec d
-	ret z
-	jr .loop
+	jr nz, .loop
+	ret						; no free slot
 _add_explosion_at_hl:
 	ld a, %10000001
 	ld [hl+], a
