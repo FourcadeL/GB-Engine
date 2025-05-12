@@ -12,7 +12,6 @@ INCLUDE "hardware.inc"
 INCLUDE "engine.inc"
 INCLUDE "debug.inc"
 INCLUDE "utils.inc"
-INCLUDE "charmap.inc"
 
 
     SECTION "game_room", ROMX
@@ -30,6 +29,15 @@ game_main::
     call    ES_update
 	call	Sprites_multiplex
 	call 	Audio_update
+
+
+	; TESTING if collision, display message
+	ld hl, player_state
+	bit 6, [hl]
+	jr z, .no_collision
+	res 6, [hl]
+	PRINT_DEBUG "Player collision !"
+.no_collision
 
 	; TESTING : RANDOM NEW EXPLOSION
 	ld a, [PAD_pressed]
@@ -80,7 +88,7 @@ game_main::
 	pop bc
 	pop bc
 	pop bc
-    jr      .loop ; new frame
+    jp      .loop ; new frame
 
 
 game_init:
@@ -103,5 +111,5 @@ game_init:
 	ld bc, 7*8
 	add hl, bc
 	call Audio_load_song
-	; call Audio_start_song
+	call Audio_start_song
     ret

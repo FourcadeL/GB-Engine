@@ -16,32 +16,27 @@ INCLUDE "debug.inc"
 INCLUDE "utils.inc"
 INCLUDE "sprites.inc"
 INCLUDE "charmap.inc"
+INCLUDE "player.inc"
 
-
-DEF Player_sprite_entry EQUS "Sprite_table"
-DEF Player_displaylist_entry EQUS "DisplayList_table"
-
-DEF Player_x_speed EQU %00010101
-DEF Player_y_speed EQU %00001110
-DEF Player_boundary_left EQU $0070
-DEF Player_boundary_right EQU $0990
-DEF Player_boundary_up EQU $00C0
-DEF Player_boundary_down EQU $0880
-
-DEF Player_anim_counter_reset EQU 14
 
 	SECTION "Player_variables", WRAM0
 _player_variables_start:
 player_state::      	DS 1
 ;	%xxxxxlrv
-;		  ||+-> player has moved vertically
-;		  ||
-;		  |+-> player has moved right
-;		  |
-;		  +-> player has moved left
+;	 |||  ||+-> player has moved vertically
+;	 |||  ||
+;	 |||  |+-> player has moved right
+;	 |||  |
+;	 |||  +-> player has moved left
+;	 |||
+;	 ||+-> player collision with ennemy
+;	 |+-> player collision with shot
+;	 +-> player destroyed
 player_anim_counter::	DS 1
 player_Xpos::       	DS 2
 player_Ypos::       	DS 2
+player_pixel_Xpos::		DS 1			; the integral X position of the player
+player_pixel_Ypos::		DS 1			; the integral Y position of the player
 _player_variables_end:
 
 
@@ -187,6 +182,28 @@ Player_update::
     and PAD_UP
 	call nz, Player_move_up
 
+	; PIXEL POSITION UPDATE
+	ld hl, player_Xpos
+	ld a, [hl+]
+	swap a
+	and a, %00001111
+	ld b, a
+	ld a, [hl]
+	swap a
+	and a, %11110000
+	or a, b
+	ld [player_pixel_Xpos], a
+	ld hl, player_Ypos
+	ld a, [hl+]
+	swap a
+	and a, %00001111
+	ld b, a
+	ld a, [hl]
+	swap a
+	and a, %11110000
+	or a, b
+	ld [player_pixel_Ypos], a
+
 	; ANIMATION
 	ld a, [PAD_pressed]
 	and a, PAD_LEFT + PAD_RIGHT
@@ -215,15 +232,7 @@ Player_update::
 
 	; BOUDARIES APPLY
 		; boundary X
-	ld hl, player_Xpos
-	ld a, [hl+]
-	swap a 
-	and a, %00001111
-	ld b, a
-	ld a, [hl+]
-	swap a
-	and a, %11110000
-	or a, b
+	ld a, [player_pixel_Xpos]
 	ld b, a
 	cp a, (HIGH(Player_boundary_left)<<4) + (LOW(Player_boundary_left)>>4)
 	call c, Player_reset_left_pos
@@ -231,15 +240,7 @@ Player_update::
 	cp a, (HIGH(Player_boundary_right)<<4) + (LOW(Player_boundary_right)>>4)
 	call nc, Player_reset_right_pos
 		; boundary Y
-	ld hl, player_Ypos
-	ld a, [hl+]
-	swap a
-	and a, %00001111
-	ld b, a
-	ld a, [hl+]
-	swap a
-	and a, %11110000
-	or a, b
+	ld a, [player_pixel_Ypos]
 	ld b, a
 	cp a, (HIGH(Player_boundary_up)<<4) + (LOW(Player_boundary_up)>>4)
 	call c, Player_reset_up_pos
@@ -249,24 +250,9 @@ Player_update::
 
 
     ; SPRITE position update
-	ld hl, player_Xpos
-	ld a, [hl+]
-	swap a
-	and a, %00001111			; apply mask
-	ld b, a
-	ld a, [hl+]
-	swap a
-	and a, %11110000			; apply mask
-	or a, b
+	ld a, [player_pixel_Xpos]
 	ld b, a						; b <- X pos 8 bit
-	ld a, [hl+]
-	swap a
-	and a, %00001111			; mask
-	ld c, a
-	ld a, [hl+]
-	swap a
-	and a, %11110000
-	or a, c
+	ld a, [player_pixel_Ypos]	; a <- Y pos 8 bit
 
 	ld hl, Player_sprite_entry + 2
 	ld [hl], a

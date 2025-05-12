@@ -47,6 +47,7 @@ INCLUDE "engine.inc"
 INCLUDE "debug.inc"
 INCLUDE "utils.inc"
 INCLUDE "charmap.inc"
+INCLUDE "player.inc"
 
 
 DEF MAX_SHOTS EQU 16
@@ -82,6 +83,8 @@ es_request_Yspeed: DS 2
 es_request_Xspeed: DS 2
 
 es_purge_current_index: DS 1 ; index of currently checked shot to purge
+
+es_check_player_collision_start_index_counter: DS 1 ; a counter incremented at each frame, the least significant bit serves for even or add checks
 _es_variables_end:
 
 	SECTION "ES_status_table", WRAM0, ALIGN[4]
@@ -178,6 +181,7 @@ ES_update::
     call ES_update_positions
 	call ES_animate
 	call ES_purge_shots
+	call ES_check_player_collision
 	call ES_handle_request
 	call ES_push_to_display
     ret
@@ -292,6 +296,84 @@ _create_shot_at_hl_index_b:
 	ld [de], a
 	ret
 
+; ----------------------------------------
+; ES_check_player_collision
+;	Check if there was a collision with the player
+;		if so, sets bit 6 of [player_state]
+;
+;	Each call checks only HALF of the shots
+;		even and odd
+; ----------------------------------------
+ES_check_player_collision:
+	ld a, [es_check_player_collision_start_index_counter]
+	inc a
+	ld [es_check_player_collision_start_index_counter], a
+	ld h, HIGH(es_status)
+	and a, %00000001
+	ld b, a
+	add a, LOW(es_status)
+	ld l, a
+	ld c, MAX_SHOTS/2
+.loop
+	bit 7, [hl]
+	inc hl
+	inc hl
+	jr nz, .check_shot_collision
+	inc b
+	inc b
+	dec c
+	jr nz, .loop
+	ret
+.check_shot_collision
+	push hl
+	ld a, b
+	add a, a
+	ld h, HIGH(es_Xposs)
+	add a, LOW(es_Xposs)
+	ld l, a
+	ld a, [hl+]
+	swap a
+	and a, %00001111
+	ld e, a
+	ld a, [hl]
+	swap a
+	and a, %11110000
+	or a, e
+	ld hl, player_pixel_Xpos
+	sub a, [hl]
+	add a, Player_hitbox_width/2
+	cp a, Player_hitbox_width
+	jr nc, .no_collision
+	ld a, b
+	add a, a
+	ld h, HIGH(es_Yposs)
+	add a, LOW(es_Yposs)
+	ld l, a
+	ld a, [hl+]
+	swap a
+	and a, %00001111
+	ld e, a
+	ld a, [hl]
+	swap a
+	and a, %11110000
+	or a, e
+	ld hl, player_pixel_Ypos
+	sub a, [hl]
+	add a, Player_hitbox_height/2
+	cp a, Player_hitbox_height
+	jr nc, .no_collision
+		; all tests passed, there is a collision
+	ld hl, player_state
+	set 6, [hl]
+	pop hl
+	ret
+.no_collision
+	pop hl
+	inc b
+	inc b
+	dec c
+	jr nz, .loop
+	ret
 
 ; ----------------------------------------
 ; ES_purge_shots()
@@ -421,7 +503,7 @@ ES_push_to_display:
 	ld a, [es_number_of_displayed_shots]
 	ld [hl], a
 	ret
-.display_shot:
+.display_shot
 		; set display position to current content
 		push hl
 		ld hl, es_Yposs
@@ -453,8 +535,8 @@ ES_push_to_display:
 		and a,%00001111
 		swap a
 		or a, d
-		sub a, 4
-		ld [bc], a			; compensate for tile X offset
+		sub a, 4			; compensate for tile X offset
+		ld [bc], a			
 		inc bc
 		inc bc
 		inc bc
