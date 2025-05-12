@@ -55,6 +55,9 @@ DEF ES_sprite_entry EQUS "Sprite_table + 1*8"
 DEF ES_displayList_entry EQUS "DisplayList_table + 1*2"
 DEF ES_displayList_entry_index EQU 1
 
+DEF ES_X_threshold EQU 168
+DEF ES_Y_threshold EQU 160
+
 
 ;+--------------------------------------------------------------------------+
 ;| +----------------------------------------------------------------------+ |
@@ -78,6 +81,7 @@ es_request_Xpos: DS 2
 es_request_Yspeed: DS 2
 es_request_Xspeed: DS 2
 
+es_purge_current_index: DS 1 ; index of currently checked shot to purge
 _es_variables_end:
 
 	SECTION "ES_status_table", WRAM0, ALIGN[4]
@@ -173,6 +177,7 @@ ES_init::
 ES_update::
     call ES_update_positions
 	call ES_animate
+	call ES_purge_shots
 	call ES_handle_request
 	call ES_push_to_display
     ret
@@ -285,6 +290,66 @@ _create_shot_at_hl_index_b:
 	inc de
 	ld a, [hl]
 	ld [de], a
+	ret
+
+
+; ----------------------------------------
+; ES_purge_shots()
+;	Delete es outside of screen bounding box
+;
+;	Each call check for only ONE shot
+; ----------------------------------------
+ES_purge_shots:
+	ld a, [es_purge_current_index]
+	inc a
+	ld [es_purge_current_index], a
+	cp a, MAX_SHOTS
+	jr c, .skipIndexCorrection
+	ld a, 0
+	ld [es_purge_current_index], a
+.skipIndexCorrection
+	ld b, a
+	ld h, HIGH(es_status)
+	add a, LOW(es_status)
+	ld l, a
+	bit 7, [hl]
+	ret z								; return if shot uninitialized
+	push hl
+	ld a, b
+	add a, b
+	ld b, a
+	ld h, HIGH(es_Xposs)
+	add a, LOW(es_Xposs)
+	ld l, a
+	ld a, [hl+]
+	swap a
+	and a, %00001111
+	ld c, a
+	ld a, [hl]
+	swap a
+	and a, %11110000
+	or a, c
+	cp a, ES_X_threshold
+	jr nc, .resetShot
+	ld a, b
+	ld h, HIGH(es_Yposs)
+	add a, LOW(es_Yposs)
+	ld l, a
+	ld a, [hl+]
+	swap a
+	and a, %00001111
+	ld c, a
+	ld a, [hl]
+	swap a
+	and a, %11110000
+	or a, c
+	cp a, ES_Y_threshold
+	jr nc, .resetShot
+	pop hl
+	ret
+.resetShot
+	pop hl
+	res 7, [hl]
 	ret
 
 ; ----------------------------------------
