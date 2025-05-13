@@ -28,15 +28,12 @@ game_main::
 	call	Explosion_update
     call    ES_update
 	call	Sprites_multiplex
-	call 	Audio_update
 
-
-	; TESTING if collision, display message
+	; Test collision flag, if collision, display game over
 	ld hl, player_state
 	bit 6, [hl]
 	jr z, .no_collision
-	res 6, [hl]
-	PRINT_DEBUG "Player collision !"
+	jp game_over_main
 .no_collision
 
 	; TESTING : RANDOM NEW EXPLOSION
@@ -103,7 +100,7 @@ game_init:
 
     ; ennemy shots init
 	call    ES_init
-    
+
 
 	call wait_vbl
 	; start audio track

@@ -16,7 +16,7 @@ DEF Player_boundary_right EQU $0990
 DEF Player_boundary_up EQU $00C0
 DEF Player_boundary_down EQU $0880
 
-DEF Player_hitbox_width EQU 14
+DEF Player_hitbox_width EQU 12
 DEF Player_hitbox_height EQU 12
 
 DEF Player_anim_counter_reset EQU 14

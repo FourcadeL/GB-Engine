@@ -21,7 +21,7 @@ snd_test_main::
     call getInput
     call wait_vbl
 
-	call Audio_update
+	; call Audio_update 		; done by vblank call
 	call fwf_automaton_update
 
     call update_selector

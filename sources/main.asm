@@ -42,7 +42,9 @@ Main::
 	ret nz
 	
 	; load the game main room by default for testing
-	call game_main
+	jp game_main
+	; jp game_over_main
+	; jp snd_test_main
 	jr .loop
 
 
@@ -96,17 +98,16 @@ Main_init::
 	ld bc, Main_vblk
 	call irq_set_VBL ; set global VBlank
 
-	; on rétablit les interrupts
-	ei
-
-	; initialisations 
+		; initialisations 
 	ld b, 6
 	call Audio_init
 	ld hl, _test_waveform
 	call Audio_set_wave_pattern
 
 	call Sprites_init
-	ret ; retour à l'exécution
+
+	; on rétablit les interrupts
+	reti	; retour à l'exécution
 
 
 ; --------------------------
@@ -116,6 +117,9 @@ Main_init::
 Main_vblk:
 	; Video / VRAM actions
 	call call_DMA
+
+	; Non critical WRAM actions
+	call Audio_update
 	ret
 
 
