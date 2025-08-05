@@ -184,7 +184,7 @@ StartPoint:
     ld hl, _RAM
     ld bc, $2000
     call memset
-    
+
     ; random seed init (seed is A = $55 ; B = $F3 ; C = $1A)
     ld hl, RandomA
     ld [hl], $55

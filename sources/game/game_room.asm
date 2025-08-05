@@ -14,6 +14,10 @@ INCLUDE "debug.inc"
 INCLUDE "utils.inc"
 
 
+	SECTION "game_room_variables", WRAM0
+_framerule:	DS 1
+
+
     SECTION "game_room", ROMX
 
     ; 60 fps 1 threads execution (+vbl thread)
@@ -50,41 +54,19 @@ game_main::
 	call Explosion_request
 .skipExplosion
 
-	; TESTING : RANDOM SHOT
-	ld a, [PAD_pressed]
+	; TESTING : TARGETED SHOT
+	ld hl, _framerule
+	inc [hl]
+	ld hl, PAD_pressed
+	; bit 5, [hl]
+	ld a, [hl]
 	and a, PAD_B
 	jr z, .loop
-	call generateRandom
-	ld c, a
-	ld b, 0
-	and a, %00001111
-	bit 5, c
-	jr z, .positiveX
-	dec b
-	xor a, $FF
-.positiveX
-	ld c, a
-	push bc
-	call generateRandom
-	ld c, a
-	ld b, 0
-	and a, %00001111
-	bit 4, c
-	jr z, .positiveY
-	dec b
-	xor a, $FF
-.positiveY
-	ld c, a
-	push bc
-	ld b, %00000010
-	ld c, %10110000
-	push bc
-	push bc
-	call ES_request_shot
-	pop bc
-	pop bc
-	pop bc
-	pop bc
+	res 5, [hl]
+	ld d, $00			;null absolute speed
+	ld b, $42
+	ld c, $42
+	call ES_request_shot_toward_player
     jp      .loop ; new frame
 
 

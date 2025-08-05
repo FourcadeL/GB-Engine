@@ -228,7 +228,68 @@ ES_request_shot::
 	set 7, [hl]
 	ret
 
-
+; ------------------------------------------
+; ES_request_shot_toward_player(b = Xpos, c = Ypos, d = absoluteSpeed)
+;
+;	Request a shot from position (8bit) in bc
+;	Targeted at the player position
+;	With absolute speed specified in d
+; ------------------------------------------
+ES_request_shot_toward_player::
+		; set starting position
+	ld hl, es_request_Ypos
+	ld e, c
+	swap e
+	ld a, e
+	and a, %11110000
+	ld [hl+], a
+	ld a, e
+	and a, %00001111
+	ld [hl+], a
+	ld e, b
+	swap e
+	ld a, e
+	and a, %11110000
+	ld [hl+], a
+	ld a, e
+	and a, %00001111
+	ld [hl+], a
+		; compute and set relative speed
+		; Y relative speed
+		ld a, [player_pixel_Ypos]
+		sub a, c
+		ld c, $00
+		jr nc, .skipAdjY
+		dec c
+.skipAdjY
+		sra a
+		sra a
+		; sra a
+		; sra a
+		sra a
+		; add a, d			; add absolute speed
+		ld [hl+], a
+		ld a, c
+		ld [hl+], a
+		; X relative speed
+		ld a, [player_pixel_Xpos]
+		sub a, b
+		ld b, $00
+		jr nc, .skipAdjX
+		dec b
+.skipAdjX
+		sra a
+		sra a
+		; sra a
+		; sra a
+		sra a
+		; add a, d			; add absolute speed
+		ld [hl+], a
+		ld a, b
+		ld [hl+], a
+	ld hl, es_request_status
+	set 7, [hl]			; set request flag
+	ret
 
 
 ; ----------------------------------------

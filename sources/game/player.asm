@@ -1,6 +1,6 @@
 ; #######################################
 ; Player functions
-; 
+;
 ;   move
 ;		Player position is 2 bytes : %xxxxpppp %ppppssss
 ;			bits x are unused
@@ -91,7 +91,7 @@ Player_set_left_frame:
 	ld [hl+], a
 	ld [hl], HIGH(player_dl_left)
 	ret
-	
+
 Player_move_up:
 	ld hl, player_state
 	set 0, [hl]
@@ -259,10 +259,10 @@ Player_update::
 
 	ld hl, Player_sprite_entry + 4
 	ld [hl], b
-    ret
+	ret
 
 
-    
+
 	SECTION "Player_display_lists", ROMX
 player_dl_static:
 	DB 2
