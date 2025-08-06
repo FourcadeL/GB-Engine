@@ -63,10 +63,10 @@ game_main::
 	and a, PAD_B
 	jr z, .loop
 	res 5, [hl]
-	ld d, $00			;null absolute speed
+	ld d, $03
 	ld b, $42
 	ld c, $42
-	call ES_request_shot_toward_player
+	call TP_request_shot_toward_player
     jp      .loop ; new frame
 
 

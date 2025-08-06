@@ -62,7 +62,7 @@ DEF ES_Y_threshold EQU 160
 
 ;+--------------------------------------------------------------------------+
 ;| +----------------------------------------------------------------------+ |
-;| |					 RAM 											  | |
+;| |					 RAM				  | |
 ;| +----------------------------------------------------------------------+ |
 ;+--------------------------------------------------------------------------+
 
@@ -76,11 +76,11 @@ es_number_of_displayed_shots:	DS 1 ; number of shots active and displayed this f
 es_animate_current_index: DS 1 ; index of current shot to animate
 es_animate_current_frame: DS 1 ; current frame of tile flip lags to use
 
-es_request_status: DS 1 ; es request status byte : bit 7 = 1 -> request
-es_request_Ypos: DS 2
-es_request_Xpos: DS 2
-es_request_Yspeed: DS 2
-es_request_Xspeed: DS 2
+es_request_status:: DS 1 ; es request status byte : bit 7 = 1 -> request
+es_request_Ypos:: DS 2
+es_request_Xpos:: DS 2
+es_request_Yspeed:: DS 2
+es_request_Xspeed:: DS 2
 
 es_purge_current_index: DS 1 ; index of currently checked shot to purge
 
@@ -112,7 +112,7 @@ es_dynamic_displayList_content:
 
 ;+--------------------------------------------------------------------------+
 ;| +----------------------------------------------------------------------+ |
-;| |					 ROM 											  | |
+;| |					 ROM 				  | |
 ;| +----------------------------------------------------------------------+ |
 ;+--------------------------------------------------------------------------+
 
@@ -125,11 +125,11 @@ ES_init::
 	ld c, Ennemy_shots_tiles.end - Ennemy_shots_tiles
 	call vram_copy_fast
 
-    ; reset variables in ram
-    ld d, $00
-    ld hl, _es_variables_start
-    ld b, _es_variables_end - _es_variables_start
-    call memset_fast
+	; reset variables in ram
+	ld d, $00
+	ld hl, _es_variables_start
+	ld b, _es_variables_end - _es_variables_start
+	call memset_fast
 
 	; reset tables
 	ld hl, es_status
@@ -151,7 +151,7 @@ ES_init::
 	ld hl, es_Yspeeds
 	ld b, MAX_SHOTS
 	call memset_fast
-	
+
 	; set shots metasprite to active and visible + set display list
 	ld hl, ES_sprite_entry
 	ld [hl], %10000001
@@ -161,7 +161,7 @@ ES_init::
 	ld a, LOW(es_dynamic_displayList)
 	ld [hl+], a
 	ld [hl], HIGH(es_dynamic_displayList)
-	
+
 	; set all tiles in displaylist
 	ld hl, es_dynamic_displayList_content + 2
 	ld a, (tile1 - _VRAM)/16
@@ -188,11 +188,11 @@ ES_update::
 
 
 ; ------------------
-; ES_request_shot(StackPush : $XSSS - 16 bit X speed
-;							$YSSS - 16 bit Y speed
-;							$XXXX - 16 bit X position
-;							$YYYY - 16 bit Y position)
-; 	
+; ES_request_shot(StackPush : 	$XSSS - 16 bit X speed
+;				$YSSS - 16 bit Y speed
+;				$XXXX - 16 bit X position
+;				$YYYY - 16 bit Y position)
+;
 ;	sets up a shot request with specified position and speed
 ; ------------------
 ES_request_shot::
@@ -226,69 +226,6 @@ ES_request_shot::
 	ld [de], a
 	ld hl, es_request_status
 	set 7, [hl]
-	ret
-
-; ------------------------------------------
-; ES_request_shot_toward_player(b = Xpos, c = Ypos, d = absoluteSpeed)
-;
-;	Request a shot from position (8bit) in bc
-;	Targeted at the player position
-;	With absolute speed specified in d
-; ------------------------------------------
-ES_request_shot_toward_player::
-		; set starting position
-	ld hl, es_request_Ypos
-	ld e, c
-	swap e
-	ld a, e
-	and a, %11110000
-	ld [hl+], a
-	ld a, e
-	and a, %00001111
-	ld [hl+], a
-	ld e, b
-	swap e
-	ld a, e
-	and a, %11110000
-	ld [hl+], a
-	ld a, e
-	and a, %00001111
-	ld [hl+], a
-		; compute and set relative speed
-		; Y relative speed
-		ld a, [player_pixel_Ypos]
-		sub a, c
-		ld c, $00
-		jr nc, .skipAdjY
-		dec c
-.skipAdjY
-		sra a
-		sra a
-		; sra a
-		; sra a
-		sra a
-		; add a, d			; add absolute speed
-		ld [hl+], a
-		ld a, c
-		ld [hl+], a
-		; X relative speed
-		ld a, [player_pixel_Xpos]
-		sub a, b
-		ld b, $00
-		jr nc, .skipAdjX
-		dec b
-.skipAdjX
-		sra a
-		sra a
-		; sra a
-		; sra a
-		sra a
-		; add a, d			; add absolute speed
-		ld [hl+], a
-		ld a, b
-		ld [hl+], a
-	ld hl, es_request_status
-	set 7, [hl]			; set request flag
 	ret
 
 
@@ -503,7 +440,7 @@ ES_purge_shots:
 ;
 ;	Each call animates ONE shot
 ; 	animated shot ID is last + 7 (so each tile is animated once after 16 calls)
-; 	 
+;
 ; ----------------------------------------
 ES_animate:
 	ld hl, es_animate_current_frame
@@ -597,7 +534,7 @@ ES_push_to_display:
 		swap a
 		or a, d
 		sub a, 4			; compensate for tile X offset
-		ld [bc], a			
+		ld [bc], a
 		inc bc
 		inc bc
 		inc bc
@@ -613,7 +550,7 @@ ES_push_to_display:
 
 ; ----------------------
 ; ES_update_positions()
-; 
+;
 ;   For every X and Y positions :
 ;   X = X+SpeedX
 ;   Y = Y+SpeedY
@@ -643,7 +580,7 @@ ES_update_positions:
 
 ;+--------------------------------------------------------------------------+
 ;| +----------------------------------------------------------------------+ |
-;| |					VRAM 											  | |
+;| |					VRAM 				  | |
 ;| +----------------------------------------------------------------------+ |
 ;+--------------------------------------------------------------------------+
 
