@@ -22,15 +22,16 @@ _framerule:	DS 1
 
     ; 60 fps 1 threads execution (+vbl thread)
 game_main::
-    call    game_init
+	call    game_init
 .loop
-    call    wait_vbl ; thread 1
-    call    getInput
-    
-    call    Player_update
+	call    wait_vbl ; thread 1
+	call    getInput
+
+	call    Player_update
 	call	Ennemy_update
 	call	Explosion_update
-    call    ES_update
+	call    ES_update
+	call	PS_update
 	call	Sprites_multiplex
 
 	; Test collision flag, if collision, display game over
@@ -63,7 +64,7 @@ game_main::
 	and a, PAD_B
 	jr z, .loop
 	res 5, [hl]
-	ld d, $03
+	ld d, $01		; shot speed
 	ld b, $42
 	ld c, $42
 	call TP_request_shot_toward_player

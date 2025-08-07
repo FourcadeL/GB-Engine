@@ -17,8 +17,6 @@ INCLUDE "engine.inc"
 INCLUDE "player_shot_straight.inc"
 
 
-DEF PS_STRAIGHT_FIRST_INDEX EQU 0
-DEF PS_STRAIGHT_NB EQU 2
 
 
 ;+--------------------------------------------------------------------------+

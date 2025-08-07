@@ -118,9 +118,81 @@ PS_init::
 	ld [hl+], a
 	ld [hl], HIGH(ps_dynamic_displayList)
 	
+	; DEBUG : try setting a random display position
+	ld hl, ps_Xposs
+	ld [hl], 34
+	inc hl
+	ld [hl], 109
+	ld hl, ps_Yposs
+	ld [hl], 120
+	inc hl
+	ld [hl], 78
+	ld hl, ps_status
+	ld [hl], %10000000
+	inc hl
+	ld [hl], %10000000
 	ret
 
 
 
 
+PS_update::
+	ld hl, Global_counter
+	bit 0, [hl]
+	ret z						; don't update on even frames
+	; "per shots" macros will go here
+	; TODO
+	call PS_push_to_display
+	ret
+
+
+;---------------------
+; PS_push_to_display()
+;	pushes all active player shots
+;	to meta sprite
+;---------------------
+PS_push_to_display:
+	ld e, MAX_SHOTS
+	ld a, 0
+	ld [ps_dynamic_displayList_header], a		; set 0 shots to display
+	ld hl, ps_status
+	ld bc, ps_dynamic_displayList_content
+.loop
+	bit 7, [hl]
+	jr nz, .display_shot				; a is current shot index
+	inc hl
+	inc a
+	dec e
+	jr nz, .loop
+	ret
+.display_shot
+		;set display position of the shot to current content
+		push hl					; save current status addr
+		ld d, a					; save current shot index
+		ld h, HIGH(ps_Yposs)
+		add a, LOW(ps_Yposs)
+		ld l, a
+		ld a, [hl]
+		sub a, 8				; compensate for tile Y offset
+		ld [bc], a
+		inc bc
+		ld a, d
+		ld h, HIGH(ps_Xposs)
+		add a, LOW(ps_Xposs)
+		ld l, a
+		ld a, [hl]
+		sub a, 4				; compensate for tile X offset
+		ld [bc], a
+		inc bc
+		inc bc
+		inc bc
+		ld hl, ps_dynamic_displayList_header
+		inc [hl]				; increment number of shots to display
+		ld a, d
+		pop hl
+	inc hl
+	inc a
+	dec e
+	jr nz, .loop
+	ret
 
