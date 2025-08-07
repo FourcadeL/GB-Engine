@@ -11,10 +11,13 @@ game.map
 game.sym
 game.sav
 
+# ignore song compilator binary
+aria
+
 # ignore generated song files
 sources/songs/*.asm
 
-# ignore lmac files
+# ignore mac files
 .DS_Store
 
 
