@@ -1,0 +1,126 @@
+; #########################################
+; Player shots
+;
+;	Player shots are handled simillarly to ennemy shots :
+;	all shots are displayed as one metasprite
+;
+;	Player shots can be of various types but each one stores
+;	only its position
+;
+;	All shots tables are aligned but contrôle routines are
+;	called spearately since each one contrôles a specific shot type
+;
+;	Contrarily to ennemy shots, player shots only stores their
+;	pixel perfect position
+;	(they moove fast enough that sub pixels are not an issue)
+;
+;	Each shot has :
+;		- 8 bits status : %a0000000 | a : 1 -> active
+;		- 8 bits X pos : %dddddddd
+;		- 8 bits Y pos : %dddddddd
+;	d : the 8 bit display position of the shot
+;
+; 	Updates happens on every ODD frames :
+;		- All shots are updated
+;		- All shots are pushed to metasprite
+;
+;	Data alignment :
+;		tables are aligned to handle at most 16 shots
+;		(1 bytes table are 4 aligned)
+;
+; ##########################################
+
+
+INCLUDE "hardware.inc"
+INCLUDE "engine.inc"
+INCLUDE "debug.inc"
+INCLUDE "utils.inc"
+INCLUDE "charmap.inc"
+INCLUDE "player.inc"
+
+DEF MAX_SHOTS EQU 16
+
+DEF PS_sprite_entry EQUS "Sprite_table + 15*8"
+DEF PS_displayList_entry EQUS "DisplayList_table + 13*2"
+DEF PS_displayList_entry_index EQU 13
+
+DEF PS_X_threshold EQU 168
+DEF PS_Y_threshold EQU 160
+
+
+
+;+--------------------------------------------------------------------------+
+;| +----------------------------------------------------------------------+ |
+;| |					 RAM				  | |
+;| +----------------------------------------------------------------------+ |
+;+--------------------------------------------------------------------------+
+
+	SECTION "Player_shots_variables", WRAM0
+
+_ps_variables_start:
+
+_ps_variables_end:
+
+	SECTION "PS_status_table", WRAM0, ALIGN[4]
+ps_status:		DS 1*MAX_SHOTS		; table of ps status bytes
+
+	SECTION "PS_Xposs_table", WRAM0, ALIGN[4]
+ps_Xposs:		DS 1*MAX_SHOTS		; table of ps x positions
+
+	SECTION "PS_Yposs_table", WRAM0, ALIGN[4]
+ps_Yposs:		DS 1*MAX_SHOTS		; table of ps y positions
+
+
+	SECTION "PS_displaylist_table", WRAM0
+ps_dynamic_displayList:
+ps_dynamic_displayList_header:
+	DS 1
+ps_dynamic_displayList_content:
+	DS 4*MAX_SHOTS
+
+
+;+--------------------------------------------------------------------------+
+;| +----------------------------------------------------------------------+ |
+;| |					 ROM 				  | |
+;| +----------------------------------------------------------------------+ |
+;+--------------------------------------------------------------------------+
+
+
+	SECTION "Player_shots_code", ROMX
+
+PS_init::
+	; reset variables in ram
+	ld d, $00
+	ld hl, _ps_variables_start
+	ld b, _ps_variables_end - _ps_variables_start
+	call memset_fast
+
+	; reset tables
+	ld hl, ps_status
+	ld b, MAX_SHOTS
+	call memset_fast
+
+	ld hl, ps_Xposs
+	ld b, MAX_SHOTS
+	call memset_fast
+
+	ld hl, ps_Yposs
+	ld b, MAX_SHOTS
+	call memset_fast
+
+	; set player shots metasprite to active and visible + set display list in RAM
+	ld hl, PS_sprite_entry
+	ld [hl], %10000001
+	inc hl
+	ld [hl], PS_displayList_entry_index
+	ld hl, PS_displayList_entry
+	ld a, LOW(ps_dynamic_displayList)
+	ld [hl+], a
+	ld [hl], HIGH(ps_dynamic_displaylist)
+	
+	ret
+
+
+
+
+

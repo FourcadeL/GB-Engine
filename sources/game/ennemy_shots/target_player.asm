@@ -210,9 +210,6 @@ MACRO initCosTableMacro
 			DEF ANGLE = ATAN(DIV(Y,X))
 			DEF COMPCOS = COS(ANGLE)
 			DEF VAL = MUL(\1, COMPCOS)
-			PRINTLN "for X = {X}, Y = {Y} :"
-			; PRINTLN "angle is {f:ANGLE}, cosinus is {f:COMPCOS}"
-			PRINTLN "computed value is : {d:VAL}"
 			DB VAL
 		ENDR
 	ENDR
