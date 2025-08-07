@@ -13,6 +13,8 @@
 DEF PS_STRAIGHT_FIRST_INDEX EQU 0
 DEF PS_STRAIGHT_NB EQU 2
 
+DEF PS_Y_SPEED EQU 2
+
 EXPORT Player_shot_straight_tiles
 EXPORT Player_shot_straight_tiles.end
 EXPORT Player_shot_straight_vram_tiles
@@ -35,4 +37,16 @@ MACRO PS_STRAIGHT_INIT
 	inc hl
 	dec d
 	jr nz, .straight_set_loop
+ENDM
+
+MACRO PS_STRAIGHT_UPDATE_POS
+	; iterate over straight positions
+	ld c, PS_STRAIGHT_NB
+	ld hl, ps_Yposs + PS_STRAIGHT_FIRST_INDEX
+.loop
+	ld a, [hl]
+	sub a, PS_Y_SPEED
+	ld [hl+], a
+	dec c
+	jr nz, .loop
 ENDM

@@ -57,7 +57,7 @@ DEF PS_Y_threshold EQU 160
 	SECTION "Player_shots_variables", WRAM0
 
 _ps_variables_start:
-
+ps_purge_current_index:	DS 1
 _ps_variables_end:
 
 	SECTION "PS_status_table", WRAM0, ALIGN[4]
@@ -140,11 +140,54 @@ PS_update::
 	ld hl, Global_counter
 	bit 0, [hl]
 	ret z						; don't update on even frames
+
 	; "per shots" macros will go here
+	PS_STRAIGHT_UPDATE_POS
 	; TODO
+	call PS_purge_shots
 	call PS_push_to_display
 	ret
 
+;---------------------
+; PS_purge_shots()
+;	Delete ps outside of screen bounding box
+;	Test one shot per call
+;---------------------
+PS_purge_shots:
+	ld a, [ps_purge_current_index]
+	inc a
+	and a, %00001111	; mask for 16 shots (4 bits)
+	ld [ps_purge_current_index], a
+
+		; Test for index correction
+	ld b, a
+	ld h, HIGH(ps_status)
+	add a, LOW(ps_status)
+	ld l, a
+	bit 7, [hl]				;return if shot uninitialized
+
+	push hl
+	ld a, b
+	ld h, HIGH(ps_Xposs)
+	add a, LOW(ps_Xposs)
+	ld l, a
+	ld a, [hl]
+	cp a, PS_X_threshold
+	jr nc, .resetShot
+
+	ld a, b
+	ld h, HIGH(ps_Yposs)
+	add a, LOW(ps_Yposs)
+	ld l, a
+	ld a, [hl]
+	cp a, PS_Y_threshold
+	jr nc, .resetShot
+	pop hl
+	ret
+.resetShot
+	pop hl
+	res 7, [hl]
+	ret
 
 ;---------------------
 ; PS_push_to_display()
