@@ -115,11 +115,8 @@ Main_init::
 ; Global VBlank
 ; --------------------------
 Main_vblk:
-	; Video / VRAM actions
-	call call_DMA
-
-	; Non critical WRAM actions
-	call Audio_update
+	GLOBAL_VBLANK_CRITICAL
+	GLOBAL_VBLANK_NON_CRITICAL
 	ret
 
 

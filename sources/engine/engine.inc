@@ -1,5 +1,8 @@
 ;############################################
-;Définition des différentes macros, des adresses mémoires et des fonctions du moteur de jeu
+; ENGINE INC
+;
+;	Defines macros, memory addresses and function addresses
+;	for the game engine
 ;############################################
 
 
@@ -10,45 +13,29 @@ DEF ENGINE_INC EQU 1
 
 ;+-----------------------------------------------------------------------------+
 ;| +-------------------------------------------------------------------------+ |
-;| |                            MACROs                  | |
+;| |                            MACROS					     | |
 ;| +-------------------------------------------------------------------------+ |
 ;+-----------------------------------------------------------------------------+
 
+;***************************
+;	GLOBAL.ASM
+;***************************
 
-;permet d'additionner deux registres 16 bit
-MACRO ADD_U16_hl_val;hl <- hl + (value first arg)
-    ld      a, l
-    add     a, LOW(\1)
-    ld      l, a
-    ld      a, h
-    adc     a, HIGH(\1)
-    ld      h, a
+; Global VBLANK critical routine
+MACRO GLOBAL_VBLANK_CRITICAL
+	; Push SOAM to OAM
+	call call_DMA
 ENDM
 
+; Global VBLANK non-critical routine
+MACRO GLOBAL_VBLANK_NON_CRITICAL
+	; Increment global counter
+	ld hl, Global_counter
+	inc [hl]
 
-;permet de récupérer a <- sin(a)
-MACRO GET_SINE_A
-    ld      h, HIGH(Sine)
-    ld      l, a
-    ld      a, [hl]
+	; Update audio engine
+	call Audio_update
 ENDM
-
-
-;macro permettant d'appeler hl un peu plus rapidement
-;(nécessite que le vecteur de restart à $0008 soit correctement mis en place)
-MACRO CALL_HL
-    rst     $08
-ENDM
-
-
-
-
-
-
-
-
-
-
 
 
 ;**********************************

@@ -20,7 +20,7 @@
 ; 12 :
 ; 13 :
 ; 14 :
-; 15 :
+; 15 : slot 15 is reserved for player shots (displayed as 1 non-static display list)
 ; 16 : explosion slot 1
 ; 17 : explosion slot 2
 ; 18 : explosion slot 3
@@ -33,7 +33,7 @@
 ;--------------
 
 ; 0 : Player display list addr (modified by player routines)
-; 1 : Simple sots display list (points to WRAM and dynamically constructed)
+; 1 : Simple shots display list (points to WRAM and dynamically constructed)
 ; 2 : Rolling ennemy display list, shared by all ennemies (modified by ennemies routine) 
 ; 3 :
 ; 4 :
@@ -45,7 +45,7 @@
 ; 10 :
 ; 11 :
 ; 12 :
-; 13 :
+; 13 : Player shots display list (points to WRAM and dynamically constructed)
 ; 14 : Explosion frame 1
 ; 15 : Explosion frame 2
 ; 16 : Explosion frame 3
