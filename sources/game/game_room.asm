@@ -71,8 +71,8 @@ game_main::
 
 
 game_init:
-    ; player init
-    call    Player_init
+	; player init
+	call Player_init
 	
 	; ennemy init
 	call Ennemy_init
@@ -80,9 +80,11 @@ game_init:
 	; explosion init
 	call Explosion_init
 
-    ; ennemy shots init
-	call    ES_init
+	; ennemy shots init
+	call ES_init
 
+	; player shots init
+	call PS_init
 
 	call wait_vbl
 	; start audio track

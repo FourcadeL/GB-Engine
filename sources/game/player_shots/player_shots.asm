@@ -33,10 +33,9 @@
 
 INCLUDE "hardware.inc"
 INCLUDE "engine.inc"
-INCLUDE "debug.inc"
 INCLUDE "utils.inc"
-INCLUDE "charmap.inc"
 INCLUDE "player.inc"
+INCLUDE "player_shot_straight.inc"
 
 DEF MAX_SHOTS EQU 16
 
@@ -89,6 +88,7 @@ ps_dynamic_displayList_content:
 	SECTION "Player_shots_code", ROMX
 
 PS_init::
+	PS_STRAIGHT_INIT
 	; reset variables in ram
 	ld d, $00
 	ld hl, _ps_variables_start
@@ -116,7 +116,7 @@ PS_init::
 	ld hl, PS_displayList_entry
 	ld a, LOW(ps_dynamic_displayList)
 	ld [hl+], a
-	ld [hl], HIGH(ps_dynamic_displaylist)
+	ld [hl], HIGH(ps_dynamic_displayList)
 	
 	ret
 
