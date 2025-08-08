@@ -1,9 +1,9 @@
 ; ############################
 ; Player shots shared pointers
 ;
-;	All sub shots implementations
-;	should have access to these tables
-;	for creation of new shots
+;   All sub shots implementations
+;   should have access to these tables
+;   for creation of new shots
 ; ############################
 
 EXPORT ps_status

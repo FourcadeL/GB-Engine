@@ -1,7 +1,7 @@
 
     SECTION "gradius song lookup", ROMX
 gradius::
-	DB HIGH(_tracker_main_1), HIGH(_track_main_2), HIGH(_track_main_3), HIGH(_tracker_blank_track)
+    DB HIGH(_tracker_main_1), HIGH(_track_main_2), HIGH(_track_main_3), HIGH(_tracker_blank_track)
 
     SECTION "track 0", ROMX, ALIGN[8]
 _tracker_blank_track:

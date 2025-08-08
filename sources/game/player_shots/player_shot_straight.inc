@@ -1,12 +1,12 @@
 ; ######################
 ; PS Straight macros
 ;
-;	These macros actually defines
-;	Routines specific to
-;	"player_shot_straight.asm"
-;	but meant to be called in
-;	"player_shots.asm"
-;	for code efficiency
+;   These macros actually defines
+;   Routines specific to
+;   "player_shot_straight.asm"
+;   but meant to be called in
+;   "player_shots.asm"
+;   for code efficiency
 ; ######################
 
 
@@ -20,33 +20,33 @@ EXPORT Player_shot_straight_tiles.end
 EXPORT Player_shot_straight_vram_tiles
 
 MACRO PS_STRAIGHT_INIT
-	; copy tiles into VRAM
-	ld hl, Player_shot_straight_tiles
-	ld de, Player_shot_straight_vram_tiles
-	ld c, Player_shot_straight_tiles.end - Player_shot_straight_tiles
-	call vram_copy_fast
+    ; copy tiles into VRAM
+    ld hl, Player_shot_straight_tiles
+    ld de, Player_shot_straight_vram_tiles
+    ld c, Player_shot_straight_tiles.end - Player_shot_straight_tiles
+    call vram_copy_fast
 
-	; set tiles for straight shots in displayList
-	ld hl, ps_dynamic_displayList_content + PS_STRAIGHT_FIRST_INDEX * 4 + 2
-	ld a, (Player_shot_straight_vram_tiles - _VRAM)/16
-	ld d, PS_STRAIGHT_NB
+    ; set tiles for straight shots in displayList
+    ld hl, ps_dynamic_displayList_content + PS_STRAIGHT_FIRST_INDEX * 4 + 2
+    ld a, (Player_shot_straight_vram_tiles - _VRAM)/16
+    ld d, PS_STRAIGHT_NB
 .straight_set_loop
-	ld [hl+], a
-	inc hl
-	inc hl
-	inc hl
-	dec d
-	jr nz, .straight_set_loop
+    ld [hl+], a
+    inc hl
+    inc hl
+    inc hl
+    dec d
+    jr nz, .straight_set_loop
 ENDM
 
 MACRO PS_STRAIGHT_UPDATE_POS
-	; iterate over straight positions
-	ld c, PS_STRAIGHT_NB
-	ld hl, ps_Yposs + PS_STRAIGHT_FIRST_INDEX
+    ; iterate over straight positions
+    ld c, PS_STRAIGHT_NB
+    ld hl, ps_Yposs + PS_STRAIGHT_FIRST_INDEX
 .loop
-	ld a, [hl]
-	sub a, PS_Y_SPEED
-	ld [hl+], a
-	dec c
-	jr nz, .loop
+    ld a, [hl]
+    sub a, PS_Y_SPEED
+    ld [hl+], a
+    dec c
+    jr nz, .loop
 ENDM

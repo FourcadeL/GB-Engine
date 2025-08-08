@@ -99,68 +99,68 @@
 
 ;------------------------------------------------------------------------------------------
 ; Audio_get_note_frequency12(a = note index) -> bc = gb frequency of note (11 bits)      
-; 	return the gb frequency to use for specified note
-; 	(channel 1 and 2)
-; 	for channel 3 : everything is shifted one octave down :
-; 	C3 is C2, F4 is F3 ets ...
+;   return the gb frequency to use for specified note
+;   (channel 1 and 2)
+;   for channel 3 : everything is shifted one octave down :
+;   C3 is C2, F4 is F3 ets ...
 ;------------------------------------------------------------------------------------------
 Audio_get_note_frequency12::
 Audio_get_note_frequency3:: ; should be written later
     ;---high part---
-	ld		b, %00000111
-	cp		a, %00100100 ;111
-	jr		nc, .correct_high_part
-	dec		b
-	cp		a, %00011000 ; 110
-	jr		nc, .correct_high_part
-	dec		b
-	cp		a, %00010001 ; 101
-	jr		nc, .correct_high_part
-	dec		b
-	cp		a, %00001100 ; 100
-	jr		nc, .correct_high_part
-	dec 	b
-	cp 		a, %00001000 ; 011
-	jr		nc, .correct_high_part
-	dec		b
-	cp		a, %00000101 ; 010
-	jr		nc, .correct_high_part
-	dec		b
-	cp		a, %00000010 ; 001
-	jr		nc, .correct_high_part
-	dec  	b
-.correct_high_part		;b output is ok
-	;---low part---
+    ld      b, %00000111
+    cp      a, %00100100 ;111
+    jr      nc, .correct_high_part
+    dec     b
+    cp      a, %00011000 ; 110
+    jr      nc, .correct_high_part
+    dec     b
+    cp      a, %00010001 ; 101
+    jr      nc, .correct_high_part
+    dec     b
+    cp      a, %00001100 ; 100
+    jr      nc, .correct_high_part
+    dec     b
+    cp      a, %00001000 ; 011
+    jr      nc, .correct_high_part
+    dec     b
+    cp      a, %00000101 ; 010
+    jr      nc, .correct_high_part
+    dec     b
+    cp      a, %00000010 ; 001
+    jr      nc, .correct_high_part
+    dec     b
+.correct_high_part      ;b output is ok
+    ;---low part---
     ; table is aligned $XX00
-	ld		h, HIGH(__Audio_Frequencies12_Table_start)
-	ld		l, a
-	ld		c, [hl]
-	ret
+    ld      h, HIGH(__Audio_Frequencies12_Table_start)
+    ld      l, a
+    ld      c, [hl]
+    ret
 
 ;------------------------------------------------------------------------------------------
 ; Audio_get_note_frequency4(a = note index) -> c = gb frequency of note (8 bits)      
-; 	return the gb frequency to use for specified note
-; 	(channel 4) -> specify shift, divider and LFSR bit in c (b is 0)
-; 	notes 0 to 46 are with LFSR 15 bits
-; 	notes 47 to 93 are with LFSR 7 bits
+;   return the gb frequency to use for specified note
+;   (channel 4) -> specify shift, divider and LFSR bit in c (b is 0)
+;   notes 0 to 46 are with LFSR 15 bits
+;   notes 47 to 93 are with LFSR 7 bits
 ;------------------------------------------------------------------------------------------
 Audio_get_note_frequency4::
-	ld b, a ; b <- note index
-	sub a, 47
-	jr nc, .get_value_from_table
-		ld a, b ; lfsr 15 note, reset index to previous value
+    ld b, a ; b <- note index
+    sub a, 47
+    jr nc, .get_value_from_table
+        ld a, b ; lfsr 15 note, reset index to previous value
 .get_value_from_table
-	ld h, HIGH(__Audio_Frequencies4_Table_start)
-	add a, LOW(__Audio_Frequencies4_Table_start)
-	ld l, a
-	ld a, [hl] ; a <- return value without LFSR set
-	ld c, a
-	ld a, b
-	ld b, $00
-	sub a, 47
-	ret c ; carry -> LFSR 15 bit
-	set 3, c ; no carry -> set LFSR 7 bit
-	ret
+    ld h, HIGH(__Audio_Frequencies4_Table_start)
+    add a, LOW(__Audio_Frequencies4_Table_start)
+    ld l, a
+    ld a, [hl] ; a <- return value without LFSR set
+    ld c, a
+    ld a, b
+    ld b, $00
+    sub a, 47
+    ret c ; carry -> LFSR 15 bit
+    set 3, c ; no carry -> set LFSR 7 bit
+    ret
 
     SECTION "Audio_Frequencies_Table12", ROM0, ALIGN[8]
 ; audio frequencies for channels 1 and 2 Only the low byte is stored to save storage space
@@ -175,18 +175,18 @@ INCBIN "audio_table.bin"
 ; %d1ce, %d6d4, %dbd9, %dfdd, %e2e1, %e6e4, %e9e7, %ebea
 ; %edec, %efee
 
-	SECTION "Audio_Frequencies_Table4", ROM0, ALIGN[6]
+    SECTION "Audio_Frequencies_Table4", ROM0, ALIGN[6]
 ; registers values for channel 4
 __Audio_Frequencies4_Table_start:
-	DB $A6, $A5, $A4
-	DB $97, $96, $95, $94
-	DB $87, $86, $85, $84
-	DB $77, $76, $75, $74
-	DB $67, $66, $65, $64
-	DB $57, $56, $55, $54
-	DB $47, $46, $45, $44
-	DB $37, $36, $35, $34
-	DB $27, $26, $25, $24
-	DB $17, $16, $15, $14
-	DB $07, $06, $05, $04
-	DB $03, $02, $01, $00 ; 47 values
+    DB $A6, $A5, $A4
+    DB $97, $96, $95, $94
+    DB $87, $86, $85, $84
+    DB $77, $76, $75, $74
+    DB $67, $66, $65, $64
+    DB $57, $56, $55, $54
+    DB $47, $46, $45, $44
+    DB $37, $36, $35, $34
+    DB $27, $26, $25, $24
+    DB $17, $16, $15, $14
+    DB $07, $06, $05, $04
+    DB $03, $02, $01, $00 ; 47 values

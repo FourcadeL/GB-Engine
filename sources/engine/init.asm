@@ -1,13 +1,13 @@
 ;#####################################
 ; Init
-; 	initial function and memory placement of interrupt code
-; 	Initialize ROM header, interrupt vectors and low level routines
+;   initial function and memory placement of interrupt code
+;   Initialize ROM header, interrupt vectors and low level routines
 ;#####################################
 
 
-	INCLUDE "hardware.inc"
-	INCLUDE "engine.inc"
-	INCLUDE "utils.inc"
+    INCLUDE "hardware.inc"
+    INCLUDE "engine.inc"
+    INCLUDE "utils.inc"
 
 
 ;+-----------------------------------------------------------------------------+
@@ -53,8 +53,8 @@
 
     SECTION "VBL Interrupt Vector",ROM0[$0040]
     push    hl
-    ld 		hl, _vbl_flag ; vblank execution flag
-    ld 		[hl], 1
+    ld      hl, _vbl_flag ; vblank execution flag
+    ld      [hl], 1
     jr      int_VBlank
 
     SECTION "LCD Interrupt Vector",ROM0[$0048]
@@ -85,7 +85,7 @@
 ;+-----------------------------------------------------------------------------+
 
 int_VBlank:
-	ld 		hl,VBL_handler
+    ld      hl,VBL_handler
 
 int_Common:
     push    af
@@ -203,10 +203,10 @@ StartPoint:
     ; copy DMA routine into HRAM
     call init_DMA
 
-	; main call
-	call Main
+    ; main call
+    call Main
 
-	jp Reset ; just in case but shouldn't reach
+    jp Reset ; just in case but shouldn't reach
 
 
 

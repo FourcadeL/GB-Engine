@@ -20,7 +20,7 @@ ENDM
 ; Adds a U16 to hl
 ; [a, hl]
 ;-------------------------------
-MACRO ADD_U16_HL	;hl <- hl + (value first arg)
+MACRO ADD_U16_HL    ;hl <- hl + (value first arg)
     ld      a, l
     add     a, LOW(\1)
     ld      l, a

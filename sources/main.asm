@@ -6,10 +6,10 @@
 
 
 
-	INCLUDE "hardware.inc"
-	INCLUDE "engine.inc"
-	INCLUDE "debug.inc"
-	INCLUDE "charmap.inc"
+    INCLUDE "hardware.inc"
+    INCLUDE "engine.inc"
+    INCLUDE "debug.inc"
+    INCLUDE "charmap.inc"
 
 
 
@@ -20,32 +20,32 @@
 
 
 
-	SECTION "Main", ROM0
+    SECTION "Main", ROM0
 
 
 Main::
 
-	call 	Main_init
-	PRINT_DEBUG "Main Init Done"
+    call    Main_init
+    PRINT_DEBUG "Main Init Done"
 
 .loop
-	call wait_vbl
-	call getInput
-	ld a, [PAD_pressed]
-	cp a, PAD_START
-	call z, game_main
-	ld a, [PAD_pressed]
-	cp a, PAD_SELECT
-	call z, snd_test_main
-	ld a, [PAD_pressed]
-	or a
-	ret nz
-	
-	; load the game main room by default for testing
-	jp game_main
-	; jp game_over_main
-	; jp snd_test_main
-	jr .loop
+    call wait_vbl
+    call getInput
+    ld a, [PAD_pressed]
+    cp a, PAD_START
+    call z, game_main
+    ld a, [PAD_pressed]
+    cp a, PAD_SELECT
+    call z, snd_test_main
+    ld a, [PAD_pressed]
+    or a
+    ret nz
+    
+    ; load the game main room by default for testing
+    jp game_main
+    ; jp game_over_main
+    ; jp snd_test_main
+    jr .loop
 
 
 ;---------------------------------------------
@@ -56,58 +56,58 @@ Main::
 
 
 Main_init::
-	; écriture des tiles de test
-	ld 		bc, _test_data_end - _test_data_start
-	ld		hl, _test_data_start
-	ld		de, _VRAM
-	call 	vram_copy
-	ld 		bc, _test_data_end - _test_data_start
-	ld		hl, _test_data_start
-	ld		de, _VRAM + $0800
-	call 	vram_copy
-	;ld bc, _test_data_end - _test_data_start
-	;ld hl, _test_data_start
-	;ld de, _VRAM + $0800 + $0800
-	;call vram_copy
+    ; écriture des tiles de test
+    ld      bc, _test_data_end - _test_data_start
+    ld      hl, _test_data_start
+    ld      de, _VRAM
+    call    vram_copy
+    ld      bc, _test_data_end - _test_data_start
+    ld      hl, _test_data_start
+    ld      de, _VRAM + $0800
+    call    vram_copy
+    ;ld bc, _test_data_end - _test_data_start
+    ;ld hl, _test_data_start
+    ;ld de, _VRAM + $0800 + $0800
+    ;call vram_copy
 
 
 
-	; registre d'interupts sélection
-	ld		a,IEF_VBLANK   ; enable VBLANK interrupt
-	ld		[rIE],a
+    ; registre d'interupts sélection
+    ld      a,IEF_VBLANK   ; enable VBLANK interrupt
+    ld      [rIE],a
 
 
-	; attributs palettes background/windows
-	ld 		a, %11100100
-	ld 		[rBGP], a ; palette BG
+    ; attributs palettes background/windows
+    ld      a, %11100100
+    ld      [rBGP], a ; palette BG
 
 
-	; attributs palettes objets
-	ld		a, %11100100
-	ld		[rOBP0], a ; palette 0
+    ; attributs palettes objets
+    ld      a, %11100100
+    ld      [rOBP0], a ; palette 0
 
-	ld		a, %11100100
-	ld		[rOBP1], a ; palette 1
+    ld      a, %11100100
+    ld      [rOBP1], a ; palette 1
 
-	; redémarrage de l'écran
-	ld		a,LCDCF_ON ; écran activé
-	or 		LCDCF_BGON ; arriere plan activé
-	ld		[rLCDC],a
+    ; redémarrage de l'écran
+    ld      a,LCDCF_ON ; écran activé
+    or      LCDCF_BGON ; arriere plan activé
+    ld      [rLCDC],a
 
 
-	ld bc, Main_vblk
-	call irq_set_VBL ; set global VBlank
+    ld bc, Main_vblk
+    call irq_set_VBL ; set global VBlank
 
-		; initialisations 
-	ld b, 6
-	call Audio_init
-	ld hl, _test_waveform
-	call Audio_set_wave_pattern
+        ; initialisations 
+    ld b, 6
+    call Audio_init
+    ld hl, _test_waveform
+    call Audio_set_wave_pattern
 
-	call Sprites_init
+    call Sprites_init
 
-	; on rétablit les interrupts
-	reti	; retour à l'exécution
+    ; on rétablit les interrupts
+    reti    ; retour à l'exécution
 
 
 ; --------------------------
@@ -115,18 +115,18 @@ Main_init::
 ; Global VBlank
 ; --------------------------
 Main_vblk:
-	GLOBAL_VBLANK_CRITICAL
-	GLOBAL_VBLANK_NON_CRITICAL
-	ret
+    GLOBAL_VBLANK_CRITICAL
+    GLOBAL_VBLANK_NON_CRITICAL
+    ret
 
 
 
 
-	;-----------------------------
-	;    test data
-	;-----------------------------
+    ;-----------------------------
+    ;    test data
+    ;-----------------------------
 
- 	SECTION "Placeholder_Tiles", ROM0
+    SECTION "Placeholder_Tiles", ROM0
 
 _test_data_start:
 INCBIN "./engine/engine_data/test_tileset.bin"

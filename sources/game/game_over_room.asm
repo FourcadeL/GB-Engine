@@ -1,8 +1,8 @@
 ; ###############################
-;	game over handling room
+;   game over handling room
 ;
-;	display a game over message
-;	Placeholder before real management
+;   display a game over message
+;   Placeholder before real management
 ; ###############################
 
 INCLUDE "hardware.inc"
@@ -11,24 +11,24 @@ INCLUDE "debug.inc"
 INCLUDE "utils.inc"
 INCLUDE "charmap.inc"
 
-	SECTION "game_over_room", ROMX
+    SECTION "game_over_room", ROMX
 
 game_over_main::
-	call game_over_init
+    call game_over_init
 .loop
-	call wait_vbl
-	call fwf_automaton_update
+    call wait_vbl
+    call fwf_automaton_update
 
-	call getInput
-	ld a, [PAD_pressed]
-	and a, PAD_START
-	jr z, .loop
-		; reload game room
-		call fwf_automaton_flush
-	jp game_main
+    call getInput
+    ld a, [PAD_pressed]
+    and a, PAD_START
+    jr z, .loop
+        ; reload game room
+        call fwf_automaton_flush
+    jp game_main
 
 game_over_init:
-	; fwf init
+    ; fwf init
     ld a, 20
     call fwf_automaton_set_display_width
     ld a, 18
@@ -43,8 +43,8 @@ game_over_init:
     call fwf_automaton_set_read_addr
     call fwf_automaton_init
 
-	call Audio_stop_song
-	ret
+    call Audio_stop_song
+    ret
 
 _text:
-	DB" \n   GAME OVER (tmp)\n \n \nPress START\n    to reload\\0"
+    DB" \n   GAME OVER (tmp)\n \n \nPress START\n    to reload\\0"

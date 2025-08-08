@@ -1,13 +1,13 @@
 ;#####################################
 ; Utils functions
-; 	Memory management
-;	Multiplication routines
-;	Random generator
+;   Memory management
+;   Multiplication routines
+;   Random generator
 ;#####################################
 
 
-	INCLUDE "hardware.inc"
-	INCLUDE "engine.inc"
+    INCLUDE "hardware.inc"
+    INCLUDE "engine.inc"
 
 
 ;+-----------------------------------------------------------------------------+
@@ -17,7 +17,7 @@
 ;+-----------------------------------------------------------------------------+
 
 
-	SECTION "Utils_Functions",ROM0
+    SECTION "Utils_Functions",ROM0
 
 
 
@@ -27,23 +27,23 @@
 ; memset(d = value ; hl = start address ; bc = copy size)
 ;----------------------------------------------------------------------
 memset::
-	ld	[hl],d
-	inc hl
-	dec	bc
-	ld	a,b
-	or	a,c
-	jr	nz,memset
-	ret
+    ld  [hl],d
+    inc hl
+    dec bc
+    ld  a,b
+    or  a,c
+    jr  nz,memset
+    ret
 
 ;-----------------------------------------------------------------
 ; memset_fast(d = value ; hl = start address ; b = copy size)
 ;-----------------------------------------------------------------
 memset_fast::
-	ld [hl], d
-	inc hl
-	dec b
-	jr nz, memset_fast
-	ret
+    ld [hl], d
+    inc hl
+    dec b
+    jr nz, memset_fast
+    ret
 
 
 
@@ -52,14 +52,14 @@ memset_fast::
 ; memcopy(bc = size ; hl = source address ; de = destination address)
 ;----------------------------------------------------------------------
 memcopy::
-	ld	a,[hli]
-	ld	[de], a
-	inc de
-	dec bc
-	ld	a,b
-	or 	a,c
-	jr	nz, memcopy
-	ret
+    ld  a,[hli]
+    ld  [de], a
+    inc de
+    dec bc
+    ld  a,b
+    or  a,c
+    jr  nz, memcopy
+    ret
 
 
 
@@ -68,157 +68,157 @@ memcopy::
 ; memcopy_fast(b = size ; hl = source address ; de = destination address)
 ;--------------------------------------------------------------------------
 memcopy_fast::
-	ld a,[hli]
-	ld [de],a
-	inc	de
-	dec	b
-	jr nz, memcopy_fast
-	ret
+    ld a,[hli]
+    ld [de],a
+    inc de
+    dec b
+    jr nz, memcopy_fast
+    ret
 
 
 ;--------------------------------------------------------------------------
 ; mult_u8(b = n1, c = n2) -> a = n1 * n2 (8 bits return value)
 ;--------------------------------------------------------------------------
 mult_u8::
-	ld 		a, $00
-	bit 	0, c
-	jr 		z, .i0
-	add 	a, b
+    ld      a, $00
+    bit     0, c
+    jr      z, .i0
+    add     a, b
 .i0
-	sla 	b
-	bit 	1, c
-	jr 		z, .i1
-	add 	a, b
+    sla     b
+    bit     1, c
+    jr      z, .i1
+    add     a, b
 .i1
-	sla 	b
-	bit 	2, c
-	jr 		z, .i2
-	add 	a, b
+    sla     b
+    bit     2, c
+    jr      z, .i2
+    add     a, b
 .i2
-	sla 	b
-	bit 	3, c
-	jr 		z, .i3
-	add 	a, b
+    sla     b
+    bit     3, c
+    jr      z, .i3
+    add     a, b
 .i3
-	sla 	b
-	bit 	4, c
-	jr 		z, .i4
-	add 	a, b
+    sla     b
+    bit     4, c
+    jr      z, .i4
+    add     a, b
 .i4
-	sla 	b
-	bit 	5, c
-	jr 		z, .i5
-	add 	a, b
+    sla     b
+    bit     5, c
+    jr      z, .i5
+    add     a, b
 .i5
-	sla 	b
-	bit 	6, c
-	jr 		z, .i6
-	add 	a, b
+    sla     b
+    bit     6, c
+    jr      z, .i6
+    add     a, b
 .i6
-	sla 	b
-	bit 	7, c
-	jr 		z, .i7
-	add 	a, b
+    sla     b
+    bit     7, c
+    jr      z, .i7
+    add     a, b
 .i7
-	ret
+    ret
 
 ;--------------------------------------------------------------------------
 ; mult_u816(b = n1, c = n2) -> hl = n1 * n2 (16 bits return value)
 ;--------------------------------------------------------------------------
 mult_u816::
-	ld 		d, $00
-	ld 		e, b
-	ld 		hl, $00
-	sra 	c
-	jr 		nc, .i0 		;bit 0
-	add 	hl, de
+    ld      d, $00
+    ld      e, b
+    ld      hl, $00
+    sra     c
+    jr      nc, .i0         ;bit 0
+    add     hl, de
 .i0
-	sla 	e
-	rl 		d
-	sra 	c
-	jr 		nc, .i1 		;bit 1
-	add 	hl, de
+    sla     e
+    rl      d
+    sra     c
+    jr      nc, .i1         ;bit 1
+    add     hl, de
 .i1
-	sla 	e
-	rl 		d
-	sra 	c
-	jr 		nc, .i2 		;bit 2
-	add 	hl, de
+    sla     e
+    rl      d
+    sra     c
+    jr      nc, .i2         ;bit 2
+    add     hl, de
 .i2
-	sla 	e
-	rl 		d
-	sra 	c
-	jr 		nc, .i3 		;bit 3
-	add 	hl, de
+    sla     e
+    rl      d
+    sra     c
+    jr      nc, .i3         ;bit 3
+    add     hl, de
 .i3
-	sla 	e
-	rl 		d
-	sra 	c
-	jr 		nc, .i4 		;bit 4
-	add 	hl, de
+    sla     e
+    rl      d
+    sra     c
+    jr      nc, .i4         ;bit 4
+    add     hl, de
 .i4
-	sla 	e
-	rl 		d
-	sra 	c
-	jr 		nc, .i5 		;bit 5
-	add 	hl, de
+    sla     e
+    rl      d
+    sra     c
+    jr      nc, .i5         ;bit 5
+    add     hl, de
 .i5
-	sla 	e
-	rl 		d
-	sra 	c
-	jr 		nc, .i6 		;bit 6
-	add 	hl, de
+    sla     e
+    rl      d
+    sra     c
+    jr      nc, .i6         ;bit 6
+    add     hl, de
 .i6
-	sla 	e
-	rl 		d
-	sra 	c
-	jr 		nc, .i7 		;bit 7
-	add 	hl, de
+    sla     e
+    rl      d
+    sra     c
+    jr      nc, .i7         ;bit 7
+    add     hl, de
 .i7
-	ret
+    ret
 
 ;----------------------------------------
 ; tab_offset(b = num element,
-;	c = elem size (in bytes),
-;	hl = base addr)
-;	-> hl = hl + b*c
+;   c = elem size (in bytes),
+;   hl = base addr)
+;   -> hl = hl + b*c
 ;----------------------------------------
 tab_offset::
-	push 	hl
-	call 	mult_u816
-	pop 	de
-	add 	hl, de 
-	ret
+    push    hl
+    call    mult_u816
+    pop     de
+    add     hl, de 
+    ret
 
 
 ;----------------------------------------
 ; generateRandom() -> a = returned value
 ;----------------------------------------
 generateRandom::
-	ld 		hl, RandomX
-	ld 		a, [hl]
-	inc 	a
-	ld 		e, a
-	ld 		a, [RandomC]
-	ld 		d, a
-	ld 		a, [RandomA]
-	xor 	d
-	xor 	e
-	ld 		b, a
-	ld 		[hl], e
-	inc 	hl
-	ld 		a, [RandomB]
-	add 	b
-	ld 		c, a
-	srl 	a
-	xor 	b
-	add 	d
-	ld 		[hl], b ; ecriture de _RandomA
-	inc 	hl
-	ld 		[hl], c ; ecriture de _RandomB
-	inc 	hl
-	ld 		[hl], a ; ecriture de _RandomC
-	ret ; content of a is the new random value
+    ld      hl, RandomX
+    ld      a, [hl]
+    inc     a
+    ld      e, a
+    ld      a, [RandomC]
+    ld      d, a
+    ld      a, [RandomA]
+    xor     d
+    xor     e
+    ld      b, a
+    ld      [hl], e
+    inc     hl
+    ld      a, [RandomB]
+    add     b
+    ld      c, a
+    srl     a
+    xor     b
+    add     d
+    ld      [hl], b ; ecriture de _RandomA
+    inc     hl
+    ld      [hl], c ; ecriture de _RandomB
+    inc     hl
+    ld      [hl], a ; ecriture de _RandomC
+    ret ; content of a is the new random value
 
 
 
@@ -230,12 +230,12 @@ generateRandom::
 ;| |                          VARIABLES                                      | |
 ;| +-------------------------------------------------------------------------+ |
 ;+-----------------------------------------------------------------------------+
-	SECTION "Utils_Variables", WRAM0
+    SECTION "Utils_Variables", WRAM0
 
-RandomX:		DS 1
-RandomA:		DS 1
-RandomB:		DS 1
-RandomC:		DS 1
+RandomX:        DS 1
+RandomA:        DS 1
+RandomB:        DS 1
+RandomC:        DS 1
 
 
 

@@ -3,7 +3,7 @@
 ; #####################################################
 
 
-	IF !DEF(PLAYER_INC)
+    IF !DEF(PLAYER_INC)
 DEF PLAYER_INC EQU 1
 
 DEF Player_sprite_entry EQUS "Sprite_table"
@@ -21,4 +21,4 @@ DEF Player_hitbox_height EQU 12
 
 DEF Player_anim_counter_reset EQU 14
 
-	ENDC ; PLAYER_INC
+    ENDC ; PLAYER_INC

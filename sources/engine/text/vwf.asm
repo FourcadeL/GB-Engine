@@ -13,8 +13,8 @@
 ;           le curseur permet de placer une lettre et est déplacé à chaque écriture
 
     INCLUDE "hardware.inc"
-	INCLUDE "engine.inc"
-	INCLUDE "debug.inc"
+    INCLUDE "engine.inc"
+    INCLUDE "debug.inc"
 
 
     ; données par défaut

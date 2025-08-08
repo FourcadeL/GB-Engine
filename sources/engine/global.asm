@@ -1,13 +1,13 @@
 ; ###############################
 ; Global
 ;
-;	Shared services for the engine
-;	- a global counter
-;	- a global vblank routine
+;   Shared services for the engine
+;   - a global counter
+;   - a global vblank routine
 ; ###############################
 
-	INCLUDE "hardware.inc"
-	INCLUDE "engine.inc"
+    INCLUDE "hardware.inc"
+    INCLUDE "engine.inc"
 
 
 
@@ -17,7 +17,7 @@
 ;| +-------------------------------------------------------------------------+ |
 ;+-----------------------------------------------------------------------------+
 
-	SECTION "Global_Variables", WRAM0
-	
-Global_counter::	DS 1
+    SECTION "Global_Variables", WRAM0
+    
+Global_counter::    DS 1
 

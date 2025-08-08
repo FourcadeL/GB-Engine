@@ -25,8 +25,8 @@
     SECTION "Instruments_functions", ROM0
 ;--------------------------------------------------------------------------
 ; Instruments_update()
-; 	Called by audio as much as required
-; 	Handle audio register and frequencies updates
+;   Called by audio as much as required
+;   Handle audio register and frequencies updates
 ;--------------------------------------------------------------------------
 Instruments_update::
     call _handle_instruments_changes
@@ -476,7 +476,7 @@ _CH4_blank_instrument:
     SECTION "Instruments_Variables", WRAM0
 
 ; --------- channel 1 ----------
-_CH1_instru::		 DS SIZEOF_instrument_struct
+_CH1_instru::        DS SIZEOF_instrument_struct
 ; --------- channel 2 ----------
 _CH2_instru::        DS SIZEOF_instrument_struct
 ; --------- channel 3 ----------

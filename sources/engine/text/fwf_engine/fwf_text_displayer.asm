@@ -106,8 +106,8 @@ fwf_automaton_awake_from_idle::
     ret
 
 fwf_automaton_flush::
-	call set_flush_state
-	jp fwf_automaton_update
+    call set_flush_state
+    jp fwf_automaton_update
 
 ;----------------------------------
 ;- fwf_automaton_is_stopped() -> z set : automaton is stopped | nz set : automaton is active

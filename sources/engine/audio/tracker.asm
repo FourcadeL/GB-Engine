@@ -27,9 +27,9 @@ INCLUDE "instruments.inc"
 
 ;--------------------------------
 ; GET_CURRENT_TRACKER_ELEM_ADDR
-; 	set hl to the addr of the element in \1
-; 	for the current tracker
-; 	[hl, af, b]
+;   set hl to the addr of the element in \1
+;   for the current tracker
+;   [hl, af, b]
 ;--------------------------------
 MACRO GET_CURRENT_TRACKER_ELEM_ADDR
     ld hl, _current_tracker_struct_addr
@@ -80,10 +80,10 @@ set_state:
 ; tracker_init(StackPush : $XXXX(addr of instrument handler)
 ;                          $YYYY(addr of tracker block)
 ;                           [bc] = working tracker to initialize) 
-;	init a tracker at addr bc
-;   	with instrument handler ispecified by $XXXX
-;	and song tracker data at $YYYY
-;   	every other values are set to 0 (except stack save and tracker state)
+;   init a tracker at addr bc
+;       with instrument handler ispecified by $XXXX
+;   and song tracker data at $YYYY
+;       every other values are set to 0 (except stack save and tracker state)
 ; -------------------------------
 tracker_init::
     call set_current_working_tracker
@@ -120,7 +120,7 @@ tracker_init::
 
 ; -------------------------------
 ; tracker_start([bc] = working tracker to start)
-; 	tracker at bc is set to fetch_state
+;   tracker at bc is set to fetch_state
 ; -------------------------------
 tracker_start::
     call set_current_working_tracker
@@ -129,7 +129,7 @@ tracker_start::
 
 ; -------------------------------
 ; tracker_stop([bc] = working tracker to pause)
-; 	tracker at bc plays blank note then set itself to end state
+;   tracker at bc plays blank note then set itself to end state
 ; -------------------------------
 tracker_stop::
     call set_current_working_tracker
@@ -150,7 +150,7 @@ tracker_stop::
 
 ; --------------------------------------------------------
 ; tracker_new note_state([bc] = working tracker)
-; 	return flags : Z reset if tracker is in new note state
+;   return flags : Z reset if tracker is in new note state
 ; --------------------------------------------------------
 tracker_new_note_state::
     call set_current_working_tracker
@@ -166,7 +166,7 @@ tracker_step::
     call set_current_working_tracker
 ; --------------------------
 ; tracker_update()
-; 	update state of current working tracker
+;   update state of current working tracker
 ; --------------------------
 tracker_update::
     GET_CURRENT_TRACKER_ELEM_ADDR tracker_state
@@ -207,8 +207,8 @@ update_delay:
 
 ; --------------------------
 ; fetch_routine()
-; 	fetch next instruction
-; 	update memory state
+;   fetch next instruction
+;   update memory state
 ; --------------------------
 fetch_routine:
     GET_CURRENT_TRACKER_ELEM_ADDR block_Laddr
@@ -240,12 +240,12 @@ fetch_routine:
 
 ; -------------------------
 ; _note_instruction_read(a = instruction byte)
-; 	%0110XXXX are volume control notes
-; 	%0101XXXX are instrument control notes
-; 	otherwise : standard note
-; 		set note in instrument handler
-; 		set new note flag in instrument handler
-; 		set tracker state to ATRACKER_NEW_NOTE_STATE
+;   %0110XXXX are volume control notes
+;   %0101XXXX are instrument control notes
+;   otherwise : standard note
+;       set note in instrument handler
+;       set new note flag in instrument handler
+;       set tracker state to ATRACKER_NEW_NOTE_STATE
 ; returns handle
 ; -------------------------
 _note_instruction_read:
@@ -271,9 +271,9 @@ _note_instruction_read:
 
 ;--------------------
 ; _volume_control_note(c = instruction byte)
-; 	set new volume in instrument handler
-; 	set new volume flag in instrument handler
-; 	fetch next instruction
+;   set new volume in instrument handler
+;   set new volume flag in instrument handler
+;   fetch next instruction
 ;---------------------
 _volume_control_note:
     ld a, c
@@ -290,9 +290,9 @@ _volume_control_note:
 
 ;--------------------
 ; _instrument_control_note(c = instruction byte)
-; 	set new instrument in instrument handler
-; 	set new instrument flag in instrument handler
-; 	fetch next instruction
+;   set new instrument in instrument handler
+;   set new instrument flag in instrument handler
+;   fetch next instruction
 ;---------------------
 _instrument_control_note:
     ld a, c
@@ -312,9 +312,9 @@ _instrument_control_note:
 
 ; --------------------------
 ; _set_delay_counter_instruction(a = instruction byte)
-; 	set delay counter to a | %00XXXXXX
-; 	keep tracker in fetch state
-; 	fetch next instruction
+;   set delay counter to a | %00XXXXXX
+;   keep tracker in fetch state
+;   fetch next instruction
 ; --------------------------
 _set_delay_counter_instruction:
     and a, %00111111
@@ -325,9 +325,9 @@ _set_delay_counter_instruction:
 
 ; ----------------------
 ; _set_repeat_counter_instruction(a = instruction byte)
-; 	set repeat counter to a | %000xxxxx
-; 	keep tracker in fetch state
-; 	fetch next instruction
+;   set repeat counter to a | %000xxxxx
+;   keep tracker in fetch state
+;   fetch next instruction
 ; ----------------------
 _set_repeat_counter_instruction:
     and a, %00011111
@@ -339,15 +339,15 @@ _set_repeat_counter_instruction:
 
 ; ------------------------
 ; _return_instruction(a = instruction byte)
-; 	return instruction : %000001bb
-; 	do return instruction
-; 	bb :
-; 		-> 00 : global return, tracker <-0
-; 		-> 01 : conditionnal global, if repeat_counter <= 0, tracker <- 0 (decrease repeat counter)
-; 		-> 10 : partial return, tracker <- return_tracker_value
-; 		-> 11 : conditionnal partial, if repeat_counter <= 0, tracker <- return_tracker_value (decrease repeat counter)
-; 	keep tracker in fetch state
-; 	fetch next instruction
+;   return instruction : %000001bb
+;   do return instruction
+;   bb :
+;       -> 00 : global return, tracker <-0
+;       -> 01 : conditionnal global, if repeat_counter <= 0, tracker <- 0 (decrease repeat counter)
+;       -> 10 : partial return, tracker <- return_tracker_value
+;       -> 11 : conditionnal partial, if repeat_counter <= 0, tracker <- return_tracker_value (decrease repeat counter)
+;   keep tracker in fetch state
+;   fetch next instruction
 ; ------------------------
 _return_instruction:
     and a, %00000011
@@ -372,9 +372,9 @@ _return_instruction:
 
 ; ------------------------
 ; _return_tracker_set()
-; 	set return_tracker_value to tracker value + 1
-; 	keep tracker in fetch state
-; 	fetch next instruction
+;   set return_tracker_value to tracker value + 1
+;   keep tracker in fetch state
+;   fetch next instruction
 ; ------------------------
 _return_tracker_set:
     GET_CURRENT_TRACKER_ELEM_ADDR tracker_value
@@ -386,13 +386,13 @@ _return_tracker_set:
 
 ;------------------------
 ; _block_control_instruction(a = instruction byte)
-; 	do control of tracker block instruction
-; 	block control instruction : %00001?bb (+ $XX $XX)
-; 	bb : 
-; 		00 -> block end (returned to pushed block), if empty stack : ATRACKER_END_STATE
-; 		01 -> reset block stack
-; 		10 -> jump to tracker block $XX
-; 		11 -> call to tracker block $XX
+;   do control of tracker block instruction
+;   block control instruction : %00001?bb (+ $XX $XX)
+;   bb : 
+;       00 -> block end (returned to pushed block), if empty stack : ATRACKER_END_STATE
+;       01 -> reset block stack
+;       10 -> jump to tracker block $XX
+;       11 -> call to tracker block $XX
 ; -----------------------
 _block_control_instruction:
     bit 1, a
@@ -466,11 +466,11 @@ _block_control_instruction:
 
 ;------------------------
 ; _block_control_instruction(a = instruction byte)
-; 	do control of tracker block instruction
-; 	block control instruction : %00001?1b + $ll $HH
-; 	bb :
-; 		10 -> jump to tracker block $HHll
-; 		11 -> call to tracker block $HHll
+;   do control of tracker block instruction
+;   block control instruction : %00001?1b + $ll $HH
+;   bb :
+;       10 -> jump to tracker block $HHll
+;       11 -> call to tracker block $HHll
 ; -----------------------
 _new_block_instruction:
     bit 0, a
@@ -552,5 +552,5 @@ _new_block_instruction:
 
 
     SECTION "audio_tracker_variables", WRAM0
-_current_tracker_struct_addr: 	DS 2 ; addr of currently working tracker (little endian)
-_execution_stack_pointer_save: 	DS 2 ; memory location of saved value for stack pointer
+_current_tracker_struct_addr:   DS 2 ; addr of currently working tracker (little endian)
+_execution_stack_pointer_save:  DS 2 ; memory location of saved value for stack pointer

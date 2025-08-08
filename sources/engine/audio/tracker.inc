@@ -31,7 +31,7 @@ DEF return_tracker_value    RB 1 ; current value of the return tracker (tracker 
 DEF stack_save              RB 2 ; SP of the current recursive stack (little endian)
 DEF tracker_stack           RB 6*ATRACKER_MAXIMUM_RECURSIVE_STACK_SIZE ; recursive stack of the tracker
 DEF tracker_stack_base      RB 0
-DEF SIZEOF_tracker_struct	RB 0
+DEF SIZEOF_tracker_struct   RB 0
 ;-----------
 
 

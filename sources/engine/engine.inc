@@ -1,40 +1,40 @@
 ;############################################
 ; ENGINE INC
 ;
-;	Defines macros, memory addresses and function addresses
-;	for the game engine
+;   Defines macros, memory addresses and function addresses
+;   for the game engine
 ;############################################
 
 
 
 
-	IF !DEF(ENGINE_INC)
+    IF !DEF(ENGINE_INC)
 DEF ENGINE_INC EQU 1
 
 ;+-----------------------------------------------------------------------------+
 ;| +-------------------------------------------------------------------------+ |
-;| |                            MACROS					     | |
+;| |                            MACROS                       | |
 ;| +-------------------------------------------------------------------------+ |
 ;+-----------------------------------------------------------------------------+
 
 ;***************************
-;	GLOBAL.ASM
+;   GLOBAL.ASM
 ;***************************
 
 ; Global VBLANK critical routine
 MACRO GLOBAL_VBLANK_CRITICAL
-	; Push SOAM to OAM
-	call call_DMA
+    ; Push SOAM to OAM
+    call call_DMA
 ENDM
 
 ; Global VBLANK non-critical routine
 MACRO GLOBAL_VBLANK_NON_CRITICAL
-	; Increment global counter
-	ld hl, Global_counter
-	inc [hl]
+    ; Increment global counter
+    ld hl, Global_counter
+    inc [hl]
 
-	; Update audio engine
-	call Audio_update
+    ; Update audio engine
+    call Audio_update
 ENDM
 
 
@@ -58,7 +58,7 @@ ENDM
 
 ;+---------------------------+
 
-	EXPORT  irq_set_VBL
+    EXPORT  irq_set_VBL
     EXPORT  irq_set_LCD
     EXPORT  irq_set_TIM
     EXPORT  irq_set_SIO
@@ -70,7 +70,7 @@ ENDM
 ;- wait_vbl()
 ;----------------------------
 
-	EXPORT wait_vbl
+    EXPORT wait_vbl
 
 ;-----------------------------------------------
 ;- wait_ly(b = ly à attendre)
@@ -138,7 +138,7 @@ EXPORT  JOY_handler ;(2 byte)
 ;+----------------------------+
 
 
-	EXPORT generateRandom
+    EXPORT generateRandom
 
 
 
