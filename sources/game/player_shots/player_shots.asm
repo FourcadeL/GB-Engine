@@ -35,6 +35,7 @@ INCLUDE "hardware.inc"
 INCLUDE "engine.inc"
 INCLUDE "utils.inc"
 INCLUDE "player.inc"
+INCLUDE "player_shots.inc"
 INCLUDE "player_shot_straight.inc"
 
 DEF MAX_SHOTS EQU 16
@@ -118,25 +119,16 @@ PS_init::
 	ld [hl+], a
 	ld [hl], HIGH(ps_dynamic_displayList)
 	
-	; DEBUG : try setting a random display position
-	ld hl, ps_Xposs
-	ld [hl], 34
-	inc hl
-	ld [hl], 109
-	ld hl, ps_Yposs
-	ld [hl], 120
-	inc hl
-	ld [hl], 78
-	ld hl, ps_status
-	ld [hl], %10000000
-	inc hl
-	ld [hl], %10000000
 	ret
 
 
 
 
 PS_update::
+		; high priority update
+	call PS_purge_shots
+
+		; low priority update
 	ld hl, Global_counter
 	bit 0, [hl]
 	ret z						; don't update on even frames
@@ -144,7 +136,6 @@ PS_update::
 	; "per shots" macros will go here
 	PS_STRAIGHT_UPDATE_POS
 	; TODO
-	call PS_purge_shots
 	call PS_push_to_display
 	ret
 

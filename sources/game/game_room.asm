@@ -42,9 +42,9 @@ game_main::
 .no_collision
 
 	; TESTING : RANDOM NEW EXPLOSION
-	ld a, [PAD_pressed]
-	and a, PAD_A
-	jr z, .skipExplosion
+	call generateRandom
+	and a, %11111100
+	jr nz, .skipExplosion
 	call generateRandom
 	and a, %01111111
 	push af
@@ -55,13 +55,21 @@ game_main::
 	call Explosion_request
 .skipExplosion
 
+	; TESTING : PLAYER SHOOT
+	ld a, [PAD_pressed]
+	and a, PAD_A
+	jr z, .skipShooting
+	ld a, [player_pixel_Xpos]
+	ld b, a
+	ld a, [player_pixel_Ypos]
+	ld c, a
+	call PS_straight_request
+.skipShooting
+
 	; TESTING : TARGETED SHOT
 	ld hl, _framerule
 	inc [hl]
-	ld hl, PAD_pressed
-	; bit 5, [hl]
-	ld a, [hl]
-	and a, PAD_B
+	bit 5, [hl]
 	jr z, .loop
 	res 5, [hl]
 	ld d, $01		; shot speed

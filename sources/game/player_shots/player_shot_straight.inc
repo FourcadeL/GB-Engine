@@ -11,9 +11,9 @@
 
 
 DEF PS_STRAIGHT_FIRST_INDEX EQU 0
-DEF PS_STRAIGHT_NB EQU 2
+DEF PS_STRAIGHT_NB EQU 3
 
-DEF PS_Y_SPEED EQU 2
+DEF PS_Y_SPEED EQU 12
 
 EXPORT Player_shot_straight_tiles
 EXPORT Player_shot_straight_tiles.end
