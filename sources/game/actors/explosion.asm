@@ -11,11 +11,11 @@ INCLUDE "engine.inc"
 INCLUDE "debug.inc"
 INCLUDE "utils.inc"
 INCLUDE "sprites.inc"
+INCLUDE "actors.inc"
 INCLUDE "charmap.inc"
 
-DEF Explosion_sprite_first_entry EQUS "Sprite_table + 16*8"
-DEF Explosion_displayList_first_entry EQUS "DisplayList_table + 14*2"
-DEF Explosion_displayList_first_entry_index EQU 14
+DEF Explosion_displayList_first_entry EQUS "DisplayList_table + 20*2"
+DEF Explosion_displayList_first_entry_index EQU 20
 
 DEF Explosion_max_number EQU 4
 
@@ -39,21 +39,6 @@ Explosion_init::
     ret
 
 
-Explosion_update::
-    ; iterate over active explosion sprites
-    ld hl, Explosion_sprite_first_entry
-    ld b, Explosion_max_number
-.loop
-    bit 7, [hl]
-    call nz, Explosion_handle_current
-
-    ld a, 8
-    add a, l
-    ld l, a
-    dec b
-    jr nz, .loop
-    ret
-
 ;----------------------------------------------
 ; Explosion_request(b = xpos ; c = ypos)
 ;   Resquest an explosion sprite at position specified by bc
@@ -61,83 +46,68 @@ Explosion_update::
 ;   If possible, adds explosion sprite to the explosion pool
 ;   Else, do nothing
 ;----------------------------------------------
+;TODO : maximum number of explosions
 Explosion_request::
-    ld hl, Explosion_sprite_first_entry
-    ld d, Explosion_max_number
-.loop
-    bit 7, [hl]
-    jr z, _add_explosion_at_hl
-    ld a, 8
-    add a, l
-    ld l, a
-    dec d
-    jr nz, .loop
-    ret                     ; no free slot
-_add_explosion_at_hl:
+    ACTOR_FIND_FREE             ; find actor (hl, de are set) or return
+        ; add explosion at hl and de
     ld a, %10000001
     ld [hl+], a
-    ld a, Explosion_displayList_first_entry_index
+    ld a, Explosion_displayList_first_entry_index   ; set display list
     ld [hl+], a
-    ld [hl], c
+    ld [hl], c                                      ; set Y pos
     inc hl
     inc hl
-    ld [hl], b
+    ld [hl], b                                      ; set X pos
     inc hl
     inc hl
-    ld a, 0
+    ld a, LOW(Explosion_handle_current)             ; set handler function
     ld [hl+], a
+    ld [hl], HIGH(Explosion_handle_current)
+    ld h, d
+    ld l, e
+    ld a, 0                                         ; reset animation data
     ld [hl+], a
+    ld [hl], a
     ret
 
 ;----------------------------------------------
-; Explosion_handle_current(hl = sprite addr of explosion to handle)
+; Explosion_handle_current(bc = sprite addr of explosion to handle
+;                       de = actor data addr of explosion to handle)
 ;   steps explosion animation
 ;   delete sprite if animation count is over
 ;
-; saves registers hl
-;
-;       Animation sub counter is byte 6 of sprite entry
-;           b6 : %ssssssss
+;       Animation sub counter is byte 0 of actor data
+;           b0 : %ssssssss
 ;               s : sub frame count
-; b6 is incremented by %01000000 at each update
+; b0 is incremented by %01000000 at each update
 ; display list pointer is incremented when a carry is detected
 ;
-;       Animation frame counter is byte 7 of sprite entry
-;           b7 : frame counter
+;       Animation frame counter is byte 1 of sprite entry
+;           b1 : frame counter
 ;
 ; there is 6 animation frames
 ;   so b7 > 6 means we kill the sprite
 ;
 ;----------------------------------------------
 Explosion_handle_current:
-    push hl
-    ld c, l
-    ld d, h
-    ld a, 6
-    add a, l
-    ld e, a                 ; de is addr of animation counter byte
-    ld a, 1
-    add a, l
-    ld l, a                 ; hl is addr of dl pointer
     ld a, [de]
     add a, %00110000
     ld [de], a
-    jr nc, .finalize
-        ; increment animation frame and counter
-    inc [hl]
-    ld a, 6
-    add a, l
-    ld l, a                 ; hl is addr of animation frame counter byte
-    ld a, [hl]
-    inc a
-    ld [hl], a
-    cp a, 6
-    jr nz, .finalize
-        ; kill sprite
+    ret nc              ; no need to change animation frame
+        ; increment animation frame counter
+    ld h, b
     ld l, c
+    inc hl
+    inc [hl]
+    inc de
+    ld a, [de]
+    inc a
+    ld [de], a
+    cp a, 6
+    ret nz              ; no need to kill sprite
+        ; kill sprite
+    dec hl
     res 7, [hl]
-.finalize
-    pop hl
     ret
 
 
@@ -174,11 +144,11 @@ static_dl_addrs:                ; static ouline of dl for setup in displyList ta
     DW explosion_dl_frame6
 .end
 
-;+--------------------------------------------------------------------------+
-;| +----------------------------------------------------------------------+ |
-;| |                    VRAM                                              | |
-;| +----------------------------------------------------------------------+ |
-;+--------------------------------------------------------------------------+
+;+--------------------------------------------------------------+
+;| +----------------------------------------------------------+ |
+;| |                    VRAM                                  | |
+;| +----------------------------------------------------------+ |
+;+--------------------------------------------------------------+
 
 
     SECTION "Explosion_tiles", ROMX

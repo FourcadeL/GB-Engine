@@ -28,8 +28,8 @@ game_main::
     call    getInput
 
     call    Player_update
-    call    Ennemy_update
-    call    Explosion_update
+    call    Actors_update
+    ;call    Explosion_update
     call    ES_update
     call    PS_update
     call    Sprites_multiplex
@@ -84,7 +84,7 @@ game_init:
     call Player_init
 
     ; ennemy init
-    call Ennemy_init
+    call Actors_init
 
     ; explosion init
     call Explosion_init

@@ -259,8 +259,8 @@ _current_low_SOAM:          DS 1 ; value of current low os shadow OAM
 ;       - b3 : ???
 ;       - b4 : X pos low
 ;       - b5 : ???
-;       - b6 : multi purpose byte
-;       - b7 : multi purpose byte
+;       - b6 : handling function low
+;       - b7 : handling function high
 ;-------------------------------
 
     SECTION "Sprite_Table", WRAM0, align[8]
