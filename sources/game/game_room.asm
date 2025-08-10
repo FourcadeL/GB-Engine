@@ -97,9 +97,7 @@ game_init:
 
     call wait_vbl
     ; start audio track
-    ld hl, songs_start
-    ld bc, 7*8
-    add hl, bc
+    ld hl, song_1_starfield
     call Audio_load_song
     call Audio_start_song
     ret

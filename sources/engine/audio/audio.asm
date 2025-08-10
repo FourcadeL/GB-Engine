@@ -27,9 +27,9 @@ def BLANK_NOTE = %01011111
 
 
 ;--------------------------------------------------------------------------
-; Audio_off()       
+; Audio_off()
 ;   Stops all audio activity
-;   (overwrites audio control registers)                                -
+;   (overwrites audio control registers)
 ;--------------------------------------------------------------------------
 
 Audio_off::
@@ -44,7 +44,7 @@ Audio_off::
 
 
 ;--------------------------------------------------------------------------
-; Audio_init(b=trackers speed)       
+; Audio_init(b=trackers speed)
 ;   Initialises audio registers and channels trackers
 ;   Initialises tracker speed to b
 ;--------------------------------------------------------------------------
@@ -156,7 +156,7 @@ Audio_stop_song::
     ret
 
 ;--------------------------------------------------------------------------
-; Audio_update()       
+; Audio_update()
 ;   Called once per frame
 ;   Handle sfx automaton update [registers update]
 ;   Handle instruments update (note, volume, instrument changes) [registers update]
@@ -178,7 +178,7 @@ Audio_update::
 
 
 ;------------------------------------------------------------------------------------------
-; handle_trackers()  
+; handle_trackers()
 ;   if tracker counter tripped update all channels trackers
 ;   set bit 7 of _tracker_stepped if stepped
 ;------------------------------------------------------------------------------------------

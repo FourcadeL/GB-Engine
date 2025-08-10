@@ -51,7 +51,7 @@ Sprites_clear::
     ld  b, MAX_SPRITE_NUMBER
     ld  h, HIGH(Sprite_table)
     ld  a, $00
-.loop   
+.loop
     ld  l, a
     ld  [hl], $00
     add a, SPRITE_STRUCTURE_SIZE    ; sprite structure is 8 bytes long
@@ -59,7 +59,7 @@ Sprites_clear::
     jr  nz, .loop
     ld  hl, _current_low_SOAM
     ld  [hl], $00
-    ret 
+    ret
 
 
 ;------------------------------------------------
@@ -136,7 +136,7 @@ Sprites_display_current:
     inc de
     dec hl
     jr  .afterSkipEntry
-    
+
 .noFreeObjects
     ld  a, [_current_low_SOAM]
     pop bc              ; prevent execution return to sprite multiplex
@@ -148,7 +148,7 @@ Sprites_display_current:
 ; Sprites_multiplex()
 ;   Constructs all objets for displayed sprites in
 ;   shadow OAM
-;   
+;
 ;   Changes start addr for object priority cycling
 ;-----------------------------------------------
 Sprites_multiplex::
@@ -161,7 +161,7 @@ Sprites_multiplex::
 .loop_on_sprites        ; hl is the base addr of current object
     bit 7, [hl]     ; active bit ?
     jr  z, .skip_display
-    bit 0, [hl]     ; display bit ? 
+    bit 0, [hl]     ; display bit ?
     jr  z, .skip_display
     ld  a, [hl+]
     ld  [_current_sprite_status_byte], a

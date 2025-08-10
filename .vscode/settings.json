@@ -2,7 +2,7 @@
     "makefile.configureOnOpen": false,
 
     // same indentation on editor
-    "editor.detectIndentation": false,
+    "editor.detectIndentation": true,
     "editor.tabSize": 4,
 	"editor.insertSpaces": false,
 	"files.exclude": {

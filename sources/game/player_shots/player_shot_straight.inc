@@ -39,14 +39,26 @@ MACRO PS_STRAIGHT_INIT
     jr nz, .straight_set_loop
 ENDM
 
-MACRO PS_STRAIGHT_UPDATE_POS
+MACRO PS_STRAIGHT_UPDATE
     ; iterate over straight positions
     ld c, PS_STRAIGHT_NB
+    ld de, ps_status + PS_STRAIGHT_FIRST_INDEX
     ld hl, ps_Yposs + PS_STRAIGHT_FIRST_INDEX
 .loop
     ld a, [hl]
     sub a, PS_Y_SPEED
     ld [hl+], a
+    jr c, .delete_shot          ; carry means shot overflow from top of the screen -> reset status
+    inc de
     dec c
     jr nz, .loop
+    jr .end
+.delete_shot
+    ld a, [de]
+    res 7, a
+    ld [de], a
+    inc de
+    dec c
+    jr nz, .loop
+.end
 ENDM

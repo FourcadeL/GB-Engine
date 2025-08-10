@@ -53,7 +53,7 @@ Ennemy_init::
     ld [hl+], a
     ld [hl+], a
     ld [hl+], a
-    
+
     ret
 
 Ennemy_update::
