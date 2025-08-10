@@ -41,7 +41,7 @@ Explosion_init::
 
 ;----------------------------------------------
 ; Explosion_request(b = xpos ; c = ypos)
-;   Resquest an explosion sprite at position specified by bc
+;   Request an explosion sprite at position specified by bc
 ;
 ;   If possible, adds explosion sprite to the explosion pool
 ;   Else, do nothing
@@ -63,7 +63,7 @@ Explosion_request::
     ld a, LOW(Explosion_handle_current)             ; set handler function
     ld [hl+], a
     ld [hl], HIGH(Explosion_handle_current)
-    ld h, d
+    ld h, d                                         ; reset actor data
     ld l, e
     ld a, 0                                         ; reset animation data
     ld [hl+], a

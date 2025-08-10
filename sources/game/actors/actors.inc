@@ -9,7 +9,6 @@
 
 DEF Actors_sprite_first_entry EQUS "Sprite_table + 2*8"
 DEF Actors_displayList_first_entry EQUS "DisplayList_table + 2*2"
-DEF Actors_rot_displaylist_entry EQUS "DisplayList_table + 2*2"
 
 DEF ACTORS_NB EQU 16
 DEF ACTORS_DATA_SIZE EQU 64

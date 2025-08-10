@@ -29,7 +29,7 @@ game_main::
 
     call    Player_update
     call    Actors_update
-    ;call    Explosion_update
+    call    Rot_ennemy_update
     call    ES_update
     call    PS_update
     call    Sprites_multiplex
@@ -85,6 +85,7 @@ game_init:
 
     ; ennemy init
     call Actors_init
+    call Rot_ennemy_init
 
     ; explosion init
     call Explosion_init

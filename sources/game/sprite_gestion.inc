@@ -34,7 +34,7 @@
 
 ; 0 :   Player display list addr (modified by player routines)
 ; 1 :   Simple shots display list (points to WRAM and dynamically constructed)
-; 2 :   Rolling ennemy display list, shared by all ennemies (modified by ennemies routine) 
+; 2 :   Default actor display list
 ; 3 :   Default actor display list
 ; 4 :   Default actor display list
 ; 5 :   Default actor display list
@@ -58,7 +58,7 @@
 ; 23 :  Explosion frame 4
 ; 24 :  Explosion frame 5
 ; 25 :  Explosion frame 6
-; 26 :
+; 26 :  Rolling ennemy display list, shared by all ennemies
 ; 27 :
 ; 28 :
 ; 29 :
