@@ -150,6 +150,8 @@ Rot_ennemy_handle:
     jp z, move_count_handle
     cp a, DEAD_STATE
     jp z, dead_state_handle
+    cp a, DELETE_STATE
+    jp z, delete_state_handle
     cp a, SHOOT_STATE
     jp z, shoot_state_handle
 Movement_handle:
@@ -372,10 +374,14 @@ move_descent_handle:
     pop de
     jp Collision_handle
 
+delete_state_handle:
+        ; delete sprite
+    ld a, 0
+    ld [bc], a
+    ret
 dead_state_handle:
         ; delete sprite
-    ld a, [bc]
-    res 7, a
+    ld a, 0
     ld [bc], a
         ; add explosion at former position
     ld a, Y_pos
@@ -401,6 +407,8 @@ dead_state_handle:
     jp Explosion_request
 
 move_count_handle:
+;TODO
+    jp Movement_handle
 shoot_state_handle:
     jp Movement_handle
 
