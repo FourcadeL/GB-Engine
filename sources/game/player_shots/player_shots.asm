@@ -15,7 +15,12 @@
 ;   (they moove fast enough that sub pixels are not an issue)
 ;
 ;   Each shot has :
-;       - 8 bits status : %a0000000 | a : 1 -> active
+;       - 8 bits status : %a0c00000 | a : 1 -> active | c : 1 -> collided
+;                          | |
+;                          | +--> collided flag (with ennemy)
+;                          |
+;                          |
+;                          +----> active flag
 ;       - 8 bits X pos : %dddddddd
 ;       - 8 bits Y pos : %dddddddd
 ;   d : the 8 bit display position of the shot

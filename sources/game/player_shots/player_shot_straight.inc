@@ -47,17 +47,20 @@ MACRO PS_STRAIGHT_UPDATE
     ld de, ps_status + PS_STRAIGHT_FIRST_INDEX
     ld hl, ps_Yposs + PS_STRAIGHT_FIRST_INDEX
 .loop
+    ld a, [de]
+    bit 5, a
+    jr nz, .delete_shot
     ld a, [hl]
     sub a, PS_Y_SPEED
-    ld [hl+], a
+    ld [hl], a
     jr c, .delete_shot          ; carry means shot overflow from top of the screen -> reset status
     inc de
+    inc hl
     dec c
     jr nz, .loop
     jr .end
 .delete_shot
-    ld a, [de]
-    res 7, a
+    ld a, 0
     ld [de], a
     inc de
     dec c
