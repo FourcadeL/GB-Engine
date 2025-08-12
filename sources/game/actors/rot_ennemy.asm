@@ -14,6 +14,8 @@ INCLUDE "utils.inc"
 INCLUDE "sprites.inc"
 INCLUDE "charmap.inc"
 INCLUDE "actors.inc"
+INCLUDE "rot_ennemy.inc"
+INCLUDE "player_shots.inc"
 
 DEF ROT_ANIM_SPEED EQU 6
 DEF Rot_ennemy_displaylist_entry EQUS "DisplayList_table + 26*2"
@@ -55,16 +57,16 @@ Rot_ennemy_init::
     ret
 
 
-Rot_ennemy_handle:
-    ;TODO
-    ret
 
 ;--------------------------------
 ; Rot_ennemy_request(b = xpos; c = ypos)
 ;   Request a new rotating ennemy at position specified by bc
 ;--------------------------------
 Rot_ennemy_request::
-    ACTOR_FIND_FREE                             ; find actor (hl, de are set) or return
+    push bc
+    ACTOR_FIND_FREE                             ; find actor (hl, de are set)
+    pop bc
+    ret nz                                      ; no actors found ?
         ; add rotating ennemy at hl and de
     ld a, %10000001
     ld [hl+], a
@@ -80,11 +82,32 @@ Rot_ennemy_request::
     ld [hl+], a
     ld [hl], HIGH(Rot_ennemy_handle)
 
-    ; TODO actor data
+    ;  actor data
+    ; WARNING init depend on actor data order for rot ennemy in rot_ennemy.inc
+    ld h, d
+    ld l, e
+    ld a, COUNTER_STATE
+    ld [hl+], a
+    ld a, MOVE_DESCENT_STATE
+    ld [hl+], a
+    swap c
+    ld a, c
+    and a, %11110000        ; low nibble of Y pos
+    ld [hl+], a
+    ld a, c
+    and a, %00001111        ; high nibble of Y pos
+    ld [hl+], a
+    swap b
+    ld a, b
+    and a, %11110000        ; low nibble of X pos
+    ld [hl+], a
+    ld a, b
+    and a, %00001111        ; high nibble of X pos
+    ld [hl], a
     ret
 
 Rot_ennemy_update::
-    ; update ennemy rot display list DEPRECATED
+    ; update ennemy rot display list
     ld a, [rot_ennemy_anim_offset]
     add a, LOW(ennemy_rot_dl_frame1)
     ld hl, Rot_ennemy_displaylist_entry
@@ -109,7 +132,168 @@ Rot_ennemy_update::
     ret
 
 
+;------------------------------------------
+; Rot_ennemy_handle(bc = sprite addr, de = actor data addr)
+;
+; WARNING WIP
+;   for now, just decrement its position
+;TODO : how to save bc and de between handlers ?
+;------------------------------------------
+Rot_ennemy_handle:
+        ; handle state
+    ld a, state
+    add a, e
+    ld h, d
+    ld l, e
+    ld a, [hl]                  ; get current state
+    cp a, COUNTER_STATE
+    jp z, move_count_handle
+    cp a, DEAD_STATE
+    jp z, dead_state_handle
+    cp a, SHOOT_STATE
+    jp z, shoot_state_handle
+Movement_handle:
+        ; handle movement
+    ld a, move_state
+    add a, e
+    ld h, d
+    ld l, a
+    ld a, [hl]
+    cp a, MOVE_DESCENT_STATE
+    jr z, move_descent_handle
+    cp a, MOVE_ASCENT_RIGHT_STATE
+    jr z, move_ascent_right_handle
+    cp a, MOVE_ASCENT_LEFT_STATE
+    jr z, move_ascent_left_handle
+;-------------------------
+; Collision_handle(de = actor data addr)
+;
+;   Tests agains all ennemy shots if there is a collision
+;   Test is done only on EVEN frames (synced with player_shots)
+;------------------------
+Collision_handle:
+        ; don't check on ODD frames
+    ld hl, Global_counter
+    bit 0, [hl]
+    ret nz                          ; don't update on odd frames
+        ; handle collision with player shot
+    ; (assume that bc and de are still set)
+    ld a, Y_pos
+    add a, e
+    ld h, d
+    ld l, a
+    ld a, [hl+]
+    and a, %11110000
+    ld b, a
+    ld a, [hl+]
+    and a, %00001111
+    or a, b
+    swap a
+    ld b, a                     ; b <- ennemy pixel Y pos
+    ld a, [hl+]
+    and a, %11110000
+    ld c, a
+    ld a, [hl]
+    and a, %00001111
+    or a, c
+    swap a
+    ld c, a                     ; c <- ennemy pixel X pos
 
+        ; test agains all player shots
+    push de
+    ld hl, ps_status            ; status table
+    ld d, 0                     ; index count
+    ld e, ES_MAX_SHOTS
+.loop
+    bit 7, [hl]
+    jr nz, .test_shot
+    inc hl
+    inc d
+    dec e
+    jr nz, .loop
+    pop de
+    ret
+.test_shot
+    push hl
+    ld h, HIGH(ps_Yposs)
+    ld a, LOW(ps_Yposs)
+    add a, d
+    ld l, a
+    ld a, [hl]
+    sub a, b                    ; Y pos diff
+    jr nc, .non_negativeY
+    cpl a
+    inc a
+.non_negativeY
+    and a, %11110000
+    jr nz, .abort_this_collision
+    ld h, HIGH(ps_Xposs)
+    ld a, LOW(ps_Xposs)
+    add a, d
+    ld l, a
+    ld a, [hl]
+    sub a, c                    ; X pos fiff
+    jr nc, .non_negativeX
+    cpl a
+    inc a
+.non_negativeX
+    and a, %11110000
+    jr nz, .abort_this_collision
+        ; collision found, set state
+    pop hl
+    res 7, [hl]                 ; delete shot
+    pop hl
+    ld a, state
+    add a, l
+    ld l, a
+    ld [hl], DEAD_STATE
+    ret
+.abort_this_collision
+    pop hl
+    inc hl
+    inc d
+    dec e
+    jr nz, .loop
+    pop de
+    ret
+
+
+move_ascent_left_handle:
+move_ascent_right_handle:
+move_descent_handle:
+    jr Collision_handle
+
+dead_state_handle:
+        ; delete sprite
+    ld a, [bc]
+    res 7, a
+    ld [bc], a
+        ; add explosion at former position
+    ld a, Y_pos
+    add a, e
+    ld l, a
+    ld h, d
+    ld a, [hl+]
+    and a, %11110000
+    ld c, a
+    ld a, [hl+]
+    and a, %00001111
+    or a, c
+    swap a
+    ld c, a                         ; c <- y pixel pos
+    ld a, [hl+]
+    and a, %11110000
+    ld b, a
+    ld a, [hl]
+    and a, %00001111
+    or a, b
+    swap a
+    ld b, a
+    jp Explosion_request
+
+move_count_handle:
+shoot_state_handle:
+    jp Movement_handle
 
 
     SECTION "Rot_ennemy_display_lists", ROMX, ALIGN[4]

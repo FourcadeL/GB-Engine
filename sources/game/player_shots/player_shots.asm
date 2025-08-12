@@ -56,7 +56,6 @@ INCLUDE "player.inc"
 INCLUDE "player_shots.inc"
 INCLUDE "player_shot_straight.inc"
 
-DEF MAX_SHOTS EQU 16
 
 DEF PS_sprite_entry EQUS "Sprite_table + 19*8"
 DEF PS_displayList_entry EQUS "DisplayList_table + 19*2"
@@ -80,13 +79,13 @@ ps_purge_current_index: DS 1
 _ps_variables_end:
 
     SECTION "PS_status_table", WRAM0, ALIGN[4]
-ps_status:      DS 1*MAX_SHOTS      ; table of ps status bytes
+ps_status:      DS 1*ES_MAX_SHOTS      ; table of ps status bytes
 
     SECTION "PS_Xposs_table", WRAM0, ALIGN[4]
-ps_Xposs:       DS 1*MAX_SHOTS      ; table of ps x positions
+ps_Xposs:       DS 1*ES_MAX_SHOTS      ; table of ps x positions
 
     SECTION "PS_Yposs_table", WRAM0, ALIGN[4]
-ps_Yposs:       DS 1*MAX_SHOTS      ; table of ps y positions
+ps_Yposs:       DS 1*ES_MAX_SHOTS      ; table of ps y positions
 
 
     SECTION "PS_displaylist_table", WRAM0
@@ -94,7 +93,7 @@ ps_dynamic_displayList:
 ps_dynamic_displayList_header:
     DS 1
 ps_dynamic_displayList_content:
-    DS 4*MAX_SHOTS
+    DS 4*ES_MAX_SHOTS
 
 
 ;+----------------------------------------------------------------+
@@ -116,15 +115,15 @@ PS_init::
 
     ; reset tables
     ld hl, ps_status
-    ld b, MAX_SHOTS
+    ld b, ES_MAX_SHOTS
     call memset_fast
 
     ld hl, ps_Xposs
-    ld b, MAX_SHOTS
+    ld b, ES_MAX_SHOTS
     call memset_fast
 
     ld hl, ps_Yposs
-    ld b, MAX_SHOTS
+    ld b, ES_MAX_SHOTS
     call memset_fast
 
     ; set player shots metasprite to active and visible + set display list in RAM
@@ -164,7 +163,7 @@ PS_update::
 ;   to meta sprite
 ;---------------------
 PS_push_to_display:
-    ld e, MAX_SHOTS
+    ld e, ES_MAX_SHOTS
     ld a, 0
     ld [ps_dynamic_displayList_header], a       ; set 0 shots to display
     ld hl, ps_status
