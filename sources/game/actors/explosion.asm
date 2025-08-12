@@ -18,8 +18,25 @@ DEF Explosion_displayList_first_entry EQUS "DisplayList_table + 20*2"
 DEF Explosion_displayList_first_entry_index EQU 20
 
 DEF Explosion_max_number EQU 4
+DEF Explosion_animation_speed EQU %00110000     ; the greater, the faster
 
 
+;+----------------------------------------------------------------+
+;| +------------------------------------------------------------+ |
+;| |                           RAM                              | |
+;| +------------------------------------------------------------+ |
+;+----------------------------------------------------------------+
+
+    SECTION "Exlposion_variables", WRAM0
+_explosion_variables_start:
+nb_active:              DS 1            ; Number of currently active explosions
+_explosion_variables_end:
+
+;+----------------------------------------------------------------+
+;| +------------------------------------------------------------+ |
+;| |                           ROM                              | |
+;| +------------------------------------------------------------+ |
+;+----------------------------------------------------------------+
 
     SECTION "Explosion_code", ROMX
 
@@ -36,6 +53,12 @@ Explosion_init::
     ld b, static_dl_addrs.end - static_dl_addrs
     call memcopy_fast
 
+    ; reset explosion related variables
+    ld hl, _explosion_variables_start
+    ld d, 0
+    ld b, _explosion_variables_end - _explosion_variables_start
+    call memset_fast
+
     ret
 
 
@@ -46,9 +69,14 @@ Explosion_init::
 ;   If possible, adds explosion sprite to the explosion pool
 ;   Else, do nothing
 ;----------------------------------------------
-;TODO : maximum number of explosions
 Explosion_request::
+    ld a, [nb_active]
+    cp a, Explosion_max_number
+    ret z                       ; maximum reached
+    push bc
     ACTOR_FIND_FREE             ; find actor (hl, de are set) or return
+    pop bc
+    ret nz                      ; return if no free actor
         ; add explosion at hl and de
     ld a, %10000001
     ld [hl+], a
@@ -68,6 +96,9 @@ Explosion_request::
     ld a, 0                                         ; reset animation data
     ld [hl+], a
     ld [hl], a
+    
+    ld hl, nb_active
+    inc [hl]                                        ; update active nb
     ret
 
 ;----------------------------------------------
@@ -91,9 +122,9 @@ Explosion_request::
 ;----------------------------------------------
 Explosion_handle_current:
     ld a, [de]
-    add a, %00110000
+    add a, Explosion_animation_speed    ; animation speed increment
     ld [de], a
-    ret nc              ; no need to change animation frame
+    ret nc                              ; no need to change animation frame
         ; increment animation frame counter
     ld h, b
     ld l, c
@@ -104,10 +135,12 @@ Explosion_handle_current:
     inc a
     ld [de], a
     cp a, 6
-    ret nz              ; no need to kill sprite
+    ret nz                              ; no need to kill sprite
         ; kill sprite
-    dec hl
+    dec hl                              ; free sprite slot
     res 7, [hl]
+    ld hl, nb_active
+    dec [hl]                            ; update active counter
     ret
 
 
