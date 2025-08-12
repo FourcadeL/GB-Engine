@@ -55,6 +55,7 @@ game_main::
     call Explosion_request
 .skipExplosion
 
+
     ; TESTING : PLAYER SHOOT
     ld a, [PAD_pressed]
     and a, PAD_A

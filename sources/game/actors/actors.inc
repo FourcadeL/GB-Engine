@@ -5,6 +5,8 @@
 ;   have access to the actors tables
 ; #############################
 
+    IF!DEF(ACTORS_INC)
+DEF ACTORS_INC EQU 1
 ;   ---- DEFINES ----
 
 DEF Actors_sprite_first_entry EQUS "Sprite_table + 2*8"
@@ -23,13 +25,14 @@ EXPORT Actors_data_table
 ;----------------------
 ; ACTOR_FIND_FREE
 ;   find the first free actor slot
-;   if no free actors -> return
-;   if free actor found -> continue with addr of free sprite in hl
-;       and addr of free actor table slot in de
-;   [a, hl, de]
+;   set hl to addr of free sprite
+;   set de to addr of free actor table slot
+;
+;   if free actor found -> flag z is set as a return
+;       else -> flag z is not set
+;   [a, b, hl, de]
 ;----------------------
 MACRO ACTOR_FIND_FREE
-    push bc
     ld hl, Actors_sprite_first_entry
     ld de, Actors_data_table
     ld b, ACTORS_NB
@@ -47,8 +50,8 @@ MACRO ACTOR_FIND_FREE
     ld d, a
     dec b
     jr nz, .loop
-    pop bc
-    ret
+    dec b                   ; unsure flag z is not set
 .success
-    pop bc
 ENDM
+
+    ENDC ; ACTORS_inc
