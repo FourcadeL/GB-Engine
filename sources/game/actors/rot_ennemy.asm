@@ -88,7 +88,7 @@ Rot_ennemy_request::
     ld l, e
     ld a, COUNTER_STATE
     ld [hl+], a
-    ld a, MOVE_DESCENT_STATE
+    ld a, MOVE_ASCENT_RIGHT_STATE
     ld [hl+], a
     swap c
     ld a, c
@@ -160,11 +160,11 @@ Movement_handle:
     ld l, a
     ld a, [hl]
     cp a, MOVE_DESCENT_STATE
-    jr z, move_descent_handle
+    jp z, move_descent_handle
     cp a, MOVE_ASCENT_RIGHT_STATE
-    jr z, move_ascent_right_handle
+    jp z, move_ascent_right_handle
     cp a, MOVE_ASCENT_LEFT_STATE
-    jr z, move_ascent_left_handle
+    jp z, move_ascent_left_handle
 ;-------------------------
 ; Collision_handle(de = actor data addr)
 ;
@@ -259,7 +259,91 @@ Collision_handle:
 
 
 move_ascent_left_handle:
+    push de
+    push bc
+    ld a, Y_pos
+    add a, e
+    ld h, d
+    ld l, a
+    ld a, [hl]
+    sub a, Y_SPEED
+    ld [hl+], a
+    ld e, a
+    ld a, [hl]
+    sbc a, 0
+    ld [hl+], a
+    and a, %00001111
+    ld d, a
+    ld a, e
+    and a, %11110000
+    or a, d
+    swap a
+    ld d, a                     ; d <- Y pixel pos
+    
+    ld a, [hl]
+    sub a, X_SPEED
+    ld [hl+], a
+    ld e, a
+    ld a, [hl]
+    sbc a, 0
+    ld [hl], a
+    and a, %00001111
+    ld b, a
+    ld a, e
+    and a, %11110000
+    or a, b
+    swap a
+    ld e, a                     ; e <- X pixel pos
+    jr common_set_sprite_pos
 move_ascent_right_handle:
+    push de
+    push bc
+    ld a, Y_pos
+    add a, e
+    ld h, d
+    ld l, a
+    ld a, [hl]
+    sub a, Y_SPEED
+    ld [hl+], a
+    ld e, a
+    ld a, [hl]
+    sbc a, 0
+    ld [hl+], a
+    and a, %00001111
+    ld d, a
+    ld a, e
+    and a, %11110000
+    or a, d
+    swap a
+    ld d, a                     ; d <- Y pixel pos
+    
+    ld a, [hl]
+    add a, X_SPEED
+    ld [hl+], a
+    ld e, a
+    ld a, [hl]
+    adc a, 0
+    ld [hl], a
+    and a, %00001111
+    ld b, a
+    ld a, e
+    and a, %11110000
+    or a, b
+    swap a
+    ld e, a                     ; e <- X pixel pos
+    ;jr common_set_sprite_pos
+common_set_sprite_pos:
+    pop bc
+    ld a, 2
+    add a, c
+    ld h, b
+    ld l, a
+    ld [hl], d
+    inc hl
+    inc hl
+    ld [hl], e
+    pop de
+    jp Collision_handle
 move_descent_handle:
     push de
     ld a, Y_pos

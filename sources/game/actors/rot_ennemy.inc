@@ -7,6 +7,7 @@
 DEF ROT_ENNEMY_INC EQU 1
 
 DEF Y_SPEED                 EQU %00001111
+DEF X_SPEED                 EQU %00001001
 
 ; ENNEMY STATES :
 ;   DEAD
