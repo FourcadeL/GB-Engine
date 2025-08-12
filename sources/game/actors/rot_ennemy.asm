@@ -135,9 +135,9 @@ Rot_ennemy_update::
 ;------------------------------------------
 ; Rot_ennemy_handle(bc = sprite addr, de = actor data addr)
 ;
-; WARNING WIP
-;   for now, just decrement its position
-;TODO : how to save bc and de between handlers ?
+;   1 - do main state handle
+;   2 - do movement handle
+;   3 - do collision detection with player shots
 ;------------------------------------------
 Rot_ennemy_handle:
         ; handle state
@@ -237,11 +237,11 @@ Collision_handle:
     cpl a
     inc a
 .non_negativeX
-    and a, %11110000
+    and a, %11111000
     jr nz, .abort_this_collision
         ; collision found, set state
     pop hl
-    res 7, [hl]                 ; delete shot
+    set 5, [hl]                 ; set collide flag to shot
     pop hl
     ld a, state
     add a, l
@@ -261,7 +261,32 @@ Collision_handle:
 move_ascent_left_handle:
 move_ascent_right_handle:
 move_descent_handle:
-    jr Collision_handle
+    push de
+    ld a, Y_pos
+    add a, e
+    ld h, d
+    ld l, a
+    ld a, [hl]
+    add a, Y_SPEED
+    ld [hl+], a
+    ld e, a
+    ld a, [hl]
+    adc a, 0
+    ld [hl], a
+    and a, %00001111
+    ld d, a
+    ld a, e
+    and a, %11110000
+    or a, d
+    swap a
+    ld d, a
+    ld a, 2
+    add a, c
+    ld h, b
+    ld l, a
+    ld [hl], d
+    pop de
+    jp Collision_handle
 
 dead_state_handle:
         ; delete sprite
