@@ -6,7 +6,6 @@
 ;   (each shot is an object entry in the displaylist)
 ;
 ;   Each shot has :
-;       - 8 bits status : %a0000000 | a : 1 -> active
 ;       - 16 bits X pos : %hhhhdddd ddddssss
 ;       - 16 bits Y pos : %hhhhdddd ddddssss
 ;       - 16 bits X speed : needed for negative values
@@ -19,8 +18,8 @@
 ;       s : 4 sub pixel bits
 ;
 ; On each updates
-;   - All enemy shots are updated
-;   - All enemy shots are pushed to metasprite
+;   - Active enemy shots are updated
+;   - Active enemy shots are pushed to metasprite
 ;
 ;   Data alignment :
 ; for ease of computation, tables are aligned
@@ -36,8 +35,6 @@
 ;
 ;       /!\ WARNINGS
 ;   - Tables should be placed in memory as : Xposs :: Yposs and  Xspeeds :: Yspeeds
-;       Position update computation relies on contiguity
-;   - es_number_of_displayed_shots should be addr after es_current_shot_index
 ;       variable access from relative addr
 ;   - es_request variables should be kept in that order
 ; ###################################
@@ -62,7 +59,7 @@ DEF ES_Y_threshold EQU 160
 
 ;+--------------------------------------------------------------------------+
 ;| +----------------------------------------------------------------------+ |
-;| |                     RAM                  | |
+;| |                     RAM                                              | |
 ;| +----------------------------------------------------------------------+ |
 ;+--------------------------------------------------------------------------+
 
@@ -70,8 +67,9 @@ DEF ES_Y_threshold EQU 160
     SECTION "Enemy_shots_variables", WRAM0
 
 _es_variables_start:
+es_current_es_nb:       DS 1 ; current number of active ennemy shots
+
 es_current_shot_index:  DS 1 ; index of currently handled shot
-es_number_of_displayed_shots:   DS 1 ; number of shots active and displayed this frame
 
 es_animate_current_index: DS 1 ; index of current shot to animate
 es_animate_current_frame: DS 1 ; current frame of tile flip flags to use
@@ -87,8 +85,6 @@ es_purge_current_index: DS 1 ; index of currently checked shot to purge
 es_check_player_collision_start_index_counter: DS 1 ; a counter incremented at each frame, the least significant bit serves for even or add checks
 _es_variables_end:
 
-    SECTION "ES_status_table", WRAM0, ALIGN[4]
-es_status:     DS 1*MAX_SHOTS ; table of es status bytes
 
     SECTION "ES_Xposs_table", WRAM0, ALIGN[5]
 es_Xposs:      DS 2*MAX_SHOTS ; table of es x positions
@@ -112,7 +108,7 @@ es_dynamic_displayList_content:
 
 ;+--------------------------------------------------------------------------+
 ;| +----------------------------------------------------------------------+ |
-;| |                     ROM                  | |
+;| |                     ROM                                              | |
 ;| +----------------------------------------------------------------------+ |
 ;+--------------------------------------------------------------------------+
 
@@ -132,10 +128,6 @@ ES_init::
     call memset_fast
 
     ; reset tables
-    ld hl, es_status
-    ld b, MAX_SHOTS
-    call memset_fast
-
     ld hl, es_Xposs
     ld b, MAX_SHOTS*2
     call memset_fast
@@ -239,19 +231,13 @@ ES_handle_request:
     bit 7, [hl]
     ret z               ; ret if no request
     res 7, [hl]         ; reset request bit
-    ld b, 0
-    ld d, MAX_SHOTS
-    ld hl, es_status    ; loop start to find addr and index of free slot
-.loop
-    bit 7, [hl]
-    jr z, _create_shot_at_hl_index_b
-    inc hl
-    inc b
-    dec d
-    jr nz, .loop
-    ret             ; no free slot
-_create_shot_at_hl_index_b:
-    set 7, [hl]
+    ld hl, es_current_es_nb
+    ld a, [hl]
+    ld b, a
+    cp a, MAX_SHOTS
+    ret z               ; No free slot
+    inc [hl]
+_create_shot_at_index_b:
     ld a, b
     add a, a
     ld b, a
@@ -306,24 +292,20 @@ ES_check_player_collision:
     ld a, [es_check_player_collision_start_index_counter]
     inc a
     ld [es_check_player_collision_start_index_counter], a
-    ld h, HIGH(es_status)
     and a, %00000001
     ld b, a
-    add a, LOW(es_status)
-    ld l, a
-    ld c, MAX_SHOTS/2
+    ld hl, es_current_es_nb
+    ld a, [hl]
+    srl a                       ; iterate on HALF the number of active shots
+    jr nc, .even
+        inc a                   ; correct if a was odd
+        sub a, b                ; correct from start offset
+.even
+    ret z                       ; return if no shots
+    ld c, a
 .loop
-    bit 7, [hl]
-    inc hl
-    inc hl
-    jr nz, .check_shot_collision
-    inc b
-    inc b
-    dec c
-    jr nz, .loop
-    ret
+    ; check the shot collision since we iterate only on the active shots
 .check_shot_collision
-    push hl
     ld a, b
     add a, a
     ld h, HIGH(es_Xposs)
@@ -363,10 +345,8 @@ ES_check_player_collision:
         ; all tests passed, there is a collision
     ld hl, player_state
     set 6, [hl]
-    pop hl
-    ret
+    ret                         ; stop there for collision tests
 .no_collision
-    pop hl
     inc b
     inc b
     dec c
@@ -380,56 +360,126 @@ ES_check_player_collision:
 ;   Each call check for only ONE shot
 ; ----------------------------------------
 ES_purge_shots:
+    ld a, [es_current_es_nb]
+    or a, a
+    ret z                               ; no active shots -> return
+    ld b, a
     ld a, [es_purge_current_index]
     inc a
     ld [es_purge_current_index], a
-    cp a, MAX_SHOTS
+    cp a, b
     jr c, .skipIndexCorrection
     ld a, 0
     ld [es_purge_current_index], a
 .skipIndexCorrection
+    ld d, a
+    sla a
     ld b, a
-    ld h, HIGH(es_status)
-    add a, LOW(es_status)
-    ld l, a
-    bit 7, [hl]
-    ret z                               ; return if shot uninitialized
-    push hl
-    ld a, b
-    add a, b
-    ld b, a
+
     ld h, HIGH(es_Xposs)
     add a, LOW(es_Xposs)
     ld l, a
-    ld a, [hl+]
-    swap a
-    and a, %00001111
-    ld c, a
-    ld a, [hl]
-    swap a
-    and a, %11110000
-    or a, c
-    cp a, ES_X_threshold
-    jr nc, .resetShot
+        ; test X bounds
+        ld a, [hl+]
+        swap a
+        and a, %00001111
+        ld c, a
+        ld a, [hl]
+        swap a
+        and a, %11110000
+        or a, c
+        cp a, ES_X_threshold
+        jr nc, .resetShot
     ld a, b
     ld h, HIGH(es_Yposs)
     add a, LOW(es_Yposs)
     ld l, a
-    ld a, [hl+]
-    swap a
-    and a, %00001111
-    ld c, a
-    ld a, [hl]
-    swap a
-    and a, %11110000
-    or a, c
-    cp a, ES_Y_threshold
-    jr nc, .resetShot
-    pop hl
+        ; test Y bounds
+        ld a, [hl+]
+        swap a
+        and a, %00001111
+        ld c, a
+        ld a, [hl]
+        swap a
+        and a, %11110000
+        or a, c
+        cp a, ES_Y_threshold
+        jr nc, .resetShot
     ret
 .resetShot
-    pop hl
-    res 7, [hl]
+;     jr ES_delete_shot                 ; no need because of code placement
+
+; ---------------------------------------
+; ES_delete_shot(d = shot index)
+;   delete shot at index d
+; ---------------------------------------
+ES_delete_shot:
+    ld hl, es_current_es_nb
+    ld a, [hl]
+    dec a
+    ld [hl], a
+    ld e, a
+    cp a, d
+    ret z                               ; last shot removed
+        ; need to transfer last shot of table to index d
+    sla e                               ; e <- low index of shot to read from
+    sla d                               ; d <- index of shot to write to
+        ; copy Xpos
+    ld h, HIGH(es_Xposs)
+    ld a, LOW(es_Xposs)
+    add a, e
+    ld l, a
+    ld b, HIGH(es_Xposs)
+    ld a, LOW(es_Xposs)
+    add a, d
+    ld c, a
+    ld a, [hl+]
+    ld [bc], a
+    inc bc
+    ld a, [hl]
+    ld [bc], a
+        ; copy Ypos
+    ld h, HIGH(es_Yposs)
+    ld a, LOW(es_Yposs)
+    add a, e
+    ld l, a
+    ld b, HIGH(es_Yposs)
+    ld a, LOW(es_Yposs)
+    add a, d
+    ld c, a
+    ld a, [hl+]
+    ld [bc], a
+    inc bc
+    ld a, [hl]
+    ld [bc], a
+        ; copy Xspeed
+    ld h, HIGH(es_Xspeeds)
+    ld a, LOW(es_Xspeeds)
+    add a, e
+    ld l, a
+    ld b, HIGH(es_Xspeeds)
+    ld a, LOW(es_Xspeeds)
+    add a, d
+    ld c, a
+    ld a, [hl+]
+    ld [bc], a
+    inc bc
+    ld a, [hl]
+    ld [bc], a
+        ; copy Yspeed
+    ld h, HIGH(es_Yspeeds)
+    ld a, LOW(es_Yspeeds)
+    add a, e
+    ld l, a
+    ld b, HIGH(es_Yspeeds)
+    ld a, LOW(es_Yspeeds)
+    add a, d
+    ld c, a
+    ld a, [hl+]
+    ld [bc], a
+    inc bc
+    ld a, [hl]
+    ld [bc], a
     ret
 
 ; ----------------------------------------
@@ -480,30 +530,17 @@ ES_animate:
 ;   to meta sprite
 ;---------------------
 ES_push_to_display:
-    ld e, MAX_SHOTS             ; remaining shots
+    ld a, [es_current_es_nb]
+    or a, a
+    jr z, .finalize                 ; finalize if no shots to display
+    ld e, a
     ld a, 0
     ld [es_current_shot_index], a
-    ld [es_number_of_displayed_shots], a
-    ld hl, es_status
     ld bc, es_dynamic_displayList_content
 .loop
-    bit 7, [hl]
-    jr nz, .display_shot
-    inc hl
-    ld a, [es_current_shot_index]
-    inc a
-    ld [es_current_shot_index], a
-    dec e
-    jr nz, .loop
-.finalize
-        ; finalize display
-    ld hl, es_dynamic_displayList_header
-    ld a, [es_number_of_displayed_shots]
-    ld [hl], a
-    ret
+        ; display all shots until d is 0 since first d shots are active
 .display_shot
         ; set display position to current content
-        push hl
         ld hl, es_Yposs
         ld a, [es_current_shot_index]
         add a
@@ -540,13 +577,14 @@ ES_push_to_display:
         inc bc
         ld hl, es_current_shot_index
         inc [hl]                        ; next shot index
-        inc hl
-        inc [hl]                        ; increment number of shots to display
-        pop hl
-    inc hl
     dec e
     jr nz, .loop
-    jr .finalize
+.finalize
+        ; finalize display
+    ld hl, es_dynamic_displayList_header
+    ld a, [es_current_es_nb]
+    ld [hl], a
+    ret
 
 ; ----------------------
 ; ES_update_positions()
@@ -556,10 +594,15 @@ ES_push_to_display:
 ;   Y = Y+SpeedY
 ; ----------------------
 ES_update_positions:
-    ld c, MAX_SHOTS*2
+    ld hl, es_current_es_nb
+    ld a, [hl]
+    or a, a
+    ret z                               ; No shots to update, return
+    push af                             ; save a
+    ld c, a
     ld de, es_Xposs
     ld hl, es_Xspeeds
-.loop
+.loop_x                                 ; loop on x positions
     ld a, [de]
     add a, [hl]
     ld [de], a
@@ -571,7 +614,23 @@ ES_update_positions:
     inc de
     inc hl
     dec c
-    jr nz, .loop
+    jr nz, .loop_x
+    pop bc                              ; get counter saved
+    ld de, es_Yposs
+    ld hl, es_Yspeeds
+.loop_y                                 ; loop on y positions
+    ld a, [de]
+    add a, [hl]
+    ld [de], a
+    inc de
+    inc hl
+    ld a, [de]
+    adc a, [hl]
+    ld [de], a
+    inc de
+    inc hl
+    dec b
+    jr nz, .loop_y
     ret
 
 
@@ -580,7 +639,7 @@ ES_update_positions:
 
 ;+--------------------------------------------------------------------------+
 ;| +----------------------------------------------------------------------+ |
-;| |                    VRAM                  | |
+;| |                    VRAM                                              | |
 ;| +----------------------------------------------------------------------+ |
 ;+--------------------------------------------------------------------------+
 
