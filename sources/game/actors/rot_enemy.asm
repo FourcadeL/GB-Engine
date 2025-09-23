@@ -1,9 +1,9 @@
 ; ###########################
-; Rotating ennemy actor
+; Rotating enemy actor
 ;
-;   spawn rotation ennemy
-;   animate rotating ennemy
-;   delete ennemy
+;   spawn rotation enemy
+;   animate rotating enemy
+;   delete enemy
 ; ###########################
 
 
@@ -14,12 +14,12 @@ INCLUDE "utils.inc"
 INCLUDE "sprites.inc"
 INCLUDE "charmap.inc"
 INCLUDE "actors.inc"
-INCLUDE "rot_ennemy.inc"
+INCLUDE "rot_enemy.inc"
 INCLUDE "player_shots.inc"
 
 DEF ROT_ANIM_SPEED EQU 6
-DEF Rot_ennemy_displaylist_entry EQUS "DisplayList_table + 26*2"
-DEF Rot_ennemy_displaylist_entry_index EQU 26
+DEF Rot_enemy_displaylist_entry EQUS "DisplayList_table + 26*2"
+DEF Rot_enemy_displaylist_entry_index EQU 26
 
 ;+----------------------------------------------------------------+
 ;| +------------------------------------------------------------+ |
@@ -27,11 +27,11 @@ DEF Rot_ennemy_displaylist_entry_index EQU 26
 ;| +------------------------------------------------------------+ |
 ;+----------------------------------------------------------------+
 
-    SECTION "Rot_ennemy_variables", WRAM0
-_rot_ennemy_variables_start:
-rot_ennemy_anim_counter:       DS 1
-rot_ennemy_anim_offset:        DS 1
-_rot_ennemy_variables_end:
+    SECTION "Rot_enemy_variables", WRAM0
+_rot_enemy_variables_start:
+rot_enemy_anim_counter:       DS 1
+rot_enemy_anim_offset:        DS 1
+_rot_enemy_variables_end:
 
 ;+----------------------------------------------------------------+
 ;| +------------------------------------------------------------+ |
@@ -39,19 +39,19 @@ _rot_ennemy_variables_end:
 ;| +------------------------------------------------------------+ |
 ;+----------------------------------------------------------------+
 
-    SECTION "Rot_ennemy_code", ROMX
+    SECTION "Rot_enemy_code", ROMX
 
-Rot_ennemy_init::
+Rot_enemy_init::
     ; copy tiles into VRAM
-    ld hl, Rot_ennemy_tiles
-    ld de, Rot_ennemy_vram_tiles
-    ld c, Rot_ennemy_tiles.end - Rot_ennemy_tiles
+    ld hl, Rot_enemy_tiles
+    ld de, Rot_enemy_vram_tiles
+    ld c, Rot_enemy_tiles.end - Rot_enemy_tiles
     call vram_copy_fast
 
     ; reset variables
     ld d, $00
-    ld hl, _rot_ennemy_variables_start
-    ld b, _rot_ennemy_variables_end - _rot_ennemy_variables_start
+    ld hl, _rot_enemy_variables_start
+    ld b, _rot_enemy_variables_end - _rot_enemy_variables_start
     call memset_fast
 
     ret
@@ -59,18 +59,18 @@ Rot_ennemy_init::
 
 
 ;--------------------------------
-; Rot_ennemy_request(b = xpos; c = ypos)
-;   Request a new rotating ennemy at position specified by bc
+; Rot_enemy_request(b = xpos; c = ypos)
+;   Request a new rotating enemy at position specified by bc
 ;--------------------------------
-Rot_ennemy_request::
+Rot_enemy_request::
     push bc
     ACTOR_FIND_FREE                             ; find actor (hl, de are set)
     pop bc
     ret nz                                      ; no actors found ?
-        ; add rotating ennemy at hl and de
+        ; add rotating enemy at hl and de
     ld a, %10000001
     ld [hl+], a
-    ld a, Rot_ennemy_displaylist_entry_index    ; set display list
+    ld a, Rot_enemy_displaylist_entry_index    ; set display list
     ld [hl+], a
     ld [hl], c                                  ; set Y pos
     inc hl
@@ -78,12 +78,12 @@ Rot_ennemy_request::
     ld [hl], b                                  ; set X pos
     inc hl
     inc hl
-    ld a, LOW(Rot_ennemy_handle)
+    ld a, LOW(Rot_enemy_handle)
     ld [hl+], a
-    ld [hl], HIGH(Rot_ennemy_handle)
+    ld [hl], HIGH(Rot_enemy_handle)
 
     ;  actor data
-    ; WARNING init depend on actor data order for rot ennemy in rot_ennemy.inc
+    ; WARNING init depend on actor data order for rot enemy in rot_enemy.inc
     ld h, d
     ld l, e
     ld a, COUNTER_STATE
@@ -106,40 +106,40 @@ Rot_ennemy_request::
     ld [hl], a
     ret
 
-Rot_ennemy_update::
-    ; update ennemy rot display list
-    ld a, [rot_ennemy_anim_offset]
-    add a, LOW(ennemy_rot_dl_frame1)
-    ld hl, Rot_ennemy_displaylist_entry
+Rot_enemy_update::
+    ; update enemy rot display list
+    ld a, [rot_enemy_anim_offset]
+    add a, LOW(enemy_rot_dl_frame1)
+    ld hl, Rot_enemy_displaylist_entry
     ld [hl+], a
-    ld [hl], HIGH(ennemy_rot_dl_frame1)
+    ld [hl], HIGH(enemy_rot_dl_frame1)
         ; update rot_counter
-    ld hl, rot_ennemy_anim_counter
+    ld hl, rot_enemy_anim_counter
     inc [hl]
     ld a, [hl]
     cp a, ROT_ANIM_SPEED
     jr nz, .skipROTAnimUpdate
     ld a, 0
     ld [hl], a
-    ld a, [rot_ennemy_anim_offset]
+    ld a, [rot_enemy_anim_offset]
     add a, 9                        ; displayList block size
     cp a, 9*3                       ; Nb of animation frames
     jr nz, .writeNewCounter
     ld a, 0
 .writeNewCounter
-    ld [rot_ennemy_anim_offset], a
+    ld [rot_enemy_anim_offset], a
 .skipROTAnimUpdate
     ret
 
 
 ;------------------------------------------
-; Rot_ennemy_handle(bc = sprite addr, de = actor data addr)
+; Rot_enemy_handle(bc = sprite addr, de = actor data addr)
 ;
 ;   1 - do main state handle
 ;   2 - do movement handle
 ;   3 - do collision detection with player shots
 ;------------------------------------------
-Rot_ennemy_handle:
+Rot_enemy_handle:
         ; handle state
     ld a, state
     add a, e
@@ -170,7 +170,7 @@ Movement_handle:
 ;-------------------------
 ; Collision_handle(de = actor data addr)
 ;
-;   Tests agains all ennemy shots if there is a collision
+;   Tests agains all enemy shots if there is a collision
 ;   Test is done only on EVEN frames (synced with player_shots)
 ;------------------------
 Collision_handle:
@@ -191,7 +191,7 @@ Collision_handle:
     and a, %00001111
     or a, b
     swap a
-    ld b, a                     ; b <- ennemy pixel Y pos
+    ld b, a                     ; b <- enemy pixel Y pos
     ld a, [hl+]
     and a, %11110000
     ld c, a
@@ -199,7 +199,7 @@ Collision_handle:
     and a, %00001111
     or a, c
     swap a
-    ld c, a                     ; c <- ennemy pixel X pos
+    ld c, a                     ; c <- enemy pixel X pos
 
         ; test agains all player shots
     push de
@@ -413,16 +413,16 @@ shoot_state_handle:
     jp Movement_handle
 
 
-    SECTION "Rot_ennemy_display_lists", ROMX, ALIGN[4]
-ennemy_rot_dl_frame1:
+    SECTION "Rot_enemy_display_lists", ROMX, ALIGN[4]
+enemy_rot_dl_frame1:
     DB 2
     DB -8, -8, (tile1 - _VRAM)/16, 0
     DB -8, 0, (tile3 - _VRAM)/16, 0
-ennemy_rot_dl_frame2:
+enemy_rot_dl_frame2:
     DB 2
     DB -8, -8, (tile5 - _VRAM)/16, 0
     DB -8, 0, (tile7 - _VRAM)/16, 0
-ennemy_rot_dl_frame3:
+enemy_rot_dl_frame3:
     DB 2
     DB -8, -8, (tile9 - _VRAM)/16, 0
     DB -8, 0, (tile11 - _VRAM)/16, 0
@@ -434,10 +434,10 @@ ennemy_rot_dl_frame3:
 ;| +--------------------------------------------------------------+ |
 ;+------------------------------------------------------------------+
 
-    SECTION "Rot_ennemy_tiles", ROMX
-Rot_ennemy_tiles:
-    LOAD "Rot_ennemy_VRAM", VRAM[$8060]
-Rot_ennemy_vram_tiles:
+    SECTION "Rot_enemy_tiles", ROMX
+Rot_enemy_tiles:
+    LOAD "Rot_enemy_VRAM", VRAM[$8060]
+Rot_enemy_vram_tiles:
 tile1:
     DB $00, $00, $01, $01, $00, $00, $03, $1c, $24, $3f, $48, $77, $5d, $7f, $32, $6f
 tile2:

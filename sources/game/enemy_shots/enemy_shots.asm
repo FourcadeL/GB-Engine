@@ -1,7 +1,7 @@
 ; ###################################
-; Ennemy shots
+; Enemy shots
 ;
-;   Ennemy shots are displayed as one metasprite (sprite slot 1)
+;   Enemy shots are displayed as one metasprite (sprite slot 1)
 ;   individual shots are updated by leveraging a dynamic display list in ram
 ;   (each shot is an object entry in the displaylist)
 ;
@@ -19,8 +19,8 @@
 ;       s : 4 sub pixel bits
 ;
 ; On each updates
-;   - All ennemy shots are updated
-;   - All ennemy shots are pushed to metasprite
+;   - All enemy shots are updated
+;   - All enemy shots are pushed to metasprite
 ;
 ;   Data alignment :
 ; for ease of computation, tables are aligned
@@ -29,7 +29,7 @@
 ;   2 bytes tables are 5 ALIGNED
 ;
 ;   Shots spawn :
-;       - only one ennemy shot may be spawned per frame (call of ES_update)
+;       - only one enemy shot may be spawned per frame (call of ES_update)
 ;       for that, a spawn request is written by the ES_request_shot routine
 ;       if multiple requests are fired in the same frame, subsequent requests will
 ;       overwrite the firt ones
@@ -67,14 +67,14 @@ DEF ES_Y_threshold EQU 160
 ;+--------------------------------------------------------------------------+
 
 
-    SECTION "Ennemy_shots_variables", WRAM0
+    SECTION "Enemy_shots_variables", WRAM0
 
 _es_variables_start:
 es_current_shot_index:  DS 1 ; index of currently handled shot
 es_number_of_displayed_shots:   DS 1 ; number of shots active and displayed this frame
 
 es_animate_current_index: DS 1 ; index of current shot to animate
-es_animate_current_frame: DS 1 ; current frame of tile flip lags to use
+es_animate_current_frame: DS 1 ; current frame of tile flip flags to use
 
 es_request_status:: DS 1 ; es request status byte : bit 7 = 1 -> request
 es_request_Ypos:: DS 2
@@ -116,13 +116,13 @@ es_dynamic_displayList_content:
 ;| +----------------------------------------------------------------------+ |
 ;+--------------------------------------------------------------------------+
 
-    SECTION "Ennemy_shots_code", ROMX
+    SECTION "Enemy_shots_code", ROMX
 
 ES_init::
     ; copy tiles into VRAM
-    ld hl, Ennemy_shots_tiles
-    ld de, Ennemy_shots_vram_tiles
-    ld c, Ennemy_shots_tiles.end - Ennemy_shots_tiles
+    ld hl, Enemy_shots_tiles
+    ld de, Enemy_shots_vram_tiles
+    ld c, Enemy_shots_tiles.end - Enemy_shots_tiles
     call vram_copy_fast
 
     ; reset variables in ram
@@ -476,7 +476,7 @@ ES_animate:
 
 ;---------------------
 ; ES_push_to_display()
-;   pushes all active ennemy shots
+;   pushes all active enemy shots
 ;   to meta sprite
 ;---------------------
 ES_push_to_display:
@@ -584,10 +584,10 @@ ES_update_positions:
 ;| +----------------------------------------------------------------------+ |
 ;+--------------------------------------------------------------------------+
 
-    SECTION "Ennemy_shots_tiles", ROMX
-Ennemy_shots_tiles:
-    LOAD "Ennemy_shots_VRAM", VRAM [$8260]
-Ennemy_shots_vram_tiles:
+    SECTION "Enemy_shots_tiles", ROMX
+Enemy_shots_tiles:
+    LOAD "Enemy_shots_VRAM", VRAM [$8260]
+Enemy_shots_vram_tiles:
 tile1:
     DB $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $3c, $18, $66, $3c, $42, $7e
 tile2:

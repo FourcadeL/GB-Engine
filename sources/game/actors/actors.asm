@@ -56,7 +56,7 @@ Actors_init::
     ; TESTING : spawn ennemy screen center
     ld b, 67
     ld c, 67
-    call Rot_ennemy_request
+    call Rot_enemy_request
 
     ret
 
