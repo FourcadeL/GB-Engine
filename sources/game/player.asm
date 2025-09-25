@@ -68,11 +68,11 @@ Player_init::
     ld [hl+], a
 
     ld hl, player_Xpos
-    ld a, Player_x_init_pos << 4
+    ld a, LOW(Player_x_init_pos << 4)
     ld [hl+], a
     ld a, Player_x_init_pos >> 4
     ld [hl+], a
-    ld a, Player_y_init_pos << 4
+    ld a, LOW(Player_y_init_pos << 4)
     ld [hl+], a
     ld a, Player_y_init_pos >> 4
     ld [hl], a
