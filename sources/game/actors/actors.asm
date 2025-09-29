@@ -19,7 +19,7 @@
 ;   ------
 ; list of ennemy actors:
 ;   - explosion sfx
-;   - rot : a standard rotating ennemy
+;   - rot : a standard rotating enemy
 ; ################################################
 
 INCLUDE "hardware.inc"
@@ -102,7 +102,7 @@ Actors_update::
     adc a, HIGH(Actors_data_table)
     ld d, a
 
-    ld a, 6                 ; retrieve hndling sprite function into hl
+    ld a, 6                 ; retrieve handling sprite function into hl
     add a, l
     ld l, a
     ld a, [hl+]

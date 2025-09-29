@@ -15,7 +15,6 @@ INCLUDE "utils.inc"
 
 
     SECTION "game_room_variables", WRAM0
-_framerule: DS 1
 
 
     SECTION "game_room", ROMX
@@ -67,16 +66,6 @@ game_main::
     call PS_straight_request
 .skipShooting
 
-    ; TESTING : TARGETED SHOT
-    ld hl, _framerule
-    inc [hl]
-    bit 5, [hl]
-    jr z, .loop
-    res 5, [hl]
-    ld d, $01       ; shot speed
-    ld b, $42
-    ld c, $42
-    call TP_request_shot_toward_player
     jp      .loop ; new frame
 
 

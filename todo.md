@@ -1,5 +1,5 @@
 # Small TODO List
 
 - Change usage of _PAD_X_ to use the definitions in hardware.inc
-- Revamp the enemy code so that active shots are the first elements of the table and functions do not need do iterate over all the table
-
+- Change the actor handling so that we don't iterate over all the actors when only 3 are active for example
+- Change sprite X and Y usage so subpixels are in sprites and not just in actors data

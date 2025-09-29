@@ -88,7 +88,7 @@ Rot_enemy_request::
     ld l, e
     ld a, COUNTER_STATE
     ld [hl+], a
-    ld a, MOVE_ASCENT_RIGHT_STATE
+    ld a, MOVE_DESCENT_STATE
     ld [hl+], a
     swap c
     ld a, c
@@ -103,7 +103,15 @@ Rot_enemy_request::
     ld [hl+], a
     ld a, b
     and a, %00001111        ; high nibble of X pos
-    ld [hl], a
+    ld [hl+], a
+    ld [hl], DESCENT_TIME_COUNTER
+    inc hl
+    ld [hl], 60             ; TODO default shoot timeout
+    inc hl
+    ld [hl], %01111111      ; TODO default shoot rate mask
+    inc hl
+    ld [hl], 1              ; TODO default shot speed
+
     ret
 
 Rot_enemy_update::
@@ -147,13 +155,15 @@ Rot_enemy_handle:
     ld l, e
     ld a, [hl]                  ; get current state
     cp a, COUNTER_STATE
-    jp z, move_count_handle
+    jp z, count_handle
     cp a, DEAD_STATE
     jp z, dead_state_handle
     cp a, DELETE_STATE
     jp z, delete_state_handle
     cp a, SHOOT_STATE
     jp z, shoot_state_handle
+    cp a, CHANGE_MOVE_STATE
+    jp z, change_move_state_handle
 Movement_handle:
         ; handle movement
     ld a, move_state
@@ -281,7 +291,7 @@ move_ascent_left_handle:
     or a, d
     swap a
     ld d, a                     ; d <- Y pixel pos
-    
+
     ld a, [hl]
     sub a, X_SPEED
     ld [hl+], a
@@ -318,7 +328,7 @@ move_ascent_right_handle:
     or a, d
     swap a
     ld d, a                     ; d <- Y pixel pos
-    
+
     ld a, [hl]
     add a, X_SPEED
     ld [hl+], a
@@ -406,10 +416,120 @@ dead_state_handle:
     ld b, a
     jp Explosion_request
 
-move_count_handle:
-;TODO
+count_handle:
+    ld h, d
+    ld a, e
+    add a, move_counter
+    ld l, a
+    dec [hl]
+    jr nz, .no_move_update
+        ld l, e
+        ld [hl], CHANGE_MOVE_STATE
+        jp Movement_handle
+.no_move_update
+    ld a, e
+    add a, shoot_timeout
+    ld l, a
+    dec [hl]
+    jp nz, Movement_handle
+        ld l, e
+        ld [hl], SHOOT_STATE
     jp Movement_handle
+
 shoot_state_handle:
+    push bc
+    push de
+        ; shoot toward player
+    inc bc
+    inc bc
+    ld a, [bc]                      ; Y pos of enemy
+    ld h, d                         ; high of de struct addr
+    ld d, a
+    inc bc
+    inc bc
+    ld a, [bc]                      ; X pos of enemy
+    ld b, a
+    ld c, d
+    ld a, e
+    add a, shot_speed
+    ld l, a
+    ld d, [hl]                      ; shot speed
+
+    call TP_request_shot_toward_player
+
+        ; set next shoot timeout
+    call generateRandom
+    ld b, a                         ; save random
+    ld hl, sp + 0
+    ld a, [hl+]
+    ld h, [hl]
+    ld e, a
+    add a, shoot_rate
+    ld l, a
+    ld a, b
+    and a, [hl]                     ; shoot counter (applied shoot rate)
+    ld b, a
+    inc b                           ; ensure counter is not 0
+
+    ld a, e
+    add a, shoot_timeout
+    ld l, a
+    ld [hl], b                      ; shoot next timeout
+
+    ; ld a, e
+    ; add a, state                  ; no need to
+    ld l, e
+    ld [hl], COUNTER_STATE
+
+    pop bc
+    pop de
+
+    jp Movement_handle
+
+change_move_state_handle:
+    ld h, d
+    ld a, e
+    add a, move_state
+    ld l, a
+    ld a, [hl]
+    cp a, MOVE_DESCENT_STATE
+    jr z, .find_next_ascension
+        ld [hl], MOVE_DESCENT_STATE
+        ld a, e
+        add a, move_counter
+        ld l, a
+        ld [hl], DESCENT_TIME_COUNTER
+        ld l, e
+        ld [hl], COUNTER_STATE
+        jp Movement_handle
+.find_next_ascension
+    push hl
+    ld h, b
+    ld a, c
+    add a, 4                        ; find sprite position
+    ld l, a
+    ld a, [hl]
+    ld hl, player_pixel_Xpos
+    cp a, [hl]
+    jr c, .should_ascent_right
+        pop hl
+        ld [hl], MOVE_ASCENT_LEFT_STATE
+        ld a, e
+        add a, move_counter
+        ld l, a
+        ld [hl], ASCENT_TIME_COUNTER
+        ld l, e
+        ld [hl], COUNTER_STATE
+        jp Movement_handle
+.should_ascent_right
+    pop hl
+    ld [hl], MOVE_ASCENT_RIGHT_STATE
+    ld a, e
+    add a, move_counter
+    ld l, a
+    ld [hl], ASCENT_TIME_COUNTER
+    ld l, e
+    ld [hl], COUNTER_STATE
     jp Movement_handle
 
 

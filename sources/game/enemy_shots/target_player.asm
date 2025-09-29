@@ -76,7 +76,7 @@ tp_work_flags:  DS 1 ; byte of work flags
     SECTION "Target_player_code", ROMX
 
 ; ----------------------------------------------
-; TP_request_shot_toward_player(b = XStartPos, c = YStrartPos, d = speed)
+; TP_request_shot_toward_player(b = XStartPos, c = YStartPos, d = speed)
 ;
 ;   Request a shot from position in bc
 ;   Targetted at the player position
