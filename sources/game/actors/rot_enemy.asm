@@ -110,7 +110,7 @@ Rot_enemy_request::
     inc hl
     ld [hl], %01111111      ; TODO default shoot rate mask
     inc hl
-    ld [hl], 1              ; TODO default shot speed
+    ld [hl], 2              ; TODO default shot speed (0 to 3)
 
     ret
 
