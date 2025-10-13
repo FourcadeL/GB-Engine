@@ -82,12 +82,20 @@ Explosion_request::
     ld [hl+], a
     ld a, Explosion_displayList_first_entry_index   ; set display list
     ld [hl+], a
-    ld [hl], c                                      ; set Y pos
-    inc hl
-    inc hl
-    ld [hl], b                                      ; set X pos
-    inc hl
-    inc hl
+    swap c
+    ld a, c
+    and a, %11110000
+    ld [hl+], a
+    ld a, c
+    and a, %00001111
+    ld [hl+], a                                      ; set Y pos
+    swap b
+    ld a, b
+    and a, %11110000
+    ld [hl+], a
+    ld a, b
+    and a, %00001111
+    ld [hl+], a                                      ; set X pos
     ld a, LOW(Explosion_handle_current)             ; set handler function
     ld [hl+], a
     ld [hl], HIGH(Explosion_handle_current)
