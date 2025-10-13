@@ -149,6 +149,14 @@ ES_init::
     ld [hl], %10000001
     inc hl
     ld [hl], ES_displayList_entry_index
+    inc hl
+    ld a, $00
+    ld [hl+], a
+    ld [hl+], a
+    ld [hl+], a
+    ld [hl+], a
+    ld [hl+], a
+    ld [hl+], a
     ld hl, ES_displayList_entry
     ld a, LOW(es_dynamic_displayList)
     ld [hl+], a

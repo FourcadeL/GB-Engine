@@ -166,10 +166,24 @@ Sprites_multiplex::
     ld  a, [hl+]
     ld  [_current_sprite_status_byte], a
     ld  a, [hl+]        ; display list index of sprite
-    ld  c, [hl]     ; low Y pos of sprite
-    inc l
-    inc l
-    ld  b, [hl]     ; low X pos of sprite
+    ld  e, a
+    ld  a, [hl+]        ; low Y pos of sprite
+    and a, %11110000
+    ld  d, a
+    ld  a, [hl+]        ; high Y pos of sprite
+    and a, %00001111
+    or  a, d
+    swap a
+    ld  c, a
+    ld  a, [hl+]        ; low X pos of sprite
+    and a, %11110000
+    ld  d, a
+    ld  a, [hl]         ; high X pos of sprite 
+    and a, %00001111
+    or a, d
+    swap a
+    ld b, a
+    ld  a, e            ; restore display list index of sprite
     call    Sprites_display_current
 .skip_display
     ld  hl, _current_sprite_index
@@ -256,9 +270,13 @@ _current_low_SOAM:          DS 1 ; value of current low os shadow OAM
 ;             +--------> active status : 1 = active
 ;       - b1 : Display list index
 ;       - b2 : Y pos low
-;       - b3 : ???
+;       - b3 : Y pos high
 ;       - b4 : X pos low
-;       - b5 : ???
+;       - b5 : X pos high
+;           Position is %hhhhxxxx xxxxssss
+;               with : h high part (ignored)
+;                      x displayed part (8 bits)
+;                      s sub pixels (ignored)
 ;       - b6 : handling function low
 ;       - b7 : handling function high
 ;-------------------------------
