@@ -6,6 +6,8 @@
 ;   delete enemy
 ; ###########################
 
+; TODO delete enemy when not on screen anymore
+
 
 INCLUDE "hardware.inc"
 INCLUDE "engine.inc"
@@ -271,8 +273,8 @@ Collision_handle:
 
 
 move_ascent_left_handle:
-    push de
-    push bc
+    push de                     ; save actor data addr
+    push bc                     ; save sprite addr
     ld a, Y_pos
     add a, e
     ld h, d
@@ -308,8 +310,8 @@ move_ascent_left_handle:
     ld e, a                     ; e <- X pixel pos
     jr common_set_sprite_pos
 move_ascent_right_handle:
-    push de
-    push bc
+    push de                     ; save actor data addr
+    push bc                     ; save sprite addr
     ld a, Y_pos
     add a, e
     ld h, d
@@ -357,7 +359,7 @@ common_set_sprite_pos:
     pop de
     jp Collision_handle
 move_descent_handle:
-    push de
+    push de                     ; save actor data addr
     ld a, Y_pos
     add a, e
     ld h, d
@@ -380,7 +382,7 @@ move_descent_handle:
     add a, c
     ld h, b
     ld l, a
-    ld [hl], d
+    ld [hl], d                  ; set sprite pixel pos
     pop de
     jp Collision_handle
 
