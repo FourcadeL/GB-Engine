@@ -33,8 +33,10 @@ player_state::          DS 1
 ;    |+-> player collision with shot
 ;    +-> player destroyed
 player_anim_counter::   DS 1
-player_Xpos::           DS 2
-player_Ypos::           DS 2
+DEF player_Xpos EQUS "Player_sprite_entry + 4"
+; player_Xpos::           DS 2
+DEF player_Ypos EQUS "Player_sprite_entry + 2"
+; player_Ypos::           DS 2
 player_pixel_Xpos::     DS 1            ; the integral X position of the player
 player_pixel_Ypos::     DS 1            ; the integral Y position of the player
 _player_variables_end:
@@ -71,7 +73,8 @@ Player_init::
     ld a, LOW(Player_x_init_pos << 4)
     ld [hl+], a
     ld a, Player_x_init_pos >> 4
-    ld [hl+], a
+    ld [hl], a
+    ld hl, player_Ypos
     ld a, LOW(Player_y_init_pos << 4)
     ld [hl+], a
     ld a, Player_y_init_pos >> 4
@@ -257,23 +260,6 @@ Player_update::
     ld a, b
     cp a, (HIGH(Player_boundary_down)<<4) + (LOW(Player_boundary_down)>>4)
     call nc, Player_reset_down_pos
-
-
-    ; SPRITE position update
-    ld hl, player_Ypos
-    ld de, Player_sprite_entry + 2
-    ld a, [hl+]
-    ld [de], a
-    inc de
-    ld a, [hl]
-    ld [de], a
-    inc de
-    ld hl, player_Xpos
-    ld a, [hl+]
-    ld [de], a
-    inc de
-    ld a, [hl]
-    ld [de], a
 
     ret
 
