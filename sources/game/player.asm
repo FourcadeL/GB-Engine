@@ -260,15 +260,21 @@ Player_update::
 
 
     ; SPRITE position update
-    ld a, [player_pixel_Xpos]
-    ld b, a                     ; b <- X pos 8 bit
-    ld a, [player_pixel_Ypos]   ; a <- Y pos 8 bit
+    ld hl, player_Ypos
+    ld de, Player_sprite_entry + 2
+    ld a, [hl+]
+    ld [de], a
+    inc de
+    ld a, [hl]
+    ld [de], a
+    inc de
+    ld hl, player_Xpos
+    ld a, [hl+]
+    ld [de], a
+    inc de
+    ld a, [hl]
+    ld [de], a
 
-    ld hl, Player_sprite_entry + 2
-    ld [hl], a
-
-    ld hl, Player_sprite_entry + 4
-    ld [hl], b
     ret
 
 
