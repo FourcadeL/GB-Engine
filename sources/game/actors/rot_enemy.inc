@@ -50,8 +50,6 @@ DEF MOVE_ASCENT_LEFT_STATE      EQU %00000011
 RSRESET
 DEF state                   RB 1 ; state byte
 DEF move_state              RB 1 ; type of move for the ennemy
-DEF Y_pos                   RB 2 ; 2 bytes Y pos (little endian)
-DEF X_pos                   RB 2 ; 2 bytes X pos (little endian)
 DEF move_counter            RB 1 ; move counter byte
 DEF shoot_timeout           RB 1 ; timeout before next shoot
 DEF shoot_rate              RB 1 ; shoot rate mask for random

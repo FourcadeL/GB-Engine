@@ -70,14 +70,22 @@ Rot_enemy_request::
         ; add rotating enemy at hl and de
     ld a, %10000001
     ld [hl+], a
-    ld a, Rot_enemy_displaylist_entry_index    ; set display list
+    ld a, Rot_enemy_displaylist_entry_index     ; set display list
     ld [hl+], a
-    ld [hl], c                                  ; set Y pos
-    inc hl
-    inc hl
-    ld [hl], b                                  ; set X pos
-    inc hl
-    inc hl
+    swap c
+    ld a, c
+    and a, %11110000
+    ld [hl+], a                                 ; set low Y pos
+    ld a, c
+    and a, %00001111
+    ld [hl+], a                                 ; set high Y pos
+    swap b
+    ld a, b
+    and a, %11110000
+    ld [hl+], a                                 ; set low X pos
+    ld a, b
+    and a, %00001111
+    ld [hl+], a                                 ; set high X pos
     ld a, LOW(Rot_enemy_handle)
     ld [hl+], a
     ld [hl], HIGH(Rot_enemy_handle)
@@ -89,20 +97,6 @@ Rot_enemy_request::
     ld a, COUNTER_STATE
     ld [hl+], a
     ld a, MOVE_DESCENT_STATE
-    ld [hl+], a
-    swap c
-    ld a, c
-    and a, %11110000        ; low nibble of Y pos
-    ld [hl+], a
-    ld a, c
-    and a, %00001111        ; high nibble of Y pos
-    ld [hl+], a
-    swap b
-    ld a, b
-    and a, %11110000        ; low nibble of X pos
-    ld [hl+], a
-    ld a, b
-    and a, %00001111        ; high nibble of X pos
     ld [hl+], a
     ld [hl], DESCENT_TIME_COUNTER
     inc hl
@@ -178,7 +172,7 @@ Movement_handle:
     cp a, MOVE_ASCENT_LEFT_STATE
     jp z, move_ascent_left_handle
 ;-------------------------
-; Collision_handle(de = actor data addr)
+; Collision_handle(bc = sprite addr, de = actor data addr)
 ;
 ;   Tests agains all enemy shots if there is a collision
 ;   Test is done only on EVEN frames (synced with player_shots)
@@ -190,32 +184,35 @@ Collision_handle:
     ret nz                          ; don't update on odd frames
         ; handle collision with player shot
     ; (assume that bc and de are still set)
-    ld a, Y_pos
-    add a, e
-    ld h, d
+    push de
+    ld a, SPRITE_STRUCT_Ypos
+    add a, c
+    ld h, b
     ld l, a
     ld a, [hl+]
     and a, %11110000
-    ld b, a
+    ld d, a
     ld a, [hl+]
     and a, %00001111
-    or a, b
+    or a, d
     swap a
-    ld b, a                     ; b <- enemy pixel Y pos
+    ld d, a                     ; d <- enemy pixel Y pos
     ld a, [hl+]
     and a, %11110000
-    ld c, a
+    ld e, a
     ld a, [hl]
     and a, %00001111
-    or a, c
+    or a, e
     swap a
-    ld c, a                     ; c <- enemy pixel X pos
+    ld e, a                     ; e <- enemy pixel X pos
+
+    ld b, d
+    ld c, e
 
         ; test agains all player shots
-    push de
     ld hl, ps_status            ; status table
     ld d, 0                     ; index count
-    ld e, ES_MAX_SHOTS
+    ld e, PS_MAX_SHOTS
 .loop
     bit 7, [hl]
     jr nz, .test_shot
@@ -271,117 +268,54 @@ Collision_handle:
 
 
 move_ascent_left_handle:
-    push de
-    push bc
-    ld a, Y_pos
-    add a, e
-    ld h, d
+    ld a, SPRITE_STRUCT_Ypos
+    add a, c
+    ld h, b
     ld l, a
     ld a, [hl]
     sub a, Y_SPEED
     ld [hl+], a
-    ld e, a
     ld a, [hl]
     sbc a, 0
-    ld [hl+], a
-    and a, %00001111
-    ld d, a
-    ld a, e
-    and a, %11110000
-    or a, d
-    swap a
-    ld d, a                     ; d <- Y pixel pos
+    ld [hl+], a                 ; Y pos updated
 
     ld a, [hl]
     sub a, X_SPEED
     ld [hl+], a
-    ld e, a
     ld a, [hl]
     sbc a, 0
-    ld [hl], a
-    and a, %00001111
-    ld b, a
-    ld a, e
-    and a, %11110000
-    or a, b
-    swap a
-    ld e, a                     ; e <- X pixel pos
-    jr common_set_sprite_pos
+    ld [hl], a                  ; X pos updated
+    jp Collision_handle
 move_ascent_right_handle:
-    push de
-    push bc
-    ld a, Y_pos
-    add a, e
-    ld h, d
+    ld a, SPRITE_STRUCT_Ypos
+    add a, c
+    ld h, b
     ld l, a
     ld a, [hl]
     sub a, Y_SPEED
     ld [hl+], a
-    ld e, a
     ld a, [hl]
     sbc a, 0
-    ld [hl+], a
-    and a, %00001111
-    ld d, a
-    ld a, e
-    and a, %11110000
-    or a, d
-    swap a
-    ld d, a                     ; d <- Y pixel pos
+    ld [hl+], a                 ; Y pos updated
 
     ld a, [hl]
     add a, X_SPEED
     ld [hl+], a
-    ld e, a
     ld a, [hl]
     adc a, 0
-    ld [hl], a
-    and a, %00001111
-    ld b, a
-    ld a, e
-    and a, %11110000
-    or a, b
-    swap a
-    ld e, a                     ; e <- X pixel pos
-    ;jr common_set_sprite_pos
-common_set_sprite_pos:
-    pop bc
-    ld a, 2
-    add a, c
-    ld h, b
-    ld l, a
-    ld [hl], d
-    inc hl
-    inc hl
-    ld [hl], e
-    pop de
+    ld [hl], a                  ; X pos updated
     jp Collision_handle
 move_descent_handle:
-    push de
-    ld a, Y_pos
-    add a, e
-    ld h, d
+    ld a, SPRITE_STRUCT_Ypos
+    add a, c
+    ld h, b
     ld l, a
     ld a, [hl]
     add a, Y_SPEED
     ld [hl+], a
-    ld e, a
     ld a, [hl]
     adc a, 0
-    ld [hl], a
-    and a, %00001111
-    ld d, a
-    ld a, e
-    and a, %11110000
-    or a, d
-    swap a
-    ld d, a
-    ld a, 2
-    add a, c
-    ld h, b
-    ld l, a
-    ld [hl], d
-    pop de
+    ld [hl], a                  ; X pos updated
     jp Collision_handle
 
 delete_state_handle:
@@ -394,10 +328,10 @@ dead_state_handle:
     ld a, 0
     ld [bc], a
         ; add explosion at former position
-    ld a, Y_pos
-    add a, e
+    ld a, SPRITE_STRUCT_Ypos
+    add a, c
     ld l, a
-    ld h, d
+    ld h, b
     ld a, [hl+]
     and a, %11110000
     ld c, a
@@ -440,6 +374,7 @@ shoot_state_handle:
     push bc
     push de
         ; shoot toward player
+    ; TODO right position for shot start
     inc bc
     inc bc
     ld a, [bc]                      ; Y pos of enemy
