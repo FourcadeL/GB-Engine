@@ -7,6 +7,18 @@
     IF !DEF(SPRITES_INC)
 DEF SPRITES_INC EQU 1
 
+; Sprite structure
+RSRESET
+DEF SPRITE_STRUCT_status    RB 1 ; status byte
+DEF SPRITE_STRUCT_displ     RB 1 ; displaylist index
+DEF SPRITE_STRUCT_Ypos      RB 2 ; Y Position
+DEF SPRITE_STRUCT_Xpos      RB 2 ; X Position
+DEF SPRITE_STRUCT_handle    RB 2 ; addr of handling function
+
+DEF SIZEOF_SPRITE_STRUCT    RB 0
+
+STATIC_ASSERT SIZEOF_SPRITE_STRUCT == 8, "Sprite structure should be 8 bytes long"
+
 ; objects mode
 DEF MODE_16                 EQU 1   ; 1 = 8*16 objects mode
 
@@ -14,7 +26,7 @@ DEF MODE_16                 EQU 1   ; 1 = 8*16 objects mode
 DEF MAX_SPRITE_NUMBER       EQU 20
 
 ; Sprite stricture size
-DEF SPRITE_STRUCTURE_SIZE   EQU 8
+DEF SPRITE_STRUCTURE_SIZE   EQU SIZEOF_SPRITE_STRUCT
 
 ; Maximum number of display lists
 DEF MAX_DISPLAYLIST_NUMBER  EQU 32

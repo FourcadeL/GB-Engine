@@ -47,7 +47,7 @@ INCLUDE "charmap.inc"
 INCLUDE "player.inc"
 
 
-DEF MAX_SHOTS EQU 16
+DEF ES_MAX_SHOTS EQU 16
 
 DEF ES_sprite_entry EQUS "Sprite_table + 1*8"
 DEF ES_displayList_entry EQUS "DisplayList_table + 1*2"
@@ -87,16 +87,16 @@ _es_variables_end:
 
 
     SECTION "ES_Xposs_table", WRAM0, ALIGN[5]
-es_Xposs:      DS 2*MAX_SHOTS ; table of es x positions
+es_Xposs:      DS 2*ES_MAX_SHOTS ; table of es x positions
 
     ; SECTION "ES_Yposs_table", WRAM0, ALIGN[5]
-es_Yposs:      DS 2*MAX_SHOTS ; table of es y positions
+es_Yposs:      DS 2*ES_MAX_SHOTS ; table of es y positions
 
     SECTION "ES_Xspeeds_table", WRAM0, ALIGN[5]
-es_Xspeeds:    DS 2*MAX_SHOTS ; table of es x speeds
+es_Xspeeds:    DS 2*ES_MAX_SHOTS ; table of es x speeds
 
     ; SECTION "ES_Yspeeds_table", WRAM0, ALIGN[5]
-es_Yspeeds:    DS 2*MAX_SHOTS ; table of es y speeds
+es_Yspeeds:    DS 2*ES_MAX_SHOTS ; table of es y speeds
 
 
     SECTION "ES_displaylist_table", WRAM0
@@ -104,7 +104,7 @@ es_dynamic_displayList:
 es_dynamic_displayList_header:
     DS 1
 es_dynamic_displayList_content:
-    DS 4*MAX_SHOTS
+    DS 4*ES_MAX_SHOTS
 
 ;+--------------------------------------------------------------------------+
 ;| +----------------------------------------------------------------------+ |
@@ -129,19 +129,19 @@ ES_init::
 
     ; reset tables
     ld hl, es_Xposs
-    ld b, MAX_SHOTS*2
+    ld b, ES_MAX_SHOTS*2
     call memset_fast
 
     ld hl, es_Yposs
-    ld b, MAX_SHOTS*2
+    ld b, ES_MAX_SHOTS*2
     call memset_fast
 
     ld hl, es_Xspeeds
-    ld b, MAX_SHOTS
+    ld b, ES_MAX_SHOTS
     call memset_fast
 
     ld hl, es_Yspeeds
-    ld b, MAX_SHOTS
+    ld b, ES_MAX_SHOTS
     call memset_fast
 
     ; set shots metasprite to active and visible + set display list
@@ -165,7 +165,7 @@ ES_init::
     ; set all tiles in displaylist
     ld hl, es_dynamic_displayList_content + 2
     ld a, (tile1 - _VRAM)/16
-    ld d, MAX_SHOTS
+    ld d, ES_MAX_SHOTS
 .tile_index_set_loop
     ld [hl+], a
     inc hl
@@ -242,7 +242,7 @@ ES_handle_request:
     ld hl, es_current_es_nb
     ld a, [hl]
     ld b, a
-    cp a, MAX_SHOTS
+    cp a, ES_MAX_SHOTS
     ret z               ; No free slot
     inc [hl]
 _create_shot_at_index_b:
@@ -520,9 +520,9 @@ ES_animate:
     ld a, [hl]
     add a, 7
     ld [hl], a
-    cp a, MAX_SHOTS
+    cp a, ES_MAX_SHOTS
     ret c                   ; carry -> index < 16 no index correction or frame change
-    sub a, MAX_SHOTS
+    sub a, ES_MAX_SHOTS
     ld [hl], a
     ret nz                  ; non zero -> do not update animation frame
     ld hl, es_animate_current_frame
