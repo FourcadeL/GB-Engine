@@ -452,14 +452,22 @@ change_move_state_handle:
         jp Movement_handle
 .find_next_ascension
     push hl
+    push de
     ld h, b
     ld a, c
-    add a, 4                        ; find sprite position
+    add a, SPRITE_STRUCT_Xpos                        ; find sprite position
     ld l, a
+    ld a, [hl+]
+    and a, %11110000
+    ld d, a
     ld a, [hl]
+    and a, %00001111
+    or a, d
+    swap a
     ld hl, player_pixel_Xpos
     cp a, [hl]
     jr c, .should_ascent_right
+        pop de
         pop hl
         ld [hl], MOVE_ASCENT_LEFT_STATE
         ld a, e
@@ -470,6 +478,7 @@ change_move_state_handle:
         ld [hl], COUNTER_STATE
         jp Movement_handle
 .should_ascent_right
+    pop de
     pop hl
     ld [hl], MOVE_ASCENT_RIGHT_STATE
     ld a, e
