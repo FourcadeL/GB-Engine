@@ -375,19 +375,32 @@ shoot_state_handle:
     push de
         ; shoot toward player
     ; TODO right position for shot start
-    inc bc
-    inc bc
-    ld a, [bc]                      ; Y pos of enemy
-    ld h, d                         ; high of de struct addr
-    ld d, a
-    inc bc
-    inc bc
-    ld a, [bc]                      ; X pos of enemy
-    ld b, a
-    ld c, d
-    ld a, e
-    add a, shot_speed
+    ld a, SPRITE_STRUCT_Ypos
+    add a, c
+    ld h, b
     ld l, a
+    ld a, [hl+]
+    and a, %11110000
+    ld c, a
+    ld a, [hl+]
+    and a, %00001111
+    or a, c
+    swap a
+    ld c, a                         ; b <- Y pixel pos of enemy
+    ld a, [hl+]
+    and a, %11110000
+    ld b, a
+    ld a, [hl]
+    and a, %00001111
+    or a, b
+    swap a
+    ld b, a                         ; c <- X pixel pos of enemy
+
+    ld a, shot_speed
+    add a, e
+    ld h, d
+    ld l, a
+
     ld d, [hl]                      ; shot speed
 
     call TP_request_shot_toward_player
