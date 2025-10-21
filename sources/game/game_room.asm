@@ -40,19 +40,18 @@ game_main::
     jp game_over_main
 .no_collision
 
-    ; TESTING : RANDOM NEW EXPLOSION
+    ; TESTING : RANDOM NEW rot enemy
     call generateRandom
     and a, %11111100
-    jr nz, .skipExplosion
+    ld a, [PAD_pressed]
+    and a, PAD_START
+    jr z, .skipenn
     call generateRandom
     and a, %01111111
-    push af
-    call generateRandom
-    and a, %01111111
-    pop bc
-    ld c, a
-    call Explosion_request
-.skipExplosion
+    ld b, a
+    ld b, 18
+    call Rot_enemy_request
+.skipenn
 
 
     ; TESTING : PLAYER SHOOT

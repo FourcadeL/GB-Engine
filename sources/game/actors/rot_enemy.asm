@@ -59,8 +59,9 @@ Rot_enemy_init::
 
 
 ;--------------------------------
-; Rot_enemy_request(b = xpos; c = ypos)
-;   Request a new rotating enemy at position specified by bc
+; Rot_enemy_request(b = x pixel pos)
+;   Request a new rotating enemy at position specified by b
+;   Enemy always starts up at the top of the screen
 ;--------------------------------
 Rot_enemy_request::
     push bc
@@ -72,12 +73,9 @@ Rot_enemy_request::
     ld [hl+], a
     ld a, Rot_enemy_displaylist_entry_index     ; set display list
     ld [hl+], a
-    swap c
-    ld a, c
-    and a, %11110000
+    ld a, %10000000                             ; Y start pos is %00001111 10000000
     ld [hl+], a                                 ; set low Y pos
-    ld a, c
-    and a, %00001111
+    ld a, $0F
     ld [hl+], a                                 ; set high Y pos
     swap b
     ld a, b
@@ -315,7 +313,14 @@ move_descent_handle:
     ld [hl+], a
     ld a, [hl]
     adc a, 0
-    ld [hl], a                  ; X pos updated
+    ld [hl], a                  ; Y pos updated
+        ; Test low nibble of a + 1:
+        ; grater than High nibble of BOUNDARY_Y
+        ; -> delete sprite
+        add a,1
+        and a, %00001111
+        cp a, BOUNDARY_Y >> 4
+        jr nc, delete_state_handle
     jp Collision_handle
 
 delete_state_handle:

@@ -53,11 +53,7 @@ Actors_data_table:              DS ACTORS_NB * ACTORS_DATA_SIZE
     SECTION "Actors_code", ROMX
 
 Actors_init::
-    ; TESTING : spawn ennemy screen center
-    ld b, 67
-    ld c, 67
-    call Rot_enemy_request
-
+    ; Nothing to see here
     ret
 
 ; --------------------------

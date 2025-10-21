@@ -12,7 +12,8 @@ DEF X_SPEED                 EQU %00000111
 DEF ASCENT_TIME_COUNTER     EQU 50
 DEF DESCENT_TIME_COUNTER    EQU 70
 
-; DEF BOUNDARY_LEFT           EQU
+; Auto delete after passed threshold
+DEF BOUNDARY_Y              EQU 160
 
 ; ENNEMY STATES :
 ;   DEAD
