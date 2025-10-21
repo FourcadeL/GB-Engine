@@ -87,7 +87,18 @@ call_DMA::
     ld  a, HIGH(Shadow_OAM) ; High part of adress
     jp  DMA_ROUTINE_HRAM
 
-
+;----------------
+;- push_shadow_registers()
+;-
+;-      pushes shadow registers (scroll registers)
+;-      to GB hardware
+;----------------
+push_shadow_registers::
+    ld a, [video_Xscroll_s]
+    ld [rSCX], a
+    ld a, [video_Yscroll_s]
+    ld [rSCY], a
+    ret
 
 ;--------------------------------------------------------------------------
 ;- vram_set(d = set value ; bc = size ; hl = dest address)
@@ -259,6 +270,8 @@ tilemap_win_block_copy::
     SECTION "Video_Variables",WRAM0
 
 _screen_control_save: DS 1
+video_Xscroll_s::       DS 1
+video_Yscroll_s::       DS 1
 
 
 

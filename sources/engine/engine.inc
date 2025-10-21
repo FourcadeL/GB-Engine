@@ -25,6 +25,8 @@ DEF ENGINE_INC EQU 1
 MACRO GLOBAL_VBLANK_CRITICAL
     ; Push SOAM to OAM
     call call_DMA
+    ; Push shadow video registers to hardware
+    call push_shadow_registers
 ENDM
 
 ; Global VBLANK non-critical routine
@@ -47,9 +49,7 @@ ENDM
 ;----------------------------------------------
 
 ;+---------------------------+
-; fonctions permettant d'attacher des fonctions aux vecteur d'interrupts
-
-
+; functions to attach new handlers to interrupt vectors
 ;- irq_set_VBL( bc = function pointer ) @VBL_handler contient le pointeur vers la fonction à exécuter
 ;- irq_set_LCD( bc = function pointer ) @LCD_handler contient le pointeur vers la fonction à exécuter
 ;- irq_set_TIM( bc = function pointer ) @TIM_handler contient le pointeur vers la fonction à exécuter
@@ -305,7 +305,14 @@ DEF PAD_RIGHT   EQU $01
     EXPORT tilemap_bg_block_copy
 
 
+;----------------
+;- push_shadow_registers()
+;-
+;-      pushes shadow registers (scroll registers)
+;-      to GB hardware
+;----------------
 
+    EXPORT push_shadow_registers
 
 
 
@@ -313,25 +320,8 @@ DEF PAD_RIGHT   EQU $01
 ; variables VIDEO.ASM
 ;----------------------------------------------
 
-
-    EXPORT  OAM_mirror ;pointeur vers l'OAM_mirror (doit être aligé à $100) ($A0 bytes)
-    EXPORT  OAM_mirror_end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    EXPORT video_Xscroll_s      ; shadow X scroll register
+    EXPORT video_Yscroll_s      ; shadow Y scroll register
 
 
 
@@ -366,21 +356,3 @@ DEF PAD_RIGHT   EQU $01
 
 
 ENDC ; ENGINE_INC
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
