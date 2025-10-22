@@ -52,8 +52,9 @@ RSRESET
 DEF state                   RB 1 ; state byte
 DEF move_state              RB 1 ; type of move for the ennemy
 DEF move_counter            RB 1 ; move counter byte
-DEF shoot_timeout           RB 1 ; timeout before next shoot
-DEF shoot_rate              RB 1 ; shoot rate mask for random
+DEF shoot_timeout           RB 1 ; timeout between shots
+DEF shoot_counter           RB 1 ; countdown counter for next shot
+DEF shoot_rate              RB 1 ; shoot threshold for random
 DEF shot_speed              RB 1 ; speed of fired shots
 
 DEF SIZEOF_rot_ennemy_data  RB 0

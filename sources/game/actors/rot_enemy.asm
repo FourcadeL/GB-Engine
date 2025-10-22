@@ -98,9 +98,11 @@ Rot_enemy_request::
     ld [hl+], a
     ld [hl], DESCENT_TIME_COUNTER
     inc hl
-    ld [hl], 60             ; TODO default shoot timeout
+    ld [hl], 80             ; TODO default shoot timeout
     inc hl
-    ld [hl], %01111111      ; TODO default shoot rate mask
+    ld [hl], 60             ; TODO default shoot countdown
+    inc hl
+    ld [hl], %00101111      ; TODO default shoot threshold
     inc hl
     ld [hl], 2              ; TODO default shot speed (0 to 3)
 
@@ -367,19 +369,42 @@ count_handle:
         jp Movement_handle
 .no_move_update
     ld a, e
-    add a, shoot_timeout
+    add a, shoot_counter
     ld l, a
     dec [hl]
-    jp nz, Movement_handle
+    jp nz, Movement_handle          ; if shoot_counter == 0
         ld l, e
         ld [hl], SHOOT_STATE
     jp Movement_handle
 
 shoot_state_handle:
+        ; reset state
+    ld h, d
+    ld l, e
+    ld [hl], COUNTER_STATE
+
+        ; set up new counter
+    ld a, e
+    add a, shoot_timeout
+    ld l, a
+    ld a, [hl+]                 ; shot_counter must be byte after shoot_timeout
+    ld [hl+], a                 ; hl is shoot_rate (shoot_rate should be byte after shoot_counter)
+
     push bc
     push de
+    push hl
+        ; test if random is under threshold
+    call generateRandom
+    pop hl
+    pop de
+    pop bc
+    cp a, [hl]
+    ret nc                          ; if shoot_rate <= a
+
         ; shoot toward player
-    ; TODO right position for shot start
+    push de
+    push bc
+
     ld a, SPRITE_STRUCT_Ypos
     add a, c
     ld h, b
@@ -409,30 +434,6 @@ shoot_state_handle:
     ld d, [hl]                      ; shot speed
 
     call TP_request_shot_toward_player
-
-        ; set next shoot timeout
-    call generateRandom
-    ld b, a                         ; save random
-    ld hl, sp + 0
-    ld a, [hl+]
-    ld h, [hl]
-    ld e, a
-    add a, shoot_rate
-    ld l, a
-    ld a, b
-    and a, [hl]                     ; shoot counter (applied shoot rate)
-    ld b, a
-    inc b                           ; ensure counter is not 0
-
-    ld a, e
-    add a, shoot_timeout
-    ld l, a
-    ld [hl], b                      ; shoot next timeout
-
-    ; ld a, e
-    ; add a, state                  ; no need to
-    ld l, e
-    ld [hl], COUNTER_STATE
 
     pop bc
     pop de
