@@ -104,7 +104,7 @@ Rot_enemy_request::
     inc hl
     ld [hl], %00101111      ; TODO default shoot threshold
     inc hl
-    ld [hl], 2              ; TODO default shot speed (0 to 3)
+    ld [hl], 1              ; TODO default shot speed (0 to 3)
 
     ret
 
