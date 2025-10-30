@@ -31,6 +31,7 @@ game_main::
     call    Rot_enemy_update
     call    ES_update
     call    PS_update
+    call    Levels_update
     call    Sprites_multiplex
 
     ; Test collision flag, if collision, display game over
@@ -52,6 +53,14 @@ game_main::
     ld b, 18
     call Rot_enemy_request
 .skipenn
+
+    ; TESTING : LOAD LEVEL (on select)
+    ld a, [PAD_pressed]
+    and a, PAD_SELECT
+    jr z, .skiplevelLoad
+    ld b, $00
+    call Levels_request
+.skiplevelLoad
 
 
     ; TESTING : PLAYER SHOOT
@@ -84,6 +93,9 @@ game_init:
 
     ; player shots init
     call PS_init
+
+    ; levels logic init
+    call Levels_init
 
     call wait_vbl
     ; start audio track
