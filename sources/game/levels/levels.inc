@@ -22,7 +22,7 @@
 ;       | 5 | 9 |
 ;       +---+---+                               +- block addr
 ;       | 3 | 4 |                               v
-;       +---+---+           Will be stored as : | 3 | 4 | 5 | 9
+;       +---+---+           Will be stored as : | 5 | 9 | 3 | 4
 ;
 ;               This allows loading of lower and upper parts of the block independently
 

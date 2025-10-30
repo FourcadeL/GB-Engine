@@ -66,6 +66,8 @@ Levels_init::
     ld [hl], $00
     ld hl, levels_current_tileset
     ld [hl], $FF                            ; set current tileset to"none"
+    ld hl, video_vram_push_status
+    ld [hl], 10                             ; size of row push to display
     ret
 
 
