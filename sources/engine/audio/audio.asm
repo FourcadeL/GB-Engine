@@ -63,6 +63,22 @@ Audio_init::
     res 7, [hl]         ; reset tracker stepped
     ret
 
+; ---------------------------------------------
+; Audio_load_song_at_index(a = sond idx)
+;   Load song at index a from song table
+;   (song table elements are 8 bytes longs)
+; ---------------------------------------------
+Audio_load_song_at_index::
+    sla a
+    sla a
+    sla a
+    add a, LOW(songs_start)
+    ld l, a
+    ld a, $00
+    adc a, HIGH(songs_start)
+    ld h, a
+;     jr Audio_load_song
+    
 ; ------------------------------------------------------------------------
 ; Audio_load_song(hl = songAddr)
 ;   Initialises channels trackers with block start addr at song addr

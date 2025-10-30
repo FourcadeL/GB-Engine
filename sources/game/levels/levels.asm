@@ -29,7 +29,7 @@ levels_flags:                       DS 1    ; %lrqxxxxc
                                             ;  +------ loaded : the current level is loaded
 levels_querry::                      DS 1    ; ID of the querried level to load
 
-levels_current_level::              DS 1    ; the current level
+levels_current_level::              DS 1    ; the current level index
 levels_current_scrollY_speed::      DS 1    ; scrolling speed (%ppppssss)
                                             ;           pixel---++++||||
                                             ;             sub-------++++
@@ -43,6 +43,9 @@ levels_current_row_table:           DS 2    ; addr of the row table to use
 
 ;       Pointers to tilemap
 levels_vram_tmap_location:          DS 1    ; $9XX0 : XX = part of vram addr to fill tilemap -> XX range from $00 to $BE
+
+;       Level data
+levels_data_pointer:                DS 2    ; addr in the current data structure
 
 _levels_variables_end:
 
@@ -117,6 +120,7 @@ Levels_load:
     bit 5, [hl]                             ; check querry flag
     ret z
     ld a, [levels_querry]
+    ld [levels_current_level], a            ; set current level index
     sla a
     sla a
     sla a                                   ; 8 bytes struct index shift
@@ -125,7 +129,7 @@ Levels_load:
     ld a, $00
     adc a, HIGH(LV_infos)
     ld h, a                                 ; hl <- requested level infos addr
-        ; check tileset
+        ; ------- tileset -------
     ld a, [hl+]
     ld b, a
     ld a, [levels_current_tileset]
@@ -138,8 +142,51 @@ Levels_load:
         call Levels_load_tileset
         pop hl
 .tileset_already_loaded
+        ; ------- scroll speed -------
+    ld a, [hl+]
+    ld bc, levels_current_scrollY_speed
+    ld [bc], a
+        ; ------- level data -------
+    ld de, levels_data_pointer
+    ld a, [hl+]
+    ld [de], a                              ; low of level data pointer
+    inc de
+    ld a, [hl+]
+    ld [de], a                              ; high of level data pointer
+        ; ------- blocks and rows -------
+    ld a, [hl+]
+    sla a
+    sla a                                   ; 4 bytes indexed structure shift
+    push hl
+    add a, LOW(LV_block_row_infos)
+    ld l, a
+    ld a, $00
+    adc a, HIGH(LV_block_row_infos)
+    ld h, a
+    ld de, levels_current_block_table
+    ld a, [hl+]
+    ld [de], a                              ; current block table low
+    inc de
+    ld a, [hl+]
+    ld [de], a                              ; current block rable high
+    ld de, levels_current_row_table
+    ld a, [hl+]
+    ld [de], a                              ; current row table low
+    inc de
+    ld a, [hl]
+    ld [de], a                              ; current row table high
+    pop hl
+        ; ------- Pre loading -------
+        inc hl
     ; TODO
+        ; ------- Level song -------
+    ld a, [hl+]
+    call Audio_stop_song
+    call Audio_load_song_at_index
+    call Audio_start_song
+        ; ------- Flags setting -------
     ld hl, levels_flags
+    ; TODO
     set 7, [hl]                             ; level loaded flag
     set 6, [hl]                             ; level running flag (WILL BE REMOVED)
     ret

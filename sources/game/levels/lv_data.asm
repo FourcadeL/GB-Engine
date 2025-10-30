@@ -6,9 +6,11 @@ LV_infos::                              ; A table of level infos (8 bytes entrie
 ;                                           1 byte : tileset index
 ;                                           1 byte initial scroll speed
 ;                                           2 bytes : level stream addr
+;                                           1 byte : block_row index
+;                                           1 byte : nb of rows to load from current position
 ;                                           1 byte : level song
 ;                                           TO BE DEFINED
-    DB $00, $01, $00, $00, $00, $00, $00, $00
+    DB $00, $01, $00, $00, $00, $00, $02, $00
 
 LV_tileset_infos::                      ; A table of tileset infos (8 bytes entries)
 ;                                           2 bytes addr of place to fetch bg tiles
@@ -16,6 +18,15 @@ LV_tileset_infos::                      ; A table of tileset infos (8 bytes entr
 ;                                           2 bytes size of bg tiles to copy
 ;                                           TO BE DEFINED
     DW BG_tiles, BG_vram_tiles, (BG_tiles.end - BG_tiles), $0000
+
+LV_block_row_infos::                    ; A table of block and row table addresses (4 bytes entries)
+;                                           2 bytes addr of blocks table
+;                                           2 bytes addr of rows table
+    DW $1234, $5678
+
+
+
+
 
     SECTION "BG_tiles", ROMX
 BG_tiles:
