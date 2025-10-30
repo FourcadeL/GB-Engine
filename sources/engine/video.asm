@@ -87,18 +87,46 @@ call_DMA::
     ld  a, HIGH(Shadow_OAM) ; High part of adress
     jp  DMA_ROUTINE_HRAM
 
-;----------------
+;-----------------------------
 ;- push_shadow_registers()
 ;-
 ;-      pushes shadow registers (scroll registers)
 ;-      to GB hardware
-;----------------
+;-----------------------------
 push_shadow_registers::
     ld a, [video_Xscroll_s]
     ld [rSCX], a
     ld a, [video_Yscroll_s]
     ld [rSCY], a
     ret
+
+;-----------------------------
+;- push_to_tilemap()
+;-
+;-      pushes tilemap buffer to VRAM tilemap
+;-      horizontal or vertical
+;-----------------------------
+push_to_tilemap::
+    ld hl, video_vram_push_status
+    ld a, [hl]
+    bit 7, a                            ; request ?
+    ret z
+    res 7, [hl]                         ; reset request flag
+    inc hl
+    and a, %00011111
+    ld c, a
+    ld a, [hl+]
+    ld e, a
+    ld a, [hl+]
+    ld d, a
+.loop
+    ld a, [hl+]
+    ld [de], a
+    inc de
+    dec c
+    jr nz, .loop
+    ret
+
 
 ;--------------------------------------------------------------------------
 ;- vram_set(d = set value ; bc = size ; hl = dest address)
@@ -269,9 +297,18 @@ tilemap_win_block_copy::
 ;+-----------------------------------------------------------------------------+
     SECTION "Video_Variables",WRAM0
 
-_screen_control_save: DS 1
-video_Xscroll_s::       DS 1
-video_Yscroll_s::       DS 1
+_screen_control_save:       DS 1
+video_Xscroll_s::           DS 1
+video_Yscroll_s::           DS 1
+
+video_vram_push_status::    DS 1    ; %rbvsssss
+;                                      |||+++++- size copy
+;                                      ||+------ vertical flag (if set writes buffer as vertical column)
+;                                      ||
+;                                      |+------- base addr flag (0 -> $9800 | 1 -> $9C00)
+;                                      +-------- request flag
+video_vram_push_dst::       DS 2    ; destination address
+video_vram_push_buffer::    DS 32   ; 32 bytes buffer
 
 
 

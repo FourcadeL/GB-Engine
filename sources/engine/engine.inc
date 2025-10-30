@@ -27,6 +27,8 @@ MACRO GLOBAL_VBLANK_CRITICAL
     call call_DMA
     ; Push shadow video registers to hardware
     call push_shadow_registers
+    ; Push buffer to tilemap
+    call push_to_tilemap
 ENDM
 
 ; Global VBLANK non-critical routine
@@ -301,29 +303,35 @@ DEF PAD_RIGHT   EQU $01
 ;- effectue une copie vers la tilemap  (attent de pouvoir y accéder)
 ;- copie b*c bytes (tile number) en mettant en place les bonnes dimensions
 ;--------------------------------------------------------------------------
-
     EXPORT tilemap_bg_block_copy
 
 
-;----------------
+;---------------------------
 ;- push_shadow_registers()
 ;-
 ;-      pushes shadow registers (scroll registers)
 ;-      to GB hardware
-;----------------
-
+;---------------------------
     EXPORT push_shadow_registers
 
-
+;-----------------------------
+;- push_to_tilemap()
+;-
+;-      pushes tilemap buffer to VRAM tilemap
+;-      horizontal or vertical
+;-----------------------------
+    EXPORT push_to_tilemap
 
 ;----------------------------------------------
 ; variables VIDEO.ASM
 ;----------------------------------------------
 
-    EXPORT video_Xscroll_s      ; shadow X scroll register
-    EXPORT video_Yscroll_s      ; shadow Y scroll register
+    EXPORT video_Xscroll_s          ; shadow X scroll register
+    EXPORT video_Yscroll_s          ; shadow Y scroll register
 
-
+    EXPORT video_vram_push_status   ; status and size
+    EXPORT video_vram_push_buffer   ; buffer to copy
+    EXPORT video_vram_push_dst      ; destination addr
 
 
 ;**********************************
