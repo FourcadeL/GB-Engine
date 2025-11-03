@@ -22,12 +22,12 @@
 
 _levels_variables_start:
 levels_flags:                       DS 1    ; %lrqxxxxc
-                                            ;  |||    +-- load the next tile row in tilemap
+                                            ;  |||    +-- load the next block row in tilemap
                                             ;  |||
                                             ;  ||+---- querry : querry to load a level
                                             ;  |+----- running : the current level is running
                                             ;  +------ loaded : the current level is loaded
-levels_querry::                      DS 1    ; ID of the querried level to load
+levels_querry::                     DS 1    ; ID of the querried level to load
 
 levels_current_level::              DS 1    ; the current level index
 levels_current_scrollY_speed::      DS 1    ; scrolling speed (%ppppssss)
@@ -85,11 +85,43 @@ Levels_update::
     ld hl, levels_flags
     bit 7, [hl]                             ; check loaded flag
     jr z, Levels_load
-    bit 6,  [hl]                            ; check running flag
+    bit 6, [hl]                             ; check running flag
     ret z
+    bit 1, [hl]                             ; check new 
     ; TODO
-    ld hl, video_Yscroll_s
-    inc [hl]                                ; dummy scroll push
+        ; level scroll
+    ld a, [levels_current_scrollY_speed]
+    ld hl, levels_current_scrollY_position
+    add a, [hl]
+    ld [hl], a
+    ld b, a
+    inc hl
+    ld a, $00
+    jr nc, .no16pix_trigger
+    push hl
+    ld hl, levels_flags
+    set 0, [hl]                             ; set new row load trigger
+    pop hl
+    inc a
+.no16pix_trigger
+    add a, [hl]
+    ld [hl], a
+    ld c, a
+    inc hl
+    ld a, $00
+    adc a, [hl]
+    ld [hl], a
+    ld a, b
+    and a, %11110000
+    ld b, a
+    ld a, c
+    and a, %00001111
+    or a, b
+    swap a
+    cpl a
+    inc a                                   ; 2's complement for actual screen scroll value
+    ld [video_Yscroll_s], a
+
     ret
 
 ; --------------------------

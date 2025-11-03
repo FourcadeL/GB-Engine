@@ -10,7 +10,7 @@ LV_infos::                              ; A table of level infos (8 bytes entrie
 ;                                           1 byte : nb of rows to load from current position
 ;                                           1 byte : level song
 ;                                           TO BE DEFINED
-    DB $00, $01, $00, $00, $00, $00, $02, $00
+    DB $00, $05, $00, $00, $00, $00, $02, $00
 
 LV_tileset_infos::                      ; A table of tileset infos (8 bytes entries)
 ;                                           2 bytes addr of place to fetch bg tiles

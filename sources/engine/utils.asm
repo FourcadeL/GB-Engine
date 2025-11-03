@@ -211,11 +211,11 @@ generateRandom::
     srl     a
     xor     b
     add     d
-    ld      [hl], b ; ecriture de _RandomA
+    ld      [hl], b ; _RandomA write
     inc     hl
-    ld      [hl], c ; ecriture de _RandomB
+    ld      [hl], c ; _RandomB write
     inc     hl
-    ld      [hl], a ; ecriture de _RandomC
+    ld      [hl], a ; _RandomC write
     ret ; content of a is the new random value
 
 
@@ -234,12 +234,6 @@ RandomX:        DS 1
 RandomA:        DS 1
 RandomB:        DS 1
 RandomC:        DS 1
-
-
-
-
-
-
 
 
 
