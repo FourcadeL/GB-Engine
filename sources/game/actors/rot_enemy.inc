@@ -56,6 +56,7 @@ DEF shoot_timeout           RB 1 ; timeout between shots
 DEF shoot_counter           RB 1 ; countdown counter for next shot
 DEF shoot_rate              RB 1 ; shoot threshold for random
 DEF shot_speed              RB 1 ; speed of fired shots
+DEF framerule               RB 1 ; framerule for collision test
 
 DEF SIZEOF_rot_ennemy_data  RB 0
 

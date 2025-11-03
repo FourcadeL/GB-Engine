@@ -29,8 +29,9 @@ DEF Rot_enemy_displaylist_entry_index EQU 26
 
     SECTION "Rot_enemy_variables", WRAM0
 _rot_enemy_variables_start:
-rot_enemy_anim_counter:       DS 1
-rot_enemy_anim_offset:        DS 1
+rot_enemy_anim_counter:             DS 1
+rot_enemy_anim_offset:              DS 1
+rot_enemy_next_assing_framerule:    DS 1            ; framerule assigned to next enemy
 _rot_enemy_variables_end:
 
 ;+----------------------------------------------------------------+
@@ -105,6 +106,15 @@ Rot_enemy_request::
     ld [hl], %00101111      ; TODO default shoot threshold
     inc hl
     ld [hl], 1              ; TODO default shot speed (0 to 3)
+    inc hl
+
+        ; framerule set
+    ld de, rot_enemy_next_assing_framerule
+    ld a, [de]
+    inc a
+    and a, %00000011
+    ld [de], a
+    ld [hl], a              ; framerule for this enemy
 
     ret
 
@@ -178,10 +188,15 @@ Movement_handle:
 ;   Test is done only on EVEN frames (synced with player_shots)
 ;------------------------
 Collision_handle:
-        ; don't check on ODD frames
-    ld hl, Global_counter
-    bit 0, [hl]
-    ret nz                          ; don't update on odd frames
+        ; check only on framerule
+    ld a, e
+    add a, framerule
+    ld l, a
+    ld h, d
+    ld a, [Global_counter]
+    and a, %00000011
+    sub a, [hl]
+    ret nz                          ; don't update on wrong framerule
         ; handle collision with player shot
     ; (assume that bc and de are still set)
     push de
