@@ -17,7 +17,7 @@ INCLUDE "utils.inc"
     SECTION "game_room_variables", WRAM0
 
 
-    SECTION "game_room", ROMX
+    SECTION "game_room", ROM0
 
     ; 60 fps 1 threads execution (+vbl thread)
 game_main::
@@ -59,6 +59,8 @@ game_main::
     and a, PAD_SELECT
     jr z, .skiplevelLoad
     ld b, $00
+    ld hl, levels_flags
+    res 7, [hl]
     call Levels_request
 .skiplevelLoad
 

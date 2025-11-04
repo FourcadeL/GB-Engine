@@ -32,7 +32,7 @@
 ;       ------------------
 ;
 ;       Levels rows are encoded as REUSABLE block rows
-;       A block row is at most 16 blocks wide and at least 10 blocks wide
+;       A block row is 16 blocks wide
 ;       Block row width is defined in the BG_ROW_WIDTH compilation constant
 
 ;       +---+---+---+---+---+---+---+---+---+---+---+
