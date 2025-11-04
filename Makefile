@@ -18,17 +18,18 @@ RGBFIX  = rgbfix
 #####################################################################
 
 #####################################################################
-##								   ##
+##																   ##
 ARIACOMP = ./aria
-##								   ##
+##																   ##
 #####################################################################
 
 #####################################################################
-##			ASSEMBLY FLAGS				   ##
+##			ASSEMBLY FLAGS										   ##
 
-ASMFLAGS = 
+ASMFLAGS =
+LINKFLAGS = --tiny
 
-##								   ##
+##								   								   ##
 #####################################################################
 
 #####################################################################
@@ -111,19 +112,19 @@ clean:
 
 $(BIN): $(OBJ)
 #	@echo rgblink $(BIN)
-	$(RGBLINK) -o $(BIN) -p 0xFF -m $(BUILDNAME).map -n $(BUILDNAME).sym $(OBJ)
+	$(RGBLINK) $(LINKFLAGS) -o $(BIN) -p 0xFF -m $(BUILDNAME).map -n $(BUILDNAME).sym $(OBJ)
 #	@echo rgbfix $(BIN)
 	$(RGBFIX) -p 0xFF -v $(BIN)
 
 $(TMPBIN):   $(OBJ)
 #	@echo rgblink $(TMPBIN)
-	$(RGBLINK) -o $(TMPBIN) -p 0xFF -m $(TMPNAME).map -n $(TMPNAME).sym $(OBJ)
+	$(RGBLINK) $(LINKFLAGS) -o $(TMPBIN) -p 0xFF -m $(TMPNAME).map -n $(TMPNAME).sym $(OBJ)
 #	@echo rgbfix $(TMPBIN)
 	$(RGBFIX) -p 0xFF -v $(TMPBIN)
 
 $(FINALBIN): $(OBJ)
 #	@echo rgblink $(FINALBIN)
-	$(RGBLINK) -o $(FINALBIN) -p 0xFF -m $(NAME).map -n $(NAME).sym $(OBJ)
+	$(RGBLINK) $(LINKFLAGS) -o $(FINALBIN) -p 0xFF -m $(NAME).map -n $(NAME).sym $(OBJ)
 #	@echo rgbfix $(FINALBIN)
 	$(RGBFIX) -p 0xFF -v $(FINALBIN)
 

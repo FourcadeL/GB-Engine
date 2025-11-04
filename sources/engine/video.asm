@@ -112,7 +112,7 @@ push_to_tilemap::
     bit 7, a                            ; request ?
     ret z
     res 7, [hl]                         ; reset request flag
-    inc hl
+    inc hl                              ; destination addr
     and a, %00011111
     ld c, a
     ld a, [hl+]
@@ -295,7 +295,7 @@ tilemap_win_block_copy::
 ;| |                          VARIABLES                                      | |
 ;| +-------------------------------------------------------------------------+ |
 ;+-----------------------------------------------------------------------------+
-    SECTION "Video_Variables",WRAM0
+    SECTION "Video_Variables", WRAM0
 
 _screen_control_save:       DS 1
 video_Xscroll_s::           DS 1
