@@ -227,16 +227,7 @@ Levels_load:
     ld e, a
     push hl
         ; goes back "e" rows in the write addr from the current scroll y value
-    ld hl, levels_current_scrollY_position
-    ld a, [hl+]
-    and a, %11110000
-    ld b, a
-    ld a, [hl]
-    and a, %00001111
-    or a, b
-    swap a
-    cpl a                                   ; 2's complement to get register value
-    inc a                                   ; a <- current scroll register value  
+    ld a, [video_Yscroll_s]                 ; a <- current scroll register value
     srl a
     srl a
     res 0, a
