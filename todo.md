@@ -5,7 +5,6 @@
 
 # Level loading
 
-- Some blocks don't load check indexing
 - Correct tiles loading and indexing ($80 offset)
 - Misalignment for fwf engine
 
