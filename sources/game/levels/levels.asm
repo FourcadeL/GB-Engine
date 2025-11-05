@@ -223,21 +223,34 @@ Levels_load:
     pop hl
         ; ------- Pre loading -------
     ld a, [hl+]
-    ld d, a
     sla a
     ld e, a
     push hl
-        ; goes back e rows in the write addr
-    ld a, [levels_vram_tmap_location]
-.correct_position_loop
-    add a, $02
+        ; goes back "e" rows in the write addr from the current scroll y value
+    ld hl, levels_current_scrollY_position
+    ld a, [hl+]
+    and a, %11110000
+    ld b, a
+    ld a, [hl]
+    and a, %00001111
+    or a, b
+    swap a
+    cpl a                                   ; 2's complement to get register value
+    inc a                                   ; a <- current scroll register value  
+    srl a
+    srl a
+    res 0, a
+    add a, $80
+    add a, e
     cp a, $BE
     jr c, .no_correction
-    ld a, $82
+    sub a, $3E
 .no_correction
-    dec e
-    jr nz, .correct_position_loop
     ld [levels_vram_tmap_location], a
+    pop hl
+    ld a, [hl+]
+    ld d, a
+    push hl
 .loop
         ; iterate the fill routine
     push de
@@ -251,7 +264,6 @@ Levels_load:
     pop de
     dec d
     jr nz, .loop
-    ; reset scrolling
     pop hl
         ; ------- Level song -------
     ld a, [hl+]
