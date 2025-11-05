@@ -45,7 +45,7 @@ game_main::
     call generateRandom
     and a, %11111100
     ld a, [PAD_pressed]
-    and a, PAD_START
+    and a, PAD_B
     jr z, .skipenn
     call generateRandom
     and a, %01111111

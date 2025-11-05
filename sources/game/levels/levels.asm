@@ -78,8 +78,11 @@ Levels_init::
     ld [hl], $FF                            ; set current tileset to"none"
     ld hl, video_vram_push_status
     ld [hl], BG_ROW_WIDTH*2                 ; size of row push to display
-    ld hl, levels_vram_tmap_location
-    ld [hl], $BE                            ; initial next vram location
+    ld hl, levels_current_scrollY_position  ; initial scrolling values
+    ld a, $00
+    ld [hl+], a
+    ld [hl+], a
+    ld [hl+], a
     ret
 
 
@@ -227,7 +230,16 @@ Levels_load:
     ld e, a
     push hl
         ; goes back "e" rows in the write addr from the current scroll y value
-    ld a, [video_Yscroll_s]                 ; a <- current scroll register value
+    ld hl, levels_current_scrollY_position
+    ld a, [hl+]
+    and a, %11110000
+    ld b, a
+    ld a, [hl]
+    and a, %00001111
+    or a, b
+    swap a
+    cpl a                                   ; 2's complement to get register value
+    inc a                                   ; a <- current scroll register value  
     srl a
     srl a
     res 0, a
@@ -235,7 +247,8 @@ Levels_load:
     add a, e
     cp a, $BE
     jr c, .no_correction
-    sub a, $3E
+    jr z, .no_correction
+    sub a, $40
 .no_correction
     ld [levels_vram_tmap_location], a
     pop hl
@@ -336,7 +349,6 @@ Levels_load_row_routine:
 ;     jr ._blocks_copy
 ; -------------
 ; copy a half row of blocks
-; hl = row data
 ; e = offset in block structure
 ._blocks_copy
     ld hl, levels_row_to_load_addr
@@ -353,9 +365,9 @@ Levels_load_row_routine:
     push hl
     ld h, $00
     sla a
-    rlc h
+    rl h
     sla a
-    rlc h
+    rl h
     add a, e
     add a, c
     ld l, a

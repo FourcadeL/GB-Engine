@@ -8,10 +8,10 @@ LV_infos::                              ; A table of level infos (8 bytes entrie
 ;                                           2 bytes : level stream addr
 ;                                           1 byte : block_row index
 ;                                           1 byte : nb of rows to go back from current position
-;                                               /!\ may be one tile mis-aligned if scroll register was update over last frame
+;                                               /!\ may be one tile mis-aligned if scroll y position is not 8 pixels aligned
 ;                                           1 byte : nb of rows to load from current position
 ;                                           1 byte : level song
-    DB $00, $29, LOW(Level_0), HIGH(Level_0), $00, $11, $0B, $02
+    DB $00, $1A, LOW(Level_0), HIGH(Level_0), $00, $11, $0B, $02
 
 LV_tileset_infos::                      ; A table of tileset infos (8 bytes entries)
 ;                                           2 bytes addr of place to fetch bg tiles
