@@ -21,45 +21,46 @@
 
 
 ;--------------------------------------------
-;- getInput() @PAD contient les inputs lus
+;- getInput()
+;-  @PAD variables will contain read inputs
 ;--------------------------------------------
 
 
 getInput::
 
     ld      a,[PAD_hold]
-    ld      c,a             ;c = anciennes valeurs
+    ld      c,a             ; c <- old values
 
     ld      a,$10
-    ld      [rP1], a        ;P14 (sélection des bouttons en lecture)
+    ld      [rP1], a        ; P14 (set KEYS in read mode)
 
     ld      a,[rP1]
     ld      a,[rP1]
-    cpl                     ; complément de a (zero = pressé, on inverse ça)
-    and     a,$0F           ;4 premiers bits
-    swap    a               ;les 4 bits lus deviennent ceux de poids fort
+    cpl                     ; (zero = pressed, invert bits)
+    and     a,$0F           ; 4 bits mask
+    swap    a
     ld      b,a
     ld      a,$20
-    ld      [rP1], a        ;P15 (sélection du D_PAD en lecture)
+    ld      [rP1], a        ; P15 (set DPAD in read mode)
     ld      a,[rP1]
     ld      a,[rP1]
     ld      a,[rP1]
     ld      a,[rP1]
     cpl
     and     a,$0F
-    or      a,b             ;combinaison de ce qui a été lu auparavant avec ce que l'on vient de lire
+    or      a,b             ; combine keys and dpad
 
-    ld      [PAD_hold],a    ;sauvegarde de ce qui est maintenu à cette frame
+    ld      [PAD_hold], a   ; save of held keys
 
-    ld      b,a             ; b = ce qui est tenu à cette frame
-    ld      a,c             ; c contient l'ancienne valeur de ce qui était tenu
-    cpl                     ; a <- not a
-    and     a,b             ; ce qui sont pressés sont ceux qui n'étaient pas pressés à la frame précédente et pressés à celle-ci
+    ld      b,a             ; b <- what is held at this frame
+    ld      a,c             ; c is the old held value
+    cpl     a
+    and     a,b             ; keys pressed not held on previous frame
 
-    ld      [PAD_pressed],a ;sauvegarde de ce qui vient d'être pressé
+    ld      [PAD_pressed], a; save pressed keys
 
     and     $00             ; ld a, $00
-    ld      [rP1],a         ;RESET de l'adresse de lecture
+    ld      [rP1],a         ; RESET read addr
 
     ret
 
@@ -79,5 +80,7 @@ getInput::
 
     SECTION "IO_Variables",WRAM0
 
-PAD_hold::      DS 1
-PAD_pressed::   DS 1
+PAD_repeat_speed:   DS 1            ; repeat framerule speed
+PAD_hold::          DS 1            ; keys holded this frame
+PAD_pressed::       DS 1            ; keys pressed this frame
+PAD_repeat::        DS 1            ; keys auto-repeated this frame
