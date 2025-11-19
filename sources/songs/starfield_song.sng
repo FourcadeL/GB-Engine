@@ -72,8 +72,8 @@ ch3 SLDLW
 ch4 empty
 
 song burningHeat :
-ch1 BHG1
-ch2 empty
+ch1 empty
+ch2 BHG1
 ch3 BHGW
 ch4 BHGN
 

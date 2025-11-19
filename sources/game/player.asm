@@ -261,6 +261,20 @@ Player_update::
     cp a, (HIGH(Player_boundary_down)<<4) + (LOW(Player_boundary_down)>>4)
     call nc, Player_reset_down_pos
 
+    ; SHOOTING
+    ld a, [PAD_repeat]
+    and a, PAD_A
+    jr z, .skipShooting
+        ; only vertical shooting for now
+    ld a, [player_pixel_Xpos]
+    ld b, a
+    ld a, [player_pixel_Ypos]
+    ld c, a
+    call PS_straight_request
+    ld a, %00000001                         ; MANUAL SFX DEFINE
+    call sfx_request
+.skipShooting
+
     ret
 
 

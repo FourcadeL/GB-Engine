@@ -5,6 +5,7 @@
 LV_infos::                              ; A table of level infos (8 bytes entries)
 ;                                           1 byte : tileset index
 ;                                           1 byte initial scroll speed
+;                                               /!\ speeds greater than $50 will result in desync of the row loading routine
 ;                                           2 bytes : level stream addr
 ;                                           1 byte : block_row index
 ;                                           1 byte : nb of rows to go back from current position

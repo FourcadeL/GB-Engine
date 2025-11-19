@@ -65,17 +65,6 @@ game_main::
 .skiplevelLoad
 
 
-    ; TESTING : PLAYER SHOOT
-    ld a, [PAD_pressed]
-    and a, PAD_A
-    jr z, .skipShooting
-    ld a, [player_pixel_Xpos]
-    ld b, a
-    ld a, [player_pixel_Ypos]
-    ld c, a
-    call PS_straight_request
-.skipShooting
-
     jp      .loop ; new frame
 
 
@@ -104,4 +93,8 @@ game_init:
     ld hl, song_1_starfield
     call Audio_load_song
     call Audio_start_song
+
+    ; set auto repeat mask
+    ld hl, PAD_repeat_speed
+    ld [hl], %00001111
     ret

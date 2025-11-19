@@ -1,7 +1,11 @@
 ; ---------------------------------------------------------------------
 ; This file defines the SFX lookup table and Register value tables
 ; only 32 differnt SFX lookups can be defined
-; Seen notes for detail
+; See notes for detail
+;   Each data segment is as follows :
+;       $xx, $xx, $xx, $xx, $xx : 5 bytes for register values NRx0, NRx1, NRx2, NRx3, NRx4
+;       $cc : 1 control byte : delay before next register update (except for last segment)
+;   Each data table is ended by $FF, $dd where $dd is the delay before giving back the handle for song playback
 ; ----------------------------------------------------------------------
 
 
@@ -43,7 +47,8 @@ sfx_lookup::
 
     SECTION "SFX_values_table", ROMX
 sfx_data_0:
-    DB $00, $80, $F3, $83, $87, $03, $00, $80, $F3, $C1, $87, $FF, $1F
+    DB $00, $80, $F3, $83, $87, $03
+    DB $00, $80, $F3, $C1, $87, $FF, $1F
 sfx_data_1:
     DB %00100100, %11001000, $F4, $93, $83, $05
     DB %00100100, %11001000, $F4, $93, $84, $01

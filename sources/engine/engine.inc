@@ -41,6 +41,7 @@ MACRO GLOBAL_VBLANK_NON_CRITICAL
     call Audio_update
 ENDM
 
+EXPORT Global_counter
 
 ;**********************************
 ;       INIT.ASM
@@ -103,23 +104,6 @@ EXPORT  LCD_handler ;(2 byte)
 EXPORT  TIM_handler ;(2 byte)
 EXPORT  SIO_handler ;(2 byte)
 EXPORT  JOY_handler ;(2 byte)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
