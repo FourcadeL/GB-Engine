@@ -50,7 +50,7 @@ MACRO ACTOR_FIND_FREE
     ld d, a
     dec b
     jr nz, .loop
-    dec b                   ; unsure flag z is not set
+    dec b                   ; ensure flag z is not set
 .success
 ENDM
 

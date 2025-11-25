@@ -60,6 +60,6 @@ DEF framerule               RB 1 ; framerule for collision test
 
 DEF SIZEOF_rot_ennemy_data  RB 0
 
-STATIC_ASSERT SIZEOF_rot_ennemy_data <= ACTORS_DATA_SIZE, "Data struct is too large"
+STATIC_ASSERT SIZEOF_rot_ennemy_data <= ACTORS_DATA_SIZE, "Data struct for rot_enemy is too large"
 
     ENDC ; ROT_ENNEMY_INC

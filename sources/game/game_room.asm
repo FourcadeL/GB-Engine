@@ -64,6 +64,26 @@ game_main::
     call Levels_request
 .skiplevelLoad
 
+    ; TESTING : ACT_GENERATOR test (on start)
+    ld a, [PAD_pressed]
+    and a, PAD_START
+    jr z, .skipActGen
+    call generateRandom
+    and a, %01111111
+    ld b, a
+    ld c, 2
+    ld d, 3
+    ld e, 4
+    push bc
+    push de
+    ld b, 6
+    ld c, 20
+    ld de, Rot_enemy_request
+    call Act_generator_request
+    pop de
+    pop bc
+.skipActGen
+
 
     jp      .loop ; new frame
 
