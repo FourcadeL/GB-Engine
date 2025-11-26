@@ -54,4 +54,31 @@ MACRO ACTOR_FIND_FREE
 .success
 ENDM
 
+;--------------------------------
+; ACTOR_PLAYER_COLLISION_SQUARE(X, Y, XW, YH, .no_collision)
+;   Check if the current actor and the player
+;   have collided (square bounding box arround actor (X, Y) of width XW and height YH)
+;       Checks pixel posiitons
+;   flag c is set if collision occured
+;   [a, hl]
+;--------------------------------
+MACRO ACTOR_PLAYER_COLLISION_SQUARE
+    ld hl, player_pixel_Xpos
+    ld a, \1
+    sub a, [hl]
+    add a, Player_hitbox_width/2 + \3 /2
+    cp a, Player_hitbox_width + \3
+    jr nc, \5                               ; return no carry flag
+
+    ld hl, player_pixel_Ypos
+    ld a, \2
+    sub a, [hl]
+    add a, Player_hitbox_height/2 + \4 /2
+    cp a, Player_hitbox_height + \4
+    jr nc, \5
+ENDM
+    
+    
+
+
     ENDC ; ACTORS_inc

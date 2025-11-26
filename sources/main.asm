@@ -44,7 +44,7 @@ Main::
     ; load the game main room by default for testing
     jp game_main
     ; jp game_over_main
-    ; jp snd_test_main
+    jp snd_test_main
     jr .loop
 
 

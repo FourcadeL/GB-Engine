@@ -352,7 +352,7 @@ ES_check_player_collision:
     jr nc, .no_collision
         ; all tests passed, there is a collision
     ld hl, player_state
-    set 6, [hl]
+    set 6, [hl]                 ; set collision flag
     ret                         ; stop there for collision tests
 .no_collision
     inc b

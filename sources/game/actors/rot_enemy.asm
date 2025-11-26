@@ -16,6 +16,7 @@ INCLUDE "charmap.inc"
 INCLUDE "actors.inc"
 INCLUDE "rot_enemy.inc"
 INCLUDE "player_shots.inc"
+INCLUDE "player.inc"
 
 DEF ROT_ANIM_SPEED EQU 6
 DEF Rot_enemy_displaylist_entry EQUS "DisplayList_table + 26*2"
@@ -184,8 +185,9 @@ Movement_handle:
 ;-------------------------
 ; Collision_handle(bc = sprite addr, de = actor data addr)
 ;
-;   Tests agains all enemy shots if there is a collision
-;   Test is done only on EVEN frames (synced with player_shots)
+;   Tests against all enemy shots if there is a collision
+;   Test player collision and set player flag if collision occured
+;   Test is done only on current enemy framerule
 ;------------------------
 Collision_handle:
         ; check only on framerule
@@ -235,8 +237,7 @@ Collision_handle:
     inc d
     dec e
     jr nz, .loop
-    pop de
-    ret
+    jr .check_player_collision
 .test_shot
     push hl
     ld h, HIGH(ps_Yposs)
@@ -256,7 +257,7 @@ Collision_handle:
     add a, d
     ld l, a
     ld a, [hl]
-    sub a, c                    ; X pos fiff
+    sub a, c                    ; X pos diff
     jr nc, .non_negativeX
     cpl a
     inc a
@@ -278,6 +279,21 @@ Collision_handle:
     inc d
     dec e
     jr nz, .loop
+
+    ; check player collision (b = enemy Y pixel pos; c = enemy X pixel pos)
+.check_player_collision
+    ACTOR_PLAYER_COLLISION_SQUARE c, b, ROT_E_HITBOX_WIDTH, ROT_E_HITBOX_HEIGHT, .no_player_collision
+        ; set collision flag for player
+    ld hl, player_state
+    set 6, [hl]
+        ; set enely in dead state
+    pop hl
+;     ld a, state
+;     add a, l
+;     ld l, a                       ; state is the first byte of structure
+    ld [hl], DEAD_STATE
+    ret
+.no_player_collision
     pop de
     ret
 

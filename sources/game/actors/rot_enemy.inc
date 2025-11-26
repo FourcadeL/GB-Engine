@@ -7,13 +7,18 @@
 DEF ROT_ENNEMY_INC EQU 1
 
 DEF Y_SPEED                 EQU %00001101
-DEF X_SPEED                 EQU %00001111
+DEF X_SPEED                 EQU %00001010
 
-DEF ASCENT_TIME_COUNTER     EQU 40
+DEF ASCENT_TIME_COUNTER     EQU 36
 DEF DESCENT_TIME_COUNTER    EQU 98
 
 ; Auto delete after passed threshold
 DEF BOUNDARY_Y              EQU 160
+
+; hitbox values
+DEF ROT_E_HITBOX_WIDTH      EQU 8
+DEF ROT_E_HITBOX_HEIGHT     EQU 8
+
 
 ; ENNEMY STATES :
 ;   DEAD
