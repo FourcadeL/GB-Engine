@@ -23,11 +23,13 @@ INCLUDE "player.inc"
 _player_variables_start:
 player_state::          DS 1
 ;   %xxxxxlrv
-;    |||  ||+-> player has moved vertically
-;    |||  ||
-;    |||  |+-> player has moved right
-;    |||  |
-;    |||  +-> player has moved left
+;    |||| ||+-> player has moved vertically
+;    |||| ||
+;    |||| |+-> player has moved right
+;    |||| |
+;    |||| +-> player has moved left
+;    ||||
+;    |||+-> player is in a dying state (should not give control to player)
 ;    |||
 ;    ||+-> player collision with ennemy
 ;    |+-> player collision with shot
@@ -39,6 +41,7 @@ DEF player_Ypos EQUS "Player_sprite_entry + 2"
 ; player_Ypos::           DS 2
 player_pixel_Xpos::     DS 1            ; the integral X position of the player
 player_pixel_Ypos::     DS 1            ; the integral Y position of the player
+player_dying_counter:   DS 1            ; dying animation counter
 _player_variables_end:
 
 
@@ -79,6 +82,10 @@ Player_init::
     ld [hl+], a
     ld a, Player_y_init_pos >> 4
     ld [hl], a
+
+        ; set dying counter
+    ld hl, player_dying_counter
+    ld [hl], Player_death_anim_counter
 
     call Player_set_idle_frame
     ret
@@ -177,7 +184,76 @@ Player_reset_down_pos:
     ld [hl], HIGH(Player_boundary_down)
     ret
 
+; ---------------------------
+; dying_update()
+;   display some explosions before setting the "dead bit" state
+; ---------------------------
+dying_update:
+    ld hl, player_dying_counter
+    dec [hl]
+    jr z, .over
+        ; sprite flicker
+        push hl
+        ld hl, Player_sprite_entry
+        ld a, [hl]
+        ld b, a
+        and a, %11111110
+        ld c, a
+        ld a, b
+        inc a
+        res 1, a
+        or a, c
+        ld [hl], a
+
+        pop hl
+
+        ; display animation
+        ld a, %00000111
+        and a, [hl]
+        ret nz
+
+        call generateRandom
+        and a, %00010111
+        sub a, %00001111
+        ld d, a
+        ld a, [player_pixel_Xpos]
+        add a, d
+        ld b, a
+
+        push bc
+        call generateRandom
+        pop bc
+
+        and a, %00010111
+        sub a, %00001111
+        ld d, a
+        ld a, [player_pixel_Ypos]
+        add a, d
+        ld c, a
+        
+        jp Explosion_request
+.over
+    ld hl, player_state
+    set 7, [hl]
+    ret
+
 Player_update::
+    ld hl, player_state
+    bit 4, [hl]
+    jr nz, dying_update                 ; dying state, no control
+    bit 7, [hl]
+    ret nz                              ; dead -> no routine
+
+    ; STATUS UPDATE     ;TODO WORK IN PROGRESS
+    bit 6, [hl]
+    jr z, .skip1
+    set 4, [hl]
+.skip1
+    bit 5, [hl]
+    jr z, .skip2
+    set 4, [hl]
+.skip2
+
     ; POSITION UPDATE
     ld a, [PAD_hold]
     and PAD_RIGHT
@@ -276,6 +352,8 @@ Player_update::
 .skipShooting
 
     ret
+
+    
 
 
 

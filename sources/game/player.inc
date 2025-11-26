@@ -25,4 +25,6 @@ DEF Player_hitbox_height EQU 12
 
 DEF Player_anim_counter_reset EQU 14
 
+DEF Player_death_anim_counter EQU 160
+
     ENDC ; PLAYER_INC

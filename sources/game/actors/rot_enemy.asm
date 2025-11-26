@@ -285,7 +285,7 @@ Collision_handle:
     ACTOR_PLAYER_COLLISION_SQUARE c, b, ROT_E_HITBOX_WIDTH, ROT_E_HITBOX_HEIGHT, .no_player_collision
         ; set collision flag for player
     ld hl, player_state
-    set 6, [hl]
+    set 5, [hl]
         ; set enely in dead state
     pop hl
 ;     ld a, state

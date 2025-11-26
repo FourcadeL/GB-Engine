@@ -36,10 +36,10 @@ game_main::
 
     ; Test collision flag, if collision, display game over
     ld hl, player_state
-    bit 6, [hl]
-    jr z, .no_collision
+    bit 7, [hl]
+    jr z, .not_dead
     jp game_over_main
-.no_collision
+.not_dead
 
     ; TESTING : RANDOM NEW rot enemy
     call generateRandom

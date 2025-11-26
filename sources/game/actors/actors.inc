@@ -63,6 +63,9 @@ ENDM
 ;   [a, hl]
 ;--------------------------------
 MACRO ACTOR_PLAYER_COLLISION_SQUARE
+    ld hl, player_state
+    bit 4, [hl]                             ; check if player is dying
+    jr nz, \5
     ld hl, player_pixel_Xpos
     ld a, \1
     sub a, [hl]
