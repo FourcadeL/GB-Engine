@@ -56,9 +56,9 @@ DEF MOVE_ASCENT_LEFT_STATE      EQU %00000011
 RSRESET
 DEF state                   RB 1 ; state byte
 DEF move_state              RB 1 ; type of move for the ennemy
-DEF move_counter            RB 1 ; move counter byte
-DEF shoot_timeout           RB 1 ; timeout between shots
-DEF shoot_counter           RB 1 ; countdown counter for next shot
+DEF move_counter            RB 1 ; move counter byte (updated counter)
+DEF shoot_timeout           RB 1 ; timeout between shots (counter reset value)
+DEF shoot_counter           RB 1 ; countdown counter for next shot (updated counter)
 DEF shoot_rate              RB 1 ; shoot threshold for random
 DEF shot_speed              RB 1 ; speed of fired shots
 DEF framerule               RB 1 ; framerule for collision test

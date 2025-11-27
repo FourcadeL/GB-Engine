@@ -116,5 +116,7 @@ game_init:
 
     ; set auto repeat mask
     ld hl, PAD_repeat_speed
-    ld [hl], %00001111
+    ld [hl], %00001011
+    ld hl, PAD_repeat_counter
+    ld [hl], $02
     ret

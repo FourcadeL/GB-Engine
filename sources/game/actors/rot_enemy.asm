@@ -100,13 +100,13 @@ Rot_enemy_request::
     ld [hl+], a
     ld [hl], DESCENT_TIME_COUNTER
     inc hl
-    ld [hl], 80             ; TODO default shoot timeout
+    ld [hl], 10             ; TODO default shoot timeout
     inc hl
     ld [hl], 60             ; TODO default shoot countdown
     inc hl
-    ld [hl], %00101111      ; TODO default shoot threshold
+    ld [hl], %00001111      ; TODO default shoot threshold (higher = more shoots)
     inc hl
-    ld [hl], 1              ; TODO default shot speed (0 to 3)
+    ld [hl], 2              ; TODO default shot speed (0 to 3)
     inc hl
 
         ; framerule set
