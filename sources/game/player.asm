@@ -230,7 +230,7 @@ dying_update:
         ld a, [player_pixel_Ypos]
         add a, d
         ld c, a
-        
+
         jp Explosion_request
 .over
     ld hl, player_state
@@ -347,13 +347,13 @@ Player_update::
     ld a, [player_pixel_Ypos]
     ld c, a
     call PS_straight_request
-    ld a, %00000001                         ; MANUAL SFX DEFINE
+    ld a, %00000011                         ; MANUAL SFX DEFINE
     call sfx_request
 .skipShooting
 
     ret
 
-    
+
 
 
 

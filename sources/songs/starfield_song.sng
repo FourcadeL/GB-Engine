@@ -36,8 +36,8 @@ ch3 empty
 ch4 noiseInstrumentBlock
 
 song starfield :
-ch1 Smain1
-ch2 empty
+ch1 empty
+ch2 Smain1
 ch3 Smainwave
 ch4 SmainNoise
 
