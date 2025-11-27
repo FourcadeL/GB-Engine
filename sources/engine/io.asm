@@ -56,23 +56,26 @@ getInput::
     ld      a,c             ; c is the old held value
     cpl     a
     and     a,b             ; keys pressed not held on previous frame
-    ld      c,a             ; c <- keys pressed this frame
+    ld      [PAD_repeat], a ; set repeated keys to pressed this frame
 
     ld      [PAD_pressed], a; save pressed keys
     or      a,b
-    ld      [PAD_repeat], a ; repeated keys
+    ld      d,a             ; repeated this frame saved in d
 
     and     $00             ; ld a, $00
     ld      [rP1],a         ; RESET read addr
 
-    ld      a, [Global_counter]
-    ld      hl, PAD_repeat_speed
-    and     a, [hl]
+        ; test repeat counter
+    ld      hl, PAD_repeat_counter
+    dec     [hl]
 
-    ret     z               ; auto-repeat already set
+    ret     nz              ; no repeat trigger
 
-    ld      a, c
-    ld      [PAD_repeat], a ; set repeated keys to pressed this frame
+    ld      a, [PAD_repeat_speed]
+    ld      [hl], a
+
+    ld      a,d
+    ld      [PAD_repeat], a ; repeated keys
 
     ret
 
@@ -92,7 +95,8 @@ getInput::
 
     SECTION "IO_Variables",WRAM0
 
-PAD_repeat_speed::  DS 1            ; repeat framerule speed (speeds should be masks (%00000011 or %00011111) for example)
+PAD_repeat_speed::  DS 1            ; repeat speed (the duration between keys repeat activations)
+PAD_repeat_counter::DS 1            ; internal counter for keys repeat
 PAD_hold::          DS 1            ; keys holded this frame
 PAD_pressed::       DS 1            ; keys pressed this frame
 PAD_repeat::        DS 1            ; keys auto-repeated this frame
