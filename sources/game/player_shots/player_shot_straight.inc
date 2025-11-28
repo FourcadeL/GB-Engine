@@ -63,6 +63,7 @@ MACRO PS_STRAIGHT_UPDATE
     ld a, 0
     ld [de], a
     inc de
+    inc hl
     dec c
     jr nz, .loop
 .end
