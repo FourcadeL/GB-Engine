@@ -17,6 +17,9 @@ DEF BOUNDARY_Y              EQU 160
 DEF WAV_E_HITBOX_WIDTH      EQU 6
 DEF WAV_E_HITBOX_HEIGHT     EQU 8
 
+; animation speed
+DEF ANIM_COUNTER_VALUE      EQU 24
+
 
 ; ENNEMY STATES :
 ;   DEAD
@@ -45,6 +48,7 @@ DEF shoot_timeout           RB 1 ; timeout between shots (counter reset value)
 DEF shoot_counter           RB 1 ; countdown counter for next shot (updated counter)
 DEF shoot_rate              RB 1 ; shoot threshold for random
 DEF shot_speed              RB 1 ; speed of fired shots
+DEF anim_counter            RB 1 ; animation counter byte
 DEF framerule               RB 1 ; framerule of enemy
 
 DEF SIZEOF_wav_enemy_data   RB 0

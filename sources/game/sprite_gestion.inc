@@ -58,11 +58,11 @@
 ; 23 :  Explosion frame 4
 ; 24 :  Explosion frame 5
 ; 25 :  Explosion frame 6
-; 26 :  Rolling ennemy display list, shared by all ennemies
-; 27 :
-; 28 :
-; 29 :
-; 30 :
+; 26 :  Rolling enemy display list, shared by all ennemies
+; 27 :  Waving enemy frame 1
+; 28 :  Waving enemy frame 2
+; 29 :  Waving enemy frame 3
+; 30 :  Waving enemy frame 4
 ; 31 :
 
 

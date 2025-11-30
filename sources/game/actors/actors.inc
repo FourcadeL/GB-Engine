@@ -27,15 +27,17 @@ EXPORT Actors_data_table
 ;   find the first free actor slot
 ;   set hl to addr of free sprite
 ;   set de to addr of free actor table slot
+;   set c to actor index
 ;
 ;   if free actor found -> flag z is set as a return
 ;       else -> flag z is not set
-;   [a, b, hl, de]
+;   [a, bc, hl, de]
 ;----------------------
 MACRO ACTOR_FIND_FREE
     ld hl, Actors_sprite_first_entry
     ld de, Actors_data_table
     ld b, ACTORS_NB
+    ld c, 0
 .loop
     bit 7, [hl]
     jr z, .success
@@ -48,6 +50,7 @@ MACRO ACTOR_FIND_FREE
     ld a, d
     adc a, $00
     ld d, a
+    inc c
     dec b
     jr nz, .loop
     dec b                   ; ensure flag z is not set

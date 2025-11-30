@@ -96,6 +96,7 @@ game_init:
     ; ennemy init
     call Actors_init
     call Rot_enemy_init
+    call Wav_enemy_init
 
     ; explosion init
     call Explosion_init

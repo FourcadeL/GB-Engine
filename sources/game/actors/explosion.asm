@@ -176,7 +176,7 @@ explosion_dl_frame6:
     DB -8, -8, (tile17 - _VRAM)/16, 0
     DB -8, 0, (tile19 - _VRAM)/16, 0
 
-static_dl_addrs:                ; static ouline of dl for setup in displyList table
+static_dl_addrs:                ; static outline of dl for setup in displyList table
     DW explosion_dl_frame1
     DW explosion_dl_frame2
     DW explosion_dl_frame3

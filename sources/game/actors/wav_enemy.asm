@@ -14,6 +14,9 @@ INCLUDE "wav_enemy.inc"
 INCLUDE "player_shots.inc"
 INCLUDE "player.inc"
 
+DEF Wav_enemy_displayList_first_entry EQUS "DisplayList_table + 27*2"
+DEF Wav_enemy_displayList_first_entry_index EQU 27
+
 
 
 ;+----------------------------------------------------------------+
@@ -48,6 +51,12 @@ Wav_enemy_init::
     ld b, _wav_enemy_variables_end - _wav_enemy_variables
     call memset_fast
 
+    ; copy displayList_tables
+    ld hl, static_dl_addrs
+    ld de, Wav_enemy_displayList_first_entry
+    ld b, static_dl_addrs.end - static_dl_addrs
+    call memcopy_fast
+
     ret
 
 
@@ -68,7 +77,7 @@ Wav_enemy_request::
     ld a, %10000001
     ld [hl+], a
 
-    ld a, $00                               ; dummy display list TODO
+    ld a, Wav_enemy_displayList_first_entry_index ; display list
     ld [hl+], a
     ld a, $80                               ; start Y pos is $0F80
     ld [hl+], a
@@ -104,6 +113,10 @@ Wav_enemy_request::
     ld [hl], 2                              ; TODO default shot speed (0 to 3)
     inc hl
 
+        ; animation counter
+    ld [hl], ANIM_COUNTER_VALUE
+    inc hl
+
         ; framerule set
     ld de, wav_enemy_next_assign_framerule
     ld a, [de]
@@ -120,7 +133,8 @@ Wav_enemy_request::
 ;
 ;   1 - do main state handle
 ;   2 - do movement handle
-;   3 - do collision handling
+;   3 - do animation handling
+;   4 - do collision handling
 ;-------------------------------------------------------------
 Wav_enemy_handle:
        ; handle state
@@ -218,12 +232,9 @@ movement_handle:
 
     pop de
 
-    jr collision_handle
+    jr animation_handle
 
 
-
-
-    ; TODO
 
 ;------------------------------------------------
 ; dead_state_handle(bc = sprite addr)
@@ -327,6 +338,36 @@ shoot_state_handle:
     pop de
 
     jp movement_handle
+
+
+;---------------------------
+; animation_handle(bc = sprite addr, de = actor data addr)
+;
+;   Update animation of actor
+;----------------------------
+animation_handle:
+    ld a, anim_counter
+    add a, e
+    ld l, a
+    ld h, d
+    dec [hl]
+    jr nz, collision_handle             ; no trigger, next action
+        ; update animation
+    ld [hl], ANIM_COUNTER_VALUE
+    ld a, SPRITE_STRUCT_displ
+    add a, c
+    ld l, a
+    ld h, b
+    ld a, [hl]
+    inc a
+    ld [hl], a
+    cp a, Wav_enemy_displayList_first_entry_index + 4       ; 4 frame
+    jr nz, collision_handle             ; no reset of animation frame
+    ld a, Wav_enemy_displayList_first_entry_index
+    ld [hl], a
+;     jp collision_handle
+
+
 
 ;-------------------------
 ; collision_handle(bc = sprite addr, de = actor data addr)
@@ -444,6 +485,27 @@ collision_handle:
     ret
 
 
+    SECTION "Wav_enemy_display_lists", ROMX, ALIGN[4]
+enemy_wav_dl_frame1:
+    DB 2
+    DB -8, -8, (tile1 - _VRAM)/16, 0
+    DB -8, 0, (tile1 - _VRAM)/16, %00100000
+enemy_wav_dl_frame2:
+    DB 2
+    DB -8, -8, (tile3 - _VRAM)/16, 0
+    DB -8, 0, (tile5 - _VRAM)/16, 0
+enemy_wav_dl_frame3:
+    DB 2
+    DB -8, -8, (tile5 - _VRAM)/16, %00100000
+    DB -8, 0, (tile3 - _VRAM)/16, %00100000
+
+
+static_dl_addrs:                ; static outline of dl for setup in displyList table
+    DW enemy_wav_dl_frame1
+    DW enemy_wav_dl_frame2
+    DW enemy_wav_dl_frame1
+    DW enemy_wav_dl_frame3
+.end
 ;+------------------------------------------------------------------+
 ;| +--------------------------------------------------------------+ |
 ;| |                    VRAM                                      | |
@@ -452,8 +514,19 @@ collision_handle:
 
     SECTION "Wav_enemy_tiles", ROMX
 Wav_enemy_tiles:
-    LOAD "Wav_enemy_VRAM", VRAM[$820A]
+    LOAD "Wav_enemy_VRAM", VRAM[$82A0]
 Wav_enemy_vram_tiles:
-; TODO
+tile1:
+    DB $02, $00, $00, $02, $00, $62, $64, $91, $a6, $13, $17, $27, $1f, $6c, $1f, $2c
+tile2:
+    DB $16, $64, $99, $29, $38, $91, $78, $11, $31, $50, $09, $20, $08, $00, $00, $08
+tile3:
+    DB $02, $00, $00, $02, $00, $02, $04, $02, $04, $03, $1f, $0f, $0e, $1d, $0f, $1c
+tile4:
+    DB $0e, $1d, $1f, $0f, $0e, $06, $0c, $0c, $05, $0c, $04, $0c, $0c, $04, $00, $00
+tile5:
+    DB $40, $00, $00, $40, $00, $70, $70, $88, $a8, $44, $40, $a4, $40, $b4, $40, $a4
+tile6:
+    DB $40, $b4, $48, $a4, $20, $c8, $30, $c0, $a0, $50, $90, $20, $10, $00, $00, $00
     ENDL
 .end
