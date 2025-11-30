@@ -41,7 +41,7 @@ game_main::
     jp game_over_main
 .not_dead
 
-    ; TESTING : RANDOM NEW rot enemy
+    ; TESTING : RANDOM NEW wav enemy
     call generateRandom
     and a, %11111100
     ld a, [PAD_pressed]
@@ -50,8 +50,9 @@ game_main::
     call generateRandom
     and a, %01111111
     ld b, a
-    ld b, 18
-    call Rot_enemy_request
+    ld b, 28
+    ld c, 4
+    call Wav_enemy_request
 .skipenn
 
     ; TESTING : LOAD LEVEL (on select)

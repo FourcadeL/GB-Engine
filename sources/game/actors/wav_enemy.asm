@@ -1,0 +1,459 @@
+; ###########################
+; Waving enemy actor
+;
+;   handle waving enemy actor functions
+; ###########################
+
+
+INCLUDE "hardware.inc"
+INCLUDE "engine.inc"
+INCLUDE "utils.inc"
+INCLUDE "sprites.inc"
+INCLUDE "actors.inc"
+INCLUDE "wav_enemy.inc"
+INCLUDE "player_shots.inc"
+INCLUDE "player.inc"
+
+
+
+;+----------------------------------------------------------------+
+;| +------------------------------------------------------------+ |
+;| |                        RAM                                 | |
+;| +------------------------------------------------------------+ |
+;+----------------------------------------------------------------+
+
+    SECTION "Wav_enemy_variables", WRAM0
+_wav_enemy_variables:
+wav_enemy_next_assign_framerule:    DS 1            ; next framerule to use
+_wav_enemy_variables_end:
+
+;+----------------------------------------------------------------+
+;| +------------------------------------------------------------+ |
+;| |                           ROM                              | |
+;| +------------------------------------------------------------+ |
+;+----------------------------------------------------------------+
+
+    SECTION "Wav_enemy_code", ROMX
+
+Wav_enemy_init::
+    ; copy tiles into VRAM
+    ld hl, Wav_enemy_tiles
+    ld de, Wav_enemy_vram_tiles
+    ld c, Wav_enemy_tiles.end - Wav_enemy_tiles
+    call vram_copy_fast
+
+    ; reset variables
+    ld d, $00
+    ld hl, _wav_enemy_variables
+    ld b, _wav_enemy_variables_end - _wav_enemy_variables
+    call memset_fast
+
+    ret
+
+
+;----------------------------------------
+; Wav_enemy_request(b = x pixel pos c = sine step speed)
+;   Request a new waving enemy at position specified by b
+;   with sine amplitude as defined in c
+;   Enemy always starts up at the top of the screen
+;----------------------------------------
+Wav_enemy_request::
+    push bc
+    ACTOR_FIND_FREE                         ; find actor (hl, de are set)
+    pop bc
+    ret nz
+
+        ; add waving enemy at hl and de
+    ; sprite data
+    ld a, %10000001
+    ld [hl+], a
+
+    ld a, $00                               ; dummy display list TODO
+    ld [hl+], a
+    ld a, $80                               ; start Y pos is $0F80
+    ld [hl+], a
+    ld a, $0F
+    ld [hl+], a
+    swap b
+    ld a, b
+    and a, $F0
+    ld [hl+], a                             ; set X low position
+    ld a, b
+    and a, $0F
+    ld [hl+], a                             ; set X high position
+    ld a, LOW(Wav_enemy_handle)
+    ld [hl+], a
+    ld [hl], HIGH(Wav_enemy_handle)
+
+    ; actor data
+    ld h, d
+    ld l, e
+    ld a, COUNTER_STATE
+    ld [hl+], a
+    ld [hl], 00                             ; startup movement count
+    inc hl
+    ld [hl], c                              ; sine step speed
+    inc hl
+
+    ld [hl], 20                             ; TODO default shoot timeout
+    inc hl
+    ld [hl], 40                             ; TODO default shoot countdown
+    inc hl
+    ld [hl], %00001111                      ; TODO default shoot threshold (higher = more shoots)
+    inc hl
+    ld [hl], 2                              ; TODO default shot speed (0 to 3)
+    inc hl
+
+        ; framerule set
+    ld de, wav_enemy_next_assign_framerule
+    ld a, [de]
+    inc a
+    and a, %00000011
+    ld [de], a
+    ld [hl], a                              ; framerule for this enemy
+
+    ret
+
+
+;-------------------------------------------------------------
+; Wav_enemy_handle(bc = sprite addr, da = actor data addr)
+;
+;   1 - do main state handle
+;   2 - do movement handle
+;   3 - do collision handling
+;-------------------------------------------------------------
+Wav_enemy_handle:
+       ; handle state
+;     ld a, state
+;     add a, e
+;     ld h, d
+;     ld l, e
+    ld a, [de]                              ; get current state (first byte)
+    cp a, COUNTER_STATE
+    jr z, count_state_handle
+    cp a, SHOOT_STATE
+    jr z, shoot_state_handle
+    cp a, DEAD_STATE
+    jr z, dead_state_handle
+    cp a, DELETE_STATE
+    jr z, delete_state_handle
+
+    ret
+
+;-----------------------------------------------
+; count_state_handle(bc = sprite addr, da = actor data addr)
+;
+;   Update shoot counter
+;-----------------------------------------------
+count_state_handle:
+    ld a, shoot_timeout
+    add a, e
+    ld l, a
+    ld h, d
+    ld a, [hl+]                             ; stores counter reset value
+    dec [hl]
+    jr nz, movement_handle                  ; no trigger, continue to movement routine
+
+        ; trigger a shot
+    ld [hl], a                              ; reset counter
+    ld a, SHOOT_STATE
+    ld [de], a
+    jr movement_handle
+
+
+;------------------------------------------------
+; movement_handle(bc = sprite addr, de = actor data addr)
+;
+;   Update enemy position (sinus)
+;------------------------------------------------
+movement_handle:
+        ; handle Y movement
+    ld a, SPRITE_STRUCT_Ypos
+    add a, c
+    ld h, b
+    ld l, a
+    ld a, [hl]
+    add a, Y_SPEED
+    ld [hl+], a
+    ld a, [hl]
+    adc a, 0
+    ld [hl], a
+        ; Test low nibble of a + 1:
+        ; grater than High nibble of BOUNDARY_Y
+        ; -> delete sprite
+        inc a
+        and a, %00001111
+        cp a, BOUNDARY_Y >> 4
+        jr nc, delete_state_handle
+
+        ; handle X movement
+    push de
+    ld a, x_movement_count
+    add a, e
+    ld h, d
+    ld l, a
+    ld a, [hl+]
+    add a, [hl]                         ; advance counter
+    dec hl
+    ld [hl], a                          ; stores ocunter back
+    GET_SINE_A
+    sra a                               ; shift sine aplitude
+    sra a
+    ld d, $00                           ; high part of 16 bit position offset
+    bit 7, a
+    jr z, .positive_sine
+        dec d                           ; sine is negative -> high 16 bit part is %11111111
+.positive_sine
+    ld e, a
+    ld a, SPRITE_STRUCT_Xpos
+    add a, c
+    ld h, b
+    ld l, a
+    ld a, [hl]
+    add a, e
+    ld [hl+], a
+    ld a, [hl]
+    adc a, d
+    ld [hl], a
+
+    pop de
+
+    jr collision_handle
+
+
+
+
+    ; TODO
+
+;------------------------------------------------
+; dead_state_handle(bc = sprite addr)
+;
+;   put explosion at old position
+;   delete sprite entry
+;------------------------------------------------
+dead_state_handle:
+        ; add explosion at former position
+    push bc
+    ld a, SPRITE_STRUCT_Ypos
+    add a, c
+    ld l, a
+    ld h, b
+    ld a, [hl+]
+    and a, %11110000
+    ld c, a
+    ld a, [hl+]
+    and a, %00001111
+    or a, c
+    swap a
+    ld c, a                         ; c <- y pixel pos
+    ld a, [hl+]
+    and a, %11110000
+    ld b, a
+    ld a, [hl]
+    and a, %00001111
+    or a, b
+    swap a
+    ld b, a
+    call Explosion_request
+    pop bc
+;     jr delete_state_handle
+;------------------------------------------------
+; delete_state_handle(bc = sprite addr)
+;
+;   delete sprite entry
+;------------------------------------------------
+delete_state_handle:
+        ; delete sprite
+    ld a, 0
+    ld [bc], a
+    ret
+;------------------------------------------------
+; shoot_state_handle(bc = sprite addr, de = actor data addr)
+;
+;   reset state to counter
+;   random shoot
+;------------------------------------------------
+shoot_state_handle:
+        ; reset state
+    ld a, COUNTER_STATE
+    ld [de], a
+
+    push bc
+    push de
+    push hl
+        ; test if random is under threshold
+    call generateRandom
+    pop hl
+    pop de
+    pop bc
+    cp a, [hl]
+    ret nc                          ; if shoot_rate <= a
+
+        ; shoot toward player
+    push de
+    push bc
+
+    ld a, SPRITE_STRUCT_Ypos
+    add a, c
+    ld h, b
+    ld l, a
+    ld a, [hl+]
+    and a, %11110000
+    ld c, a
+    ld a, [hl+]
+    and a, %00001111
+    or a, c
+    swap a
+    ld c, a                         ; b <- Y pixel pos of enemy
+    ld a, [hl+]
+    and a, %11110000
+    ld b, a
+    ld a, [hl]
+    and a, %00001111
+    or a, b
+    swap a
+    ld b, a                         ; c <- X pixel pos of enemy
+
+    ld a, shot_speed
+    add a, e
+    ld h, d
+    ld l, a
+
+    ld d, [hl]                      ; shot speed
+
+    call TP_request_shot_toward_player
+
+    pop bc
+    pop de
+
+    jp movement_handle
+
+;-------------------------
+; collision_handle(bc = sprite addr, de = actor data addr)
+;
+;   Tests against all enemy shots if there is a collision
+;   Test player collision and set player flag if collision occured
+;   Test is done only on current enemy framerule
+;------------------------
+collision_handle:
+        ; check only on framerule
+    ld a, e
+    add a, framerule
+    ld l, a
+    ld h, d
+    ld a, [Global_counter]
+    and a, %00000011
+    sub a, [hl]
+    ret nz                          ; don't update on wrong framerule
+        ; handle collision with player shot
+    ; (assume that bc and de are still set)
+    push de
+    ld a, SPRITE_STRUCT_Ypos
+    add a, c
+    ld h, b
+    ld l, a
+    ld a, [hl+]
+    and a, %11110000
+    ld d, a
+    ld a, [hl+]
+    and a, %00001111
+    or a, d
+    swap a
+    ld d, a                     ; d <- enemy pixel Y pos
+    ld a, [hl+]
+    and a, %11110000
+    ld e, a
+    ld a, [hl]
+    and a, %00001111
+    or a, e
+    swap a
+    ld e, a                     ; e <- enemy pixel X pos
+
+    ld b, d
+    ld c, e
+
+        ; test against all player shots
+    ld hl, ps_status            ; status table
+    ld d, 0                     ; index count
+    ld e, PS_MAX_SHOTS
+.loop
+    bit 7, [hl]
+    jr nz, .test_shot
+    inc hl
+    inc d
+    dec e
+    jr nz, .loop
+    jr .check_player_collision
+.test_shot
+    push hl
+    ld h, HIGH(ps_Yposs)
+    ld a, LOW(ps_Yposs)
+    add a, d
+    ld l, a
+    ld a, [hl]
+    sub a, b                    ; Y pos diff
+    jr nc, .non_negativeY
+    cpl a
+    inc a
+.non_negativeY
+    and a, %11110000
+    jr nz, .abort_this_collision
+    ld h, HIGH(ps_Xposs)
+    ld a, LOW(ps_Xposs)
+    add a, d
+    ld l, a
+    ld a, [hl]
+    sub a, c                    ; X pos diff
+    jr nc, .non_negativeX
+    cpl a
+    inc a
+.non_negativeX
+    and a, %11111000
+    jr nz, .abort_this_collision
+        ; collision found, set state
+    pop hl
+    set 5, [hl]                 ; set collide flag to shot
+    pop hl
+    ld a, state
+    add a, l
+    ld l, a
+    ld [hl], DEAD_STATE
+    ret
+.abort_this_collision
+    pop hl
+    inc hl
+    inc d
+    dec e
+    jr nz, .loop
+
+    ; check player collision (b = enemy Y pixel pos; c = enemy X pixel pos)
+.check_player_collision
+    ACTOR_PLAYER_COLLISION_SQUARE c, b, WAV_E_HITBOX_WIDTH, WAV_E_HITBOX_HEIGHT, .no_player_collision
+        ; set collision flag for player
+    ld hl, player_state
+    set 5, [hl]
+        ; set enely in dead state
+    pop hl
+;     ld a, state
+;     add a, l
+;     ld l, a                       ; state is the first byte of structure
+    ld [hl], DEAD_STATE
+    ret
+.no_player_collision
+    pop de
+    ret
+
+
+;+------------------------------------------------------------------+
+;| +--------------------------------------------------------------+ |
+;| |                    VRAM                                      | |
+;| +--------------------------------------------------------------+ |
+;+------------------------------------------------------------------+
+
+    SECTION "Wav_enemy_tiles", ROMX
+Wav_enemy_tiles:
+    LOAD "Wav_enemy_VRAM", VRAM[$820A]
+Wav_enemy_vram_tiles:
+; TODO
+    ENDL
+.end
