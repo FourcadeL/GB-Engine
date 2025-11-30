@@ -157,7 +157,7 @@ Rot_enemy_handle:
     ld a, state
     add a, e
     ld h, d
-    ld l, e
+    ld l, a
     ld a, [hl]                  ; get current state
     cp a, COUNTER_STATE
     jp z, count_handle
@@ -350,7 +350,7 @@ move_descent_handle:
         ; Test low nibble of a + 1:
         ; grater than High nibble of BOUNDARY_Y
         ; -> delete sprite
-        add a,1
+        inc a
         and a, %00001111
         cp a, BOUNDARY_Y >> 4
         jr nc, delete_state_handle

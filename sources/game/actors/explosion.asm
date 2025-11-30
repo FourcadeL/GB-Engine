@@ -104,7 +104,7 @@ Explosion_request::
     ld a, 0                                         ; reset animation data
     ld [hl+], a
     ld [hl], a
-    
+
     ld hl, nb_active
     inc [hl]                                        ; update active nb
     ret

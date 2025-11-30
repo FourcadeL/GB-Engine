@@ -1,10 +1,10 @@
 ; ################################
-; Rot ennemy struct and definitions
+; Rot enemy struct and definitions
 ; ################################
 
 
-    IF!DEF(ROT_ENNEMY_INC)
-DEF ROT_ENNEMY_INC EQU 1
+    IF!DEF(ROT_ENEMY_INC)
+DEF ROT_ENEMY_INC EQU 1
 
 DEF Y_SPEED                 EQU %00001101
 DEF X_SPEED                 EQU %00001010
@@ -63,8 +63,8 @@ DEF shoot_rate              RB 1 ; shoot threshold for random
 DEF shot_speed              RB 1 ; speed of fired shots
 DEF framerule               RB 1 ; framerule for collision test
 
-DEF SIZEOF_rot_ennemy_data  RB 0
+DEF SIZEOF_rot_enemy_data  RB 0
 
-STATIC_ASSERT SIZEOF_rot_ennemy_data <= ACTORS_DATA_SIZE, "Data struct for rot_enemy is too large"
+STATIC_ASSERT SIZEOF_rot_enemy_data <= ACTORS_DATA_SIZE, "Data struct for rot_enemy is too large"
 
-    ENDC ; ROT_ENNEMY_INC
+    ENDC ; ROT_ENEMY_INC
