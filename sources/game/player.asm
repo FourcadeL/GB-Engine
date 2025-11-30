@@ -231,7 +231,12 @@ dying_update:
         add a, d
         ld c, a
 
-        jp Explosion_request
+        call Explosion_request
+
+        ; set audio sfx
+        ld a, %11000100
+        jp sfx_request
+
 .over
     ld hl, player_state
     set 7, [hl]
