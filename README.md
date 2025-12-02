@@ -8,8 +8,10 @@ Can be used as a template to start new projects
 
 ### Dependencies
 
-This engine is written is z80 assembly and requires the rgbds tools to build properly (rgbasm, rgblink and rgbfix)
+This engine is written in z80 assembly and requires the rgbds tools to build properly (rgbasm, rgblink and rgbfix)
 You can found them at : https://rgbds.gbdev.io/
+
+The audio data is compiled using a small compiler I wrote, you can find it here : https://github.com/FourcadeL/aria
 
 
 ### Building
