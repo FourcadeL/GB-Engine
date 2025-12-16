@@ -112,6 +112,7 @@ Levels_update::
     ret z
     call Levels_load_row_routine            ; row load routine
     call Levels_load_actors_row_routine     ; actors load routine
+    call Levels_load_data_routine           ; load next data_chunk (end with a row request)
         ; level scroll
     ld a, [levels_current_scrollY_speed]
     ld hl, levels_current_scrollY_position
@@ -269,7 +270,7 @@ Levels_load:
     push de
     ld hl, levels_flags
     set 0, [hl]
-    call Levels_load_row_routine
+    call Levels_load_data_routine
     call Levels_load_row_routine
     call wait_vbl
     call Levels_load_row_routine
@@ -290,40 +291,52 @@ Levels_load:
     set 6, [hl]                             ; level running flag (WILL BE REMOVED)
     ret
 
-; ---------------------------
-; Levels_load_row_routine()
-;   Load a new row in tilemap
-;   A call either loads the lower 8 pixel row
-;   (if bit 2 of levels_flag is not set)
-;   Or the upper 8 pixels row
-;   (if bit 2 of levels_flag is set)
-;       3 actions :
-;           - _prepare : prepare row to load in levels_row_to_load_addr (is bit 0 is set) then return
-;           - _lower : load lower row if bit 1 is set but not bit 2 then return
-;           - _upper : load upper row if bit 1 is set and bit 2 is set then return
-; ---------------------------
-Levels_load_row_routine:
-._prepare
+
+
+; ----------------------------
+; Levels_load_data_routine()
+;   Load a new chunk of data
+;   That is : read level controls until a new row request is read
+;
+;   Check loader process flag
+;       if zero -> return
+;       else -> read current control
+;-----------------------------
+Levels_load_data_routine:
     ld a, [levels_flags]
     bit 0, a                                ; loader process request flag
-    jr z, ._lower
-        ; PREPARE
+    ret z
+        ; READER engaged
     res 0, a                                ; reset request flag
-    set 1, a                                ; set active process flag
+    set 1, a                                ; set row loader active process flag
     res 2, a                                ; reset upper row flag
-    set 3, a                                ; set actors liad process
+    set 3, a                                ; set actors load process
     ld [levels_flags], a                    ; write flags
-    ld hl, levels_data_pointer              ; WARNING Here we might want a "data stop" flag
-    ld c, [hl]
-    ld a, $01
-    add a, c
-    ld [hl], a
-    inc hl
-    ld b, [hl]
-    ld a, $00
-    adc a, b                                ; increment for next read
-    ld [hl], a
-    ld a, [bc]                              ; a <- row index
+    ld hl, levels_data_pointer
+    ld a, [hl+]
+    ld h, [hl]
+    ld l, a                                 ; hl <- pointer to level data
+    ld a, [hl+]
+    bit 7, a
+    jr z, .row_instruction_handle
+        ; here :
+        ;   a = level control instruction
+        ;   hl = current data pointer
+        ; TODO : handle control values
+.row_instruction_handle
+        ; here :
+        ;   a = instruction
+        ;   hl = current data pointer
+    ; the instruction in a is a row instruction (last instruction to process before return handle)
+        ; stores data pointer back
+    ld b, a
+    ld a, l
+    ld [levels_data_pointer], a
+    ld a, h
+    ld [levels_data_pointer+1], a
+
+        ; find addr of row to load
+    ld a, b
     swap a
     ld b, a
     and a, %11110000
@@ -342,6 +355,21 @@ Levels_load_row_routine:
     ld [hl], d                              ; set addr of row to load into levels_row_to_load_addr
     ret
 
+
+; ---------------------------
+; Levels_load_row_routine()
+;   Load a new row in tilemap
+;       Only if bit 1 of flags (row loader process active) is set
+;   A call either loads the lower 8 pixel row
+;   (if bit 2 of levels_flag is not set)
+;   Or the upper 8 pixels row
+;   (if bit 2 of levels_flag is set)
+;       2 actions :
+;           - _lower : load lower row if bit 1 is set but not bit 2 then return
+;           - _upper : load upper row if bit 1 is set and bit 2 is set then return
+; ---------------------------
+Levels_load_row_routine:
+    ld a, [levels_flags]
 ._lower
     bit 1, a                                ; loader process active flag
     ret z
