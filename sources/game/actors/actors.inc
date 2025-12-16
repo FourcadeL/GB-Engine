@@ -83,8 +83,23 @@ MACRO ACTOR_PLAYER_COLLISION_SQUARE
     cp a, Player_hitbox_height + \4
     jr nc, \5
 ENDM
-    
-    
+
+
+;----------------------------------------------------------------------
+;               ACTORS FUNCTIONS TEMPLATE
+;----------------------------------------------------------------------
+
+; Each implemented actor MUST provide at leat TWO functions
+;
+; ACTOR_request:
+;   Should take parameters trough bc, de and stack (hl SHOULD NOT be used to pass parameters)
+;   This is the method to call for the creation of a new actor of this type
+
+; ACTOR_handle:
+;   Should take as parameters :
+;       bc : the actors' sprite base address
+;       de : the actors' data base address
+;   This method is automatically called by the actor dispatcher
 
 
     ENDC ; ACTORS_inc

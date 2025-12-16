@@ -48,7 +48,7 @@ Act_generator_request::
     ld a, LOW(Act_generator_handle)             ; set sprite handle function
     ld [hl+], a
     ld [hl], HIGH(Act_generator_handle)
-    
+
 
     ; now initilize data values
         ; IN STRUCT ORDER

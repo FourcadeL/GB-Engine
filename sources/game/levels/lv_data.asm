@@ -26,6 +26,18 @@ LV_block_row_infos::                    ; A table of block and row table address
 ;                                           2 bytes addr of rows table
     DW Block_set_0, Row_set_0
 
+LV_actors_rows::                        ; The actor row structures
+;                                           Each structure is $FF terminated
+;                                           Structures are of the form :
+;                                               $XX number of stack instructions to push
+;                                               $AAAA $BBBB ... $FFFF : x stack frame to push
+;                                               $bb, $cc, $dd, $ee : values of bc and de for function call
+;                                               $LL, $HH : address $HHLL of the actor request function
+    DB $02, $42, $00, $00, $00, $06, $18, HIGH(Rot_enemy_request), LOW(Rot_enemy_request), LOW(Act_generator_request), HIGH(Act_generator_request) 
+    DB $02, $62, $00, $00, $00, $06, $18, HIGH(Rot_enemy_request), LOW(Rot_enemy_request), LOW(Act_generator_request), HIGH(Act_generator_request) 
+    DB $00, $88, $05, $00, $00, LOW(Wav_enemy_request), HIGH(Wav_enemy_request)
+    DB $FF
+
 
     SECTION "LV_Blocks", ROMX
 Block_set_0:

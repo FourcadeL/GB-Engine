@@ -26,7 +26,7 @@ INCLUDE "levels.inc"
     SECTION "Levels_data", WRAM0
 
 _levels_variables_start:
-levels_flags::                       DS 1    ; %lrqxxdrc
+levels_flags::                       DS 1   ; %lrqxxdrc
                                             ;  |||  ||+-- load the next block row in tilemap
                                             ;  |||  |+--- row loader process is active
                                             ;  |||  +---- row loader process is loading the second row
@@ -56,6 +56,10 @@ levels_data_pointer:                DS 2    ; addr in the current data structure
 
 ;       Row loading related stuff
 levels_row_to_load_addr:            DS 2    ; the addr of the row currently beeing loaded
+
+;       Actors loading related stuff
+levels_actors_tmp_addr:             DS 2    ; the currently examined actor structure
+levels_actors_tmp_stack_push_size:  DS 1    ; the current size of the stack push for request
 
 _levels_variables_end:
 
@@ -239,7 +243,7 @@ Levels_load:
     or a, b
     swap a
     cpl a                                   ; 2's complement to get register value
-    inc a                                   ; a <- current scroll register value  
+    inc a                                   ; a <- current scroll register value
     srl a
     srl a
     res 0, a
@@ -363,7 +367,7 @@ Levels_load_row_routine:
 .loop
     ld a, [hl+]
     push hl
-    ld h, $00
+    ld h, $00                               ; add current block index << 2+ offset to current block table addr
     sla a
     rl h
     sla a
@@ -416,6 +420,63 @@ Levels_load_row_routine:
     inc hl
     ld [hl], d
     ret
+
+
+; --------------------------
+; Levels_load_actors_row_routine(hl = addr of the $FF terminated actors row structure)
+;   Call all the actor request routines described in the actor row structure
+;   until it finds the $FF terminal
+; --------------------------
+Levels_load_actors_row_routine:
+    ld a, [hl+]                             ; stack push size for next actor
+    cp a, $FF
+    ret z                                   ; $FF terminal byte -> exit
+    ld [levels_actors_tmp_stack_push_size],a; save stack push size
+    ld e, a
+    or a, a
+    jr z, .register_set_frame               ; stack of size 0 (don't push anything)
+.stack_set_frame                            ; loop on stack push size to push parameters
+        ld a, [hl+]
+        ld b, a
+        ld a, [hl+]
+        ld c, a
+        push bc
+        dec e
+        jr nz, .stack_set_frame
+.register_set_frame
+    ld a, [hl+]
+    ld b, a
+    ld a, [hl+]
+    ld c, a
+    ld a, [hl+]
+    ld d, a
+    ld a, [hl+]
+    ld e, a                                 ; load all 4 registers
+    ld a, l
+    ld [levels_actors_tmp_addr], a          ; save low hl
+    ld a, h
+    ld [levels_actors_tmp_addr+1], a        ; save high hl
+    ld a, [hl+]
+    ld h, [hl]
+    ld l, a                                 ; hl <- actor request function
+        CALL_HL                             ; actor request
+    ld a, [levels_actors_tmp_stack_push_size]
+    rl a
+    ld hl, sp+0
+    add a, l
+    ld l, a
+    ld a, $00
+    adc a, h
+    ld h, a                                 ; poped all stack parameters
+    ld sp, hl
+        ; retrieve hl + (function addr size)
+    ld a, [levels_actors_tmp_addr]
+    add a, $02
+    ld l, a
+    ld a, [levels_actors_tmp_addr+1]
+    adc a, $00
+    ld h, a
+    jp Levels_load_actors_row_routine
 
 
 ; ----------------------

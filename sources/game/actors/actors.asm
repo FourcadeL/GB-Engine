@@ -14,7 +14,7 @@
 ;   f : the fixed addr part
 ;   i : the actor index (16 actors)
 ;   0 : addr is 6 aligned
-;   
+;
 ;
 ;   ------
 ; list of ennemy actors:
@@ -39,7 +39,7 @@ INCLUDE "actors.inc"
 ;+----------------------------------------------------------------+
 
     SECTION "Actors_data_table", WRAM0, ALIGN[6]
-    
+
 Actors_data_table:              DS ACTORS_NB * ACTORS_DATA_SIZE
 
 
