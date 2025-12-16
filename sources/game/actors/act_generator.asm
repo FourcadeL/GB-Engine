@@ -93,6 +93,7 @@ Act_generator_request::
 .abort
     pop de
     pop bc
+    ret
 
 
 

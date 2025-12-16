@@ -26,10 +26,14 @@ INCLUDE "levels.inc"
     SECTION "Levels_data", WRAM0
 
 _levels_variables_start:
-levels_flags::                       DS 1   ; %lrqxxdrc
-                                            ;  |||  ||+-- load the next block row in tilemap
-                                            ;  |||  |+--- row loader process is active
-                                            ;  |||  +---- row loader process is loading the second row
+levels_flags::                       DS 1   ; %lrqxadrc
+                                            ;  ||| |||+-- load the next block row request
+                                            ;  ||| ||+--- row loader process is active
+                                            ;  ||| |+---- row loader process is loading the second row
+                                            ;  ||| |
+                                            ;  ||| +----- actors loader process
+                                            ;  |||
+                                            ;  |||
                                             ;  |||
                                             ;  ||+---- querry : querry to load a level
                                             ;  |+----- running : the current level is running
@@ -107,6 +111,7 @@ Levels_update::
     bit 6, [hl]                             ; check running flag
     ret z
     call Levels_load_row_routine            ; row load routine
+    call Levels_load_actors_row_routine     ; actors load routine
         ; level scroll
     ld a, [levels_current_scrollY_speed]
     ld hl, levels_current_scrollY_position
@@ -306,7 +311,8 @@ Levels_load_row_routine:
     res 0, a                                ; reset request flag
     set 1, a                                ; set active process flag
     res 2, a                                ; reset upper row flag
-    ld [levels_flags], a                     ; write flags
+    set 3, a                                ; set actors liad process
+    ld [levels_flags], a                    ; write flags
     ld hl, levels_data_pointer              ; WARNING Here we might want a "data stop" flag
     ld c, [hl]
     ld a, $01
@@ -335,6 +341,7 @@ Levels_load_row_routine:
     inc hl
     ld [hl], d                              ; set addr of row to load into levels_row_to_load_addr
     ret
+
 ._lower
     bit 1, a                                ; loader process active flag
     ret z
@@ -424,10 +431,29 @@ Levels_load_row_routine:
 
 ; --------------------------
 ; Levels_load_actors_row_routine(hl = addr of the $FF terminated actors row structure)
-;   Call all the actor request routines described in the actor row structure
-;   until it finds the $FF terminal
+;   IF the actors loader process flag is set :
+;       Compute current row addr structure
+;       Call all the actor request routines described in the actor row structure
+;       until it finds the $FF terminal
+;       Reset the actor loading process flag
 ; --------------------------
 Levels_load_actors_row_routine:
+    ld a, [levels_flags]
+    bit 3, a
+    ret z                                   ; no active process, return
+        ; process flag activated
+    res 3, a                                ; reset process flag
+    ld [levels_flags], a
+    ld a, [levels_row_to_load_addr]
+    add a, BG_ROW_ACTOR_POINTER_OFFSET
+    ld l, a
+    ld a, [levels_row_to_load_addr+1]
+    adc a, $00
+    ld h, a                                 ; hl is the addr of the actors row pointer
+    ld a, [hl+]
+    ld h, [hl]
+    ld l, a                                 ; hl is the addr of the actors row
+.loop
     ld a, [hl+]                             ; stack push size for next actor
     cp a, $FF
     ret z                                   ; $FF terminal byte -> exit
@@ -476,7 +502,7 @@ Levels_load_actors_row_routine:
     ld a, [levels_actors_tmp_addr+1]
     adc a, $00
     ld h, a
-    jp Levels_load_actors_row_routine
+    jr .loop
 
 
 ; ----------------------

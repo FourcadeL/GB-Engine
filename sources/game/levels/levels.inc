@@ -42,11 +42,11 @@
 ;       Each row can be refered to as a 0 based indexing
 
 ;       ------------------
-;       III Enemy encoding
+;       III Actor encoding
 ;       ------------------
 ;
 ;       Not Yet defined
-;       Will most likely be encoded as rows too
+;       Structures pointers are located as the last two bytes of each row
 
 ;       --------------------
 ;       IV Levels encoding
@@ -54,4 +54,9 @@
 ;
 ;       Levels are encoded as a stream of row indexes
 
+        DEF BG_ROW_MAX_WIDTH EQU 14
         DEF BG_ROW_WIDTH EQU 10
+
+        STATIC_ASSERT BG_ROW_WIDTH <= BG_ROW_MAX_WIDTH, "BG_ROW_WIDTH too wide"
+
+        DEF BG_ROW_ACTOR_POINTER_OFFSET EQU 14

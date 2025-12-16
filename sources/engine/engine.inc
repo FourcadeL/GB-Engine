@@ -242,13 +242,17 @@ DEF PAD_RIGHT   EQU $01
 
 
 ;----------------------------------------------
-; fonctions VIDEO.ASM
+; VIDEO.ASM functions
 ;----------------------------------------------
 
 
 ;+--------------------------------+
-;init_DMA() @copie la routine de transfert DMA en HRAM
-;call_DMA() @transfert l'OAM_mirror dans l'OAM
+;init_DMA()
+;   copy DMA routine to HRAM
+;
+;
+;call_DMA()
+;   calls DMA routine in HRAM
 ;+--------------------------------+
 
     EXPORT init_DMA
@@ -259,14 +263,16 @@ DEF PAD_RIGHT   EQU $01
 
 
 ;--------------------------------------------------------------------------
-;- screen_off()          @arrête l'écran mais sauvegarde ses attributs pour les rétablir plus tard                                                 
+;- screen_off()
+;   stops screen display and saves attributes
 ;--------------------------------------------------------------------------
 
     EXPORT screen_off
 
 
 ;--------------------------------------------------------------------------
-;- screen_restart()          @redémarre l'écran avec les attributs qui étaient présents avant sa désactivation                         
+;- screen_restart()
+;   restarts screen with previously saved attributes
 ;--------------------------------------------------------------------------
 
     EXPORT screen_restart
@@ -276,7 +282,7 @@ DEF PAD_RIGHT   EQU $01
 
 ;--------------------------------------------------------------------------
 ;- vram_copy()    bc = size    hl = source address    de = dest address   -
-;- effectue une copie vers la vram (attent de pouvoir y accéder)
+;-  safe copy to vram
 ;--------------------------------------------------------------------------
 
     EXPORT vram_copy
