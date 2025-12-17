@@ -285,10 +285,10 @@ Levels_load:
     pop de
     dec d
     jr nz, .loop
-    pop hl
         ; ------- Level song -------
-    ld a, [hl+]
     call Audio_stop_song
+    pop hl
+    ld a, [hl+]
     call Audio_load_song_at_index
     call Audio_start_song
         ; ------- Flags setting -------
@@ -309,13 +309,9 @@ Levels_load:
 ;       if zero -> return
 ;       else -> read current control
 ;-----------------------------
-;TODO pit for testing
-_ld_blktable_control:
-_ld_rowtable_control:
+;TODO unused controls ?
 _ld_actortable_control:
-_sound_control:
             jr Levels_load_data_routine.next_read
-;TODO
 Levels_load_data_routine:
     ld a, [levels_flags]
     bit LF_BN_BROW_REQUEST, a               ; loader process request flag
@@ -391,6 +387,8 @@ Levels_load_data_routine:
     ;       with hl set as a pointer to the next data
     ;----------------------------
     _level_control:
+        ; level control
+        ;   instructions related to level looping and scroll speed
         cp a, %10010000
         jr z, .data_end
         cp a, %10010001
@@ -435,6 +433,66 @@ Levels_load_data_routine:
         .ignore_jump
             pop hl
             jp Levels_load_data_routine.next_read
+
+    _sound_control:
+        ; sound control
+        ;   instructions relate to sound and sfx play
+        cp a, %10001000
+        jr z, .sng_stop
+        cp a, %10001001
+        jr z, .sng_load
+        cp a, %10001010
+        jr z, .sng_play
+        cp a, %10001011
+        jr z, .sfx_play
+        jp Levels_load_data_routine.next_read      ; Unknown instruction -> ignore
+    .sng_stop
+            push hl
+            call Audio_stop_song
+            pop hl
+            jr Levels_load_data_routine.next_read
+    .sng_load
+            ld a, [hl+]
+            push hl
+            call Audio_load_song_at_index
+            pop hl
+            jr Levels_load_data_routine.next_read
+    .sng_play
+            push hl
+            call Audio_start_song
+            pop hl
+            jr Levels_load_data_routine.next_read
+    .sfx_play
+            ld a, [hl+]
+            push hl
+            call sfx_request
+            pop hl
+            jr Levels_load_data_routine.next_read
+
+    _ld_blktable_control:
+        ; blk_table_control
+        ;   change the reference block_table
+        ld bc, levels_current_block_table
+        ld a, [hl+]
+        ld [bc], a
+        inc bc
+        ld a, [hl+]
+        ld [bc], a
+        jr Levels_load_data_routine.next_read
+
+    _ld_rowtable_control:
+        ; row_table_control
+        ;   change the reference row table
+        ld bc, levels_current_row_table
+        ld a, [hl+]
+        ld [bc], a
+        inc bc
+        ld a, [hl+]
+        ld [bc], a
+        jr Levels_load_data_routine.next_read
+
+
+
 
 
 ; ---------------------------
