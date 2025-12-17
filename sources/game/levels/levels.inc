@@ -54,9 +54,31 @@
 ;
 ;       Levels are encoded as a stream of row indexes
 
-        DEF BG_ROW_MAX_WIDTH EQU 14
-        DEF BG_ROW_WIDTH EQU 10
 
-        STATIC_ASSERT BG_ROW_WIDTH <= BG_ROW_MAX_WIDTH, "BG_ROW_WIDTH too wide"
+;+----------------------------------------------------------------+
+;| +------------------------------------------------------------+ |
+;| |                     FLAGS DEFINE                           | |
+;| +------------------------------------------------------------+ |
+;+----------------------------------------------------------------+
 
-        DEF BG_ROW_ACTOR_POINTER_OFFSET EQU 14
+    DEF LF_BN_LOADED        EQU 7       ; Level Flag Bit Number for "level_loaded" flag
+    DEF LF_BN_RUNNING       EQU 6       ; Level Flag Bit Number for "level_running" flag
+    DEF LF_BN_QUERRY        EQU 5       ; Level Flag Bit Number for "level_querry" flag
+    DEF LF_BN_ACT_LOAD      EQU 3       ; Level Flag Bit Number for "actor_load_process" flag
+    DEF LF_BN_ROW_LOAD_HALF EQU 2       ; Level Flag Bit Number for "row_load_half" flag
+    DEF LF_BN_ROW_LOAD      EQU 1       ; Level Flag Bit Number for "row_load" flag
+    DEF LF_BN_BROW_REQUEST  EQU 0       ; Level Flag Bit Number for "next block row request" flag
+
+
+;+----------------------------------------------------------------+
+;| +------------------------------------------------------------+ |
+;| |                     CONST DEFINE                           | |
+;| +------------------------------------------------------------+ |
+;+----------------------------------------------------------------+
+
+    DEF BG_ROW_MAX_WIDTH EQU 14
+    DEF BG_ROW_WIDTH EQU 10
+
+    STATIC_ASSERT BG_ROW_WIDTH <= BG_ROW_MAX_WIDTH, "BG_ROW_WIDTH too wide"
+
+    DEF BG_ROW_ACTOR_POINTER_OFFSET EQU 14

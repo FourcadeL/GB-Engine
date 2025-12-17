@@ -44,6 +44,7 @@ levels_current_level::              DS 1    ; the current level index
 levels_current_scrollY_speed::      DS 1    ; scrolling speed (%ppppssss)
                                             ;           pixel---++++||||
                                             ;             sub-------++++
+
 levels_current_scrollY_position:    DS 3    ; 3 bytes current scroll HH hh %ppppssss
 
 levels_current_tileset:             DS 1    ; id of tileset to use
@@ -64,6 +65,12 @@ levels_row_to_load_addr:            DS 2    ; the addr of the row currently beei
 ;       Actors loading related stuff
 levels_actors_tmp_addr:             DS 2    ; the currently examined actor structure
 levels_actors_tmp_stack_push_size:  DS 1    ; the current size of the stack push for request
+
+;       Level flow control data
+levels_control_counter:             DS 1    ; level flow control counter
+levels_control_saved_return_addr:   DS 2    ; level flow control return addr
+
+levels_target_scrollY_speed:        DS 1    ; the target scrolling speed
 
 _levels_variables_end:
 
@@ -106,9 +113,9 @@ Levels_init::
 ; ------------------
 Levels_update::
     ld hl, levels_flags
-    bit 7, [hl]                             ; check loaded flag
+    bit LF_BN_LOADED, [hl]                  ; check loaded flag
     jr z, Levels_load
-    bit 6, [hl]                             ; check running flag
+    bit LF_BN_RUNNING, [hl]                 ; check running flag
     ret z
     call Levels_load_row_routine            ; row load routine
     call Levels_load_actors_row_routine     ; actors load routine
@@ -124,7 +131,7 @@ Levels_update::
     jr nc, .no16pix_trigger
     push hl
     ld hl, levels_flags
-    set 0, [hl]                             ; set new row load trigger
+    set LF_BN_BROW_REQUEST, [hl]                             ; set new row load trigger
     pop hl
     inc a
 .no16pix_trigger
@@ -175,7 +182,7 @@ Levels_request::
 ; ------------------
 Levels_load:
 ;     ld hl, levels_flags       (already in hl)
-    bit 5, [hl]                             ; check querry flag
+    bit LF_BN_QUERRY, [hl]                  ; check querry flag
     ret z
     ld a, [levels_querry]
     ld [levels_current_level], a            ; set current level index
@@ -302,26 +309,46 @@ Levels_load:
 ;       if zero -> return
 ;       else -> read current control
 ;-----------------------------
+;TODO pit for testing
+_ld_blktable_control:
+_ld_rowtable_control:
+_ld_actortable_control:
+_sound_control:
+            jr Levels_load_data_routine.next_read
+;TODO
 Levels_load_data_routine:
     ld a, [levels_flags]
-    bit 0, a                                ; loader process request flag
+    bit LF_BN_BROW_REQUEST, a               ; loader process request flag
     ret z
         ; READER engaged
-    res 0, a                                ; reset request flag
-    set 1, a                                ; set row loader active process flag
-    res 2, a                                ; reset upper row flag
-    set 3, a                                ; set actors load process
+    res LF_BN_BROW_REQUEST, a               ; reset request flag
+    set LF_BN_ROW_LOAD, a                   ; set row loader active process flag
+    res LF_BN_ROW_LOAD_HALF, a              ; reset upper row flag
+    set LF_BN_ACT_LOAD, a                   ; set actors load process
     ld [levels_flags], a                    ; write flags
     ld hl, levels_data_pointer
     ld a, [hl+]
     ld h, [hl]
     ld l, a                                 ; hl <- pointer to level data
+.next_read
     ld a, [hl+]
     bit 7, a
     jr z, .row_instruction_handle
         ; here :
         ;   a = level control instruction
         ;   hl = current data pointer
+        cp a, %10000001
+        jr z, _ld_blktable_control
+        cp a, %10000010
+        jr z, _ld_rowtable_control
+        cp a, %10000011
+        jr z, _ld_actortable_control
+;         and a, %00001000
+        bit 3, a
+        jr nz, _sound_control
+;         and a, %00010000
+        bit 4, a
+        jr nz, _level_control
         ; TODO : handle control values
 .row_instruction_handle
         ; here :
@@ -355,15 +382,69 @@ Levels_load_data_routine:
     ld [hl], d                              ; set addr of row to load into levels_row_to_load_addr
     ret
 
+    ;----------------------------
+    ; control routines
+    ;   Each of them has parameters :
+    ;       a : current instruction
+    ;       hl : current data pointer
+    ;   And must end with a jump to Levels_load_data_routine.next_read
+    ;       with hl set as a pointer to the next data
+    ;----------------------------
+    _level_control:
+        cp a, %10010000
+        jr z, .data_end
+        cp a, %10010001
+        jr z, .pointer_save
+        cp a, %10010010
+        jr z, .counter_set
+        cp a, %10010101
+        jr z, .dec_nz_jump
+        cp a, %10011000
+        jr z, .scroll_speed_set
+        jr Levels_load_data_routine.next_read      ; Unknown instruction -> ignore
+    .scroll_speed_set
+            ld a, [hl+]
+            ld [levels_target_scrollY_speed], a
+            jr Levels_load_data_routine.next_read
+    .data_end
+            ld a, [levels_flags]
+            res LF_BN_RUNNING, a
+            ld [levels_flags], a
+            jr Levels_load_data_routine.next_read
+    .pointer_save
+            ld a, l
+            ld [levels_control_saved_return_addr], a
+            ld a, h
+            ld [levels_control_saved_return_addr+1], a
+            jr Levels_load_data_routine.next_read
+    .counter_set
+            ld a, [hl+]
+            ld [levels_control_counter], a
+            jr Levels_load_data_routine.next_read
+    .dec_nz_jump
+            push hl
+            ld hl, levels_control_counter
+            dec [hl]
+            jr z, .ignore_jump
+                ld a, [levels_control_saved_return_addr]
+                ld c, a
+                ld a, [levels_control_saved_return_addr+1]
+                ld b, a
+                pop hl
+                push bc
+        .ignore_jump
+            pop hl
+            jp Levels_load_data_routine.next_read
+
 
 ; ---------------------------
 ; Levels_load_row_routine()
 ;   Load a new row in tilemap
 ;       Only if bit 1 of flags (row loader process active) is set
 ;   A call either loads the lower 8 pixel row
-;   (if bit 2 of levels_flag is not set)
+;   (if bit 2 of levels_flags is not set)
 ;   Or the upper 8 pixels row
-;   (if bit 2 of levels_flag is set)
+;   (if bit 2 of levels_flags is set)
 ;       2 actions :
 ;           - _lower : load lower row if bit 1 is set but not bit 2 then return
 ;           - _upper : load upper row if bit 1 is set and bit 2 is set then return
@@ -371,18 +452,18 @@ Levels_load_data_routine:
 Levels_load_row_routine:
     ld a, [levels_flags]
 ._lower
-    bit 1, a                                ; loader process active flag
+    bit LF_BN_ROW_LOAD, a                   ; loader process active flag
     ret z
-    bit 2, a                                ; loader process upper flag
+    bit LF_BN_ROW_LOAD_HALF, a              ; loader process upper flag
     jr nz, ._upper
         ; LOWER LOAD
-    set 2, a                                ; set process upper flag
+    set LF_BN_ROW_LOAD_HALF, a              ; set process upper flag
     ld [levels_flags], a
     ld e, $02                               ; set tile offset in block
     jr ._blocks_copy
 ._upper
         ; UPPER LOAD
-    res 1, a                                ; loader process reset flag
+    res LF_BN_ROW_LOAD, a                   ; loader process reset flag
     ld [levels_flags], a
     ld e, $00
 ;     jr ._blocks_copy
@@ -449,7 +530,7 @@ Levels_load_row_routine:
     or a, $90
     ld d, a                                     ;de <- vram tilemat dest addr
     ld hl, video_vram_push_status
-    set 7, [hl]
+    set LF_BN_LOADED, [hl]
     inc hl
     ld [hl], e
     inc hl
@@ -467,10 +548,10 @@ Levels_load_row_routine:
 ; --------------------------
 Levels_load_actors_row_routine:
     ld a, [levels_flags]
-    bit 3, a
+    bit LF_BN_ACT_LOAD, a
     ret z                                   ; no active process, return
         ; process flag activated
-    res 3, a                                ; reset process flag
+    res LF_BN_ACT_LOAD, a                   ; reset process flag
     ld [levels_flags], a
     ld a, [levels_row_to_load_addr]
     add a, BG_ROW_ACTOR_POINTER_OFFSET
