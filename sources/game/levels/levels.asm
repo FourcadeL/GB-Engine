@@ -153,6 +153,18 @@ Levels_update::
     inc a                                   ; 2's complement for actual screen scroll value
     ld [video_Yscroll_s], a
 
+        ; scroll speed target
+    ld a, [levels_target_scrollY_speed]
+    ld hl, levels_current_scrollY_speed
+    cp a, [hl]
+    ret z                                   ; speed aligned to target
+    jr c, .target_is_smaller
+        ; here target is higher
+        inc [hl]
+        ret
+.target_is_smaller
+    dec [hl]
+
     ret
 
 ; --------------------------
@@ -209,7 +221,7 @@ Levels_load:
 .tileset_already_loaded
         ; ------- scroll speed -------
     ld a, [hl+]
-    ld bc, levels_current_scrollY_speed
+    ld bc, levels_target_scrollY_speed
     ld [bc], a
         ; ------- level data -------
     ld de, levels_data_pointer
@@ -334,9 +346,9 @@ Levels_load_data_routine:
         ;   a = level control instruction
         ;   hl = current data pointer
         cp a, %10000001
-        jr z, _ld_blktable_control
+        jp z, _ld_blktable_control
         cp a, %10000010
-        jr z, _ld_rowtable_control
+        jp z, _ld_rowtable_control
         cp a, %10000011
         jr z, _ld_actortable_control
 ;         and a, %00001000
@@ -450,24 +462,24 @@ Levels_load_data_routine:
             push hl
             call Audio_stop_song
             pop hl
-            jr Levels_load_data_routine.next_read
+            jp Levels_load_data_routine.next_read
     .sng_load
             ld a, [hl+]
             push hl
             call Audio_load_song_at_index
             pop hl
-            jr Levels_load_data_routine.next_read
+            jp Levels_load_data_routine.next_read
     .sng_play
             push hl
             call Audio_start_song
             pop hl
-            jr Levels_load_data_routine.next_read
+            jp Levels_load_data_routine.next_read
     .sfx_play
             ld a, [hl+]
             push hl
             call sfx_request
             pop hl
-            jr Levels_load_data_routine.next_read
+            jp Levels_load_data_routine.next_read
 
     _ld_blktable_control:
         ; blk_table_control
@@ -478,7 +490,7 @@ Levels_load_data_routine:
         inc bc
         ld a, [hl+]
         ld [bc], a
-        jr Levels_load_data_routine.next_read
+        jp Levels_load_data_routine.next_read
 
     _ld_rowtable_control:
         ; row_table_control
@@ -489,7 +501,7 @@ Levels_load_data_routine:
         inc bc
         ld a, [hl+]
         ld [bc], a
-        jr Levels_load_data_routine.next_read
+        jp Levels_load_data_routine.next_read
 
 
 
