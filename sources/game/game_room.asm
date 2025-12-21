@@ -59,13 +59,9 @@ game_main::
     ld a, [PAD_pressed]
     and a, PAD_SELECT
     jr z, .skiplevelLoad
-    ld b, $00
-    ld hl, levels_flags
-    res 7, [hl]
-    call Levels_request
 .skiplevelLoad
 
-    ; TESTING : ACT_GENERATOR test (on start)
+    ; TESTING : actor row load (on start)
     ld a, [PAD_pressed]
     and a, PAD_START
     jr z, .skipActGen
@@ -112,13 +108,20 @@ game_init:
 
     call wait_vbl
     ; start audio track
-    ld hl, song_1_starfield
-    call Audio_load_song
-    call Audio_start_song
+;     ld hl, song_1_starfield
+;     call Audio_load_song
+;     call Audio_start_song
 
     ; set auto repeat mask
     ld hl, PAD_repeat_speed
     ld [hl], %00001011
     ld hl, PAD_repeat_counter
     ld [hl], $02
+
+    ; load level index 00
+    ld b, $00
+    ld hl, levels_flags
+    res 7, [hl]                 ; flag reset TO force reload
+    call Levels_request
+
     ret

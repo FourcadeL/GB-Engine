@@ -351,12 +351,12 @@ Levels_load_data_routine:
         jp z, _ld_rowtable_control
         cp a, %10000011
         jr z, _ld_actortable_control
-;         and a, %00001000
-        bit 3, a
-        jr nz, _sound_control
 ;         and a, %00010000
         bit 4, a
         jr nz, _level_control
+;         and a, %00001000
+        bit 3, a
+        jr nz, _sound_control
         ; TODO : handle control values
 .row_instruction_handle
         ; here :

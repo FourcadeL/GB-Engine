@@ -20,6 +20,12 @@ game_over_main::
     call fwf_automaton_update
 
     call getInput
+
+    call Actors_update
+    call ES_update
+    call PS_update
+;     call Levels_update
+    call Sprites_multiplex
     ld a, [PAD_pressed]
     and a, PAD_START
     jr z, .loop
