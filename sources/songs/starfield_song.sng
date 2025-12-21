@@ -66,8 +66,8 @@ ch3 SCLW
 ch4 empty
 
 song silenceOfDaylight :
-ch1 SLDL1
-ch2 SLDL2
+ch1 SLDL2
+ch2 SLDL1
 ch3 SLDLW
 ch4 empty
 
