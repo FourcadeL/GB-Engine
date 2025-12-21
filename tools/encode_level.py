@@ -169,14 +169,46 @@ def actor_equality(act1, act2):
     """
     if act1.properties != act1.properties:
         return False
-    if int(act1.y)//16 != int(act2.y)//16:
-        print("Hmmm Y value inequality...")
+#     if int(act1.y)//16 != int(act2.y)//16:
+#         print("Hmmm Y value inequality...")
 #         return False
     if int(act1.x) != int(act2.x):
         if abs(int(act1.x) - int(act2.x)) <= 2:
             print(f"Actors {act1.name} (y={act1.y}) and {act2.name} (y={act2.y}) are nearly identical.\nCONSIDER MERGING THEM")
         return False
     return True
+
+
+#################################
+# Actor encode utils
+#
+# each actor type encode its own type of parameters
+# these functions return the string of encoded parameters for each
+# actor types
+
+def default_parameters(json_act, stack_args: list[str]):
+    print("WARNING ! Use of undefined actor")
+    res = ""
+    for arg in stack_args:
+        res += f"${arg:02x}, "
+    res += f"${get_named_property(json_act, "b"):02x}, "
+    res += f"${get_named_property(json_act, "c"):02x}, "
+    res += f"${get_named_property(json_act, "d"):02x}, "
+    res += f"${get_named_property(json_act, "e"):02x}, "
+    return res
+
+
+def wav_parameters(json_act, stack_args: list[str]):
+    """
+    Encoding of parameters for waving enemy
+    """
+    assert len(stack_args) == 0
+    res = ""
+    res += f"${int(json_act.x):02x}, "      # x position in row
+    res += f"${get_named_property(json_act, "c"):02x}, "
+    res += f"${get_named_property(json_act, "d"):02x}, "
+    res += f"${get_named_property(json_act, "e"):02x}, "
+    return res
 
 
 #################################
@@ -188,19 +220,36 @@ def encode_actor_row(act_row: ActorRow):
     as defined in the spec
     """
     res = f"act_row_{act_row.index}:\n\t"
+    res += "DB "
     for act in act_row.content:
-        res += "DB "
-        stack_args = act.stack_args.replace(" ", "").split(',')
+        raw_stack_args = get_named_property(act, "stack_args")
+        stack_args = [] if len(raw_stack_args) <= 0 else raw_stack_args.replace(" ", "").split(',')
         assert len(stack_args) % 2 == 0
         res += f"${len(stack_args):02x}, "
-        for arg in stack_args:
-            res += f"${arg:02x}, "
-        res += f"${act.b:02x}, "
-        res += f"${act.c:02x}, "
-        res += f"${act.d:02x}, "
-        res += f"${act.e:02x}, "
-        res += f"LOW({act.request_fun}), HIGH({act.request_fun}), "
+        try:
+            match get_named_property(act, "type"):
+                case "wave_enemy":
+                    res += wav_parameters(act, stack_args)
+                case _:
+                    print("WARNING ! No actor specific parameter encoding function")
+        except ValueError:
+            res += default_parameters(act, stack_args)
+
+        res += f"LOW({get_named_property(act, "request_fun")}),"\
+                f"HIGH({get_named_property(act, "request_fun")}), "
     res += "$FF\n"
+    return res
+
+
+def encode_all_actor_rows(rows: list[ActorRow]):
+    """
+    Returns the string encoding all actor rows with
+    data labels
+    """
+    res = ""
+    for i in range(len(rows)):
+        res += encode_actor_row(rows[i])
+    res += "\n"
     return res
 
 
@@ -364,6 +413,8 @@ def tmp_main(json_level):
 #     print(til_pointers)
 
     # output data encoding (test)
+    print(encode_all_actor_rows(act_rows))
+    print("\n\n")
     print(encode_all_row_tables(til_rows))
     print("\n\n")
     print("Level_0:\n")
