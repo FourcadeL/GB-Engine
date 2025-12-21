@@ -1,6 +1,9 @@
 # This script serves to encode a vertival level
+#   must be a json encoded level of tiled format : https://doc.mapeditor.org/en/stable/reference/json-map-format/
 # (initially as a csv file)
-# To a row dictionnary and a stream of row indexes
+
+# Usage :
+# - for tiled to export properties of models -> "detach" all objects
 
 # TODOS :
 # - optimisation of rows
@@ -10,10 +13,14 @@
 
 import sys
 import argparse
+import json
+from types import SimpleNamespace
 
 
 # Constants needed by the GB-engine
 ROW_MAX_WIDTH = 14
+ROW_ACTORS_OFFSET = 14
+ROW_ENCODE_TOTAL_LENGTH = 16
 
 # data control values
 CTRL_LD_BLKTABLE = 0b10000001
@@ -29,119 +36,345 @@ CTRL_COUNTER_SET = 0b10010010
 CTRL_DEC_NZ_JUMP = 0b10010101
 CTRL_SCROLL_SPEED_SET = 0b10011000
 
+# Level Constants (should be defined at runtime)
+LEVEL_HEIGHT = None
+LEVEL_WIDTH = None
+TILE_HEIGHT = None
+TILE_WIDTH = None
+TILE_BASE_INDEX = None
 
-class rowDict:
+# parameters Constants
+DEFAULT_EMPTY_BLOCK = None
+
+
+class TileRow:
     """
-    A class to index rows
-    Create a basic hash of rows :
-    h = r[0] + E*r[1] + E²*r[2] + E^n * r[n]
-    where E is the number of distinct blocks found in
-    the level matrix
-    """
-
-    def __init__(self, levelMatrix: list[list[int]]):
-        self.E = max([max(r) for r in levelMatrix])+1
-        self.levelMatrix = levelMatrix
-        self.dict = {}
-        self.rows = []
-
-    def hash_row(self, row) -> int:
-        ret = 0
-        currExp = 1
-        for e in row:
-            ret += currExp * e
-            currExp = currExp * self.E
-        return ret
-
-    def constructDict(self):
-        currentIndex = len(self.dict)
-        for row in self.levelMatrix:
-            h = self.hash_row(row)
-            if h not in self.dict:
-                self.dict[h] = currentIndex
-                self.rows.append(row)
-                currentIndex += 1
-
-    def get_row_index(self, row: list[int]) -> int:
-        return self.dict[self.hash_row(row)]
-
-
-def read_level(file: str, replaceValue: int) -> list[list[int]]:
-    """
-    Reads the csv file as a table of integers
-    And replaces negative values (empty blocks)
-    with the value of 'replaceValue'
+    A class for a tile row
+    Encode only background tiles
     """
 
-    def block_value_from_str(input: str) -> int:
-        value = int(input)
-        return value if value >= 0 else replaceValue
+    def __init__(self, block_list: list[int], index, ar_index):
+        self.index = index
+        self.width = len(block_list)
+        self.content = block_list
+        self.actorRow_index = ar_index
+        if self.width >= ROW_MAX_WIDTH:
+            print(f"FATAL : row width {self.width} is to large")
+            exit(-1)
+        return
 
-    with open(file, "r") as f:
-        return [[block_value_from_str(v) for v in e.split(',')]
-                for e in f.readlines()]
+    def __hash__(self):
+        return hash(self.content)
+
+    def __eq__(self, o):
+        # !! DO NOT TEST INDEX
+        if isinstance(o, TileRow):
+            return (self.width == o.width and
+                    self.actorRow_index == o.actorRow_index and
+                    all(e1 == e2 for e1, e2 in zip(self.content, o.content)))
+        return False
 
 
-def create_row_dict(levelMatrix: list[list[int]]) -> dict[int]:
+class ActorRow:
     """
-    Returns a dict with rows as keys
-    and row index as the values
+    An actor row
+    Contains a list of actors
     """
-    outDict = {}
-    currentIndex = 0
-    for row in levelMatrix:
-        if row not in outDict:
-            outDict[row] = currentIndex
-            currentIndex += 1
-    return outDict
+
+    def __init__(self, content, index):
+        self.content = content
+        self.index = index
+
+    def __eq__(self, o):
+        # !! DO NOT TEST INDEX
+        if not isinstance(o, ActorRow):
+            return False
+        if len(self.content) != len(o.content):
+            return False
+        # Test content equality (non optimised but content lists are small)
+        for a in self.content:
+            if not any([actor_equality(a, other_a) for other_a in o.content]):
+                return False
+        return True
 
 
-##### ENCODE FUNCS #######
-def encode_row_dict(rd: rowDict) -> str:
+#################################
+# 8-bit math utils
+
+def get_4fixed_dec_from_float(flt_dec):
     """
-    Returns a string encoding the current row dict as a RGBDS
-    asm file standard
-    each row should be 16 values wide (0 padded)
+    Return a decimal number encoded as 4bits integre and 4bits decimal
+    from a python float
     """
-    ret = ""
-    for i, row in enumerate(rd.rows):
-        ret += "\tDB "
-        j = 0
-        for e in row:
-            if j != 0:
-                ret += ", "
-            ret += "${:02X}".format(e)
-            j += 1
-        while j < ROW_MAX_WIDTH:
-            ret += ", $00"
-            j += 1
-        # TODO PATCH LATER : actors pointer
-        ret += "LOW(blank_row), HIGH(blank_row)"
-        ret += "\n"
-    return ret
+    res = round(flt_dec / (1/16))
+    if res >= 256:
+        raise ValueError(f"Can't round {flt_dec} to an 8-bits 4-bits fixed decimal")
+    return res
 
 
-def encode_level(levelMatrix: list[list[int]], rd: rowDict) -> str:
-    """
-    Returns a strings encoding the level matrix
-    as a flux of row indexes starting from the bottom row
-    """
-    ret = ""
+#################################
+# Tiled format utils
 
-    current_row_table = 0
-    for i, row in enumerate(levelMatrix[::-1]):
-        if i % 16 == 0:
-            ret += "\n\tDB "
-        else:
-            ret += ", "
-        r_index = rd.get_row_index(row)
-        table_index = r_index % 128
-        table_nb = r_index//128
-        if table_nb != current_row_table:
-            ret += "${:02X} TODO {}".format(CTRL_LD_ROWTABLE, table_nb)
-            current_row_table = table_nb
-        ret += "${:02X}".format(table_index)
-    return ret
+def get_named_layer(json_level, name):
+    """
+    Return the named layer
+    """
+    for e in json_level.layers:
+        if e.name == name:
+            return e
+    raise ValueError(f"'{name}' layer not found")
+
+
+def get_named_property(json_obj, name):
+    """
+    Return the property 'name' from json object
+    """
+    for p in json_obj.properties:
+        if p.name == name:
+            return p.value
+    raise ValueError(f"Object has no property '{name}'")
+
+
+def get_raw_tile_rows(json_layer):
+    """
+    Return a raw list of list
+    of all tile indexes on each row
+    """
+    block_stream = [(d-TILE_BASE_INDEX) if (d-TILE_BASE_INDEX) >= 0
+                    else DEFAULT_EMPTY_BLOCK
+                    for d in json_layer.data]
+    return [block_stream[i:i+LEVEL_WIDTH] for i in range(0, len(block_stream), LEVEL_WIDTH)][::-1]
+
+
+def get_raw_object_rows(json_layer):
+    """
+    Return a raw list of list
+    of all actors on each rows
+    """
+    raw_rows = [[] for _ in range(LEVEL_HEIGHT)]
+    for obj in json_layer.objects:
+        raw_rows[LEVEL_HEIGHT - int(obj.y // TILE_HEIGHT + 1)].append(obj)      # invert from indexing
+    return raw_rows
+
+
+#################################
+# Actors utils
+
+def actor_equality(act1, act2):
+    """
+    Return True if actors act1 and act2 are simillar enough to be merged
+    else False
+
+    Print a warning message if actors are close enough to be merged (X posiitons differ from less than 2)
+    """
+    if act1.properties != act1.properties:
+        return False
+    if int(act1.y)//16 != int(act2.y)//16:
+        print("Hmmm Y value inequality...")
+#         return False
+    if int(act1.x) != int(act2.x):
+        if abs(int(act1.x) - int(act2.x)) <= 2:
+            print(f"Actors {act1.name} (y={act1.y}) and {act2.name} (y={act2.y}) are nearly identical.\nCONSIDER MERGING THEM")
+        return False
+    return True
+
+
+#################################
+# Encode utils
+
+def encode_actor_row(act_row: ActorRow):
+    """
+    Returns the string encoding an actor row
+    as defined in the spec
+    """
+    res = f"act_row_{act_row.index}:\n\t"
+    for act in act_row.content:
+        res += "DB "
+        stack_args = act.stack_args.replace(" ", "").split(',')
+        assert len(stack_args) % 2 == 0
+        res += f"${len(stack_args):02x}, "
+        for arg in stack_args:
+            res += f"${arg:02x}, "
+        res += f"${act.b:02x}, "
+        res += f"${act.c:02x}, "
+        res += f"${act.d:02x}, "
+        res += f"${act.e:02x}, "
+        res += f"LOW({act.request_fun}), HIGH({act.request_fun}), "
+    res += "$FF\n"
+    return res
+
+
+def encode_controller_row(cont_row):
+    """
+    Returns the string encoding the
+    controller actions in the row
+    """
+    if len(cont_row) == 0:
+        return ""
+    res = "\tDB "
+    first = True
+    for cont in cont_row:
+        if not first:
+            res += ", "
+            first = False
+        res += f"${get_named_property(cont, "control_value"):02x}"
+        try:
+            res += f", ${get_named_property(cont, "control_data"):02x}"
+        except ValueError:
+            pass
+    res += "\n"
+    return res
+
+
+def encode_block_row(block_row: TileRow):
+    """
+    Returns the encoding of a single block row
+    including the reference to the actor row
+    """
+    res = "\tDB "
+    # content encoding
+    for i in range(block_row.width):
+        res += f"${block_row.content[i]:02x}, "
+    # content padding
+    for _ in range(block_row.width, ROW_MAX_WIDTH):
+        res += "$00, "
+    # actors pointer
+    res += f"LOW(act_row_{block_row.actorRow_index}), "
+    res += f"HIGH(act_row_{block_row.actorRow_index})"
+    res += "\n"
+    return res
+
+
+def encode_row_table(rows):
+    """
+    Returns the encoding of a row table
+    (including references to the actor rows)
+    row table must be less then 128 entries
+    """
+    assert len(rows) <= 128
+    res = ""
+    for row in rows:
+        res += encode_block_row(row)
+    return res
+
+
+def encode_all_row_tables(all_rows):
+    """
+    Returns the encoding of all row tables (with labels to be used)
+    Tables are only 128 rows long
+    For optimization, a first pass on all the rows should be done
+    """
+    res = ""
+    for i in range(len(all_rows)//128+1):
+        res += f"row_set_{i}:\n"
+        res += encode_row_table(all_rows[i*128:(i+1)*128])
+    return res
+
+
+def encode_data(data_pointers, controller_rows):
+    """
+    Returns the encoding of the whole level
+    (from the stream of row pointers and the rontrollers rows)
+    For optimization of row set switches,
+    data_pointers and til_rows indexes should be pre-processed (#TODO)
+    """
+    assert len(data_pointers) == len(controller_rows)
+    res = ""
+    current_row_set = -1
+    for i in range(len(data_pointers)):
+        res += encode_controller_row(controller_rows[i])
+        row_index = data_pointers[i]
+        set_index = row_index//128
+        sub_index = row_index%128
+        if set_index != current_row_set:
+            # insert control for row set switch
+            res += f"\tDB ${CTRL_LD_ROWTABLE:02x}, "\
+                    f"LOW(row_set_{set_index}), "\
+                    f"HIGH(row_set_{set_index})   ; load new set\n"
+            current_row_set = set_index
+        # insert index
+        res += f"\tDB ${sub_index:02x}\n"
+    res += f"\tDB ${CTRL_DATA_END:02x}\n"
+    return res
+
+
+#################################
+# Actions suite
+
+def tmp_main(json_level):
+    global LEVEL_HEIGHT
+    LEVEL_HEIGHT = json_level.height
+    global LEVEL_WIDTH
+    LEVEL_WIDTH = json_level.width
+    global TILE_HEIGHT
+    TILE_HEIGHT = json_level.tileheight
+    global TILE_WIDTH
+    TILE_WIDTH = json_level.tilewidth
+    global TILE_BASE_INDEX
+    TILE_BASE_INDEX = json_level.tilesets[0].firstgid
+
+    tiles_raw_rows = get_raw_tile_rows(get_named_layer(json_level, "Tiles"))
+    actors_raw_rows = get_raw_object_rows(get_named_layer(json_level, "Actors"))
+    controllers_raw_rows = get_raw_object_rows(get_named_layer(json_level, "Level_Controllers"))
+
+#     print(tiles_raw_rows)
+#     print("\n\n")
+#     print(actors_raw_rows)
+#     print("\n\n")
+#     print(controllers_raw_rows)
+
+    # Construct actor rows and list references
+    # from [[act, act, act], ... [act, act]]
+    # construct [actorRow, actorRow, actorRow] (actor row reference)
+    # and [0, 0, 1, 0, 2] (indexes to actor row reference)
+    act_rows = []
+    curr_index = 0
+    act_pointers = []
+    for row in actors_raw_rows:
+        tmp = ActorRow(row, curr_index)
+        try:
+            tmp_i = act_rows.index(tmp)
+            act_pointers.append(act_rows[tmp_i].index)
+        except ValueError:
+            act_rows.append(tmp)
+            act_pointers.append(curr_index)
+            curr_index += 1
+#     print(act_rows)
+#     print(curr_index)
+#     print(act_pointers)
+
+    # Construct level rows from level data, controller_data and actor rows indexes
+    # construct the list of TileRow Objects
+    # construt the list of pointers to tileRow objects
+    til_rows = []
+    curr_index = 0
+    til_pointers = []
+    assert len(tiles_raw_rows) == len(act_pointers)
+    for i in range(len(tiles_raw_rows)):
+        tmp = TileRow(tiles_raw_rows[i], curr_index, act_pointers[i])
+        try:
+            tmp_i = til_rows.index(tmp)
+            til_pointers.append(til_rows[tmp_i].index)
+        except ValueError:
+            til_rows.append(tmp)
+            til_pointers.append(curr_index)
+            curr_index += 1
+#     print(til_rows)
+#     print(curr_index)
+#     print(til_pointers)
+
+    # output data encoding (test)
+    print(encode_all_row_tables(til_rows))
+    print("\n\n")
+    print("Level_0:\n")
+    print(encode_data(til_pointers, controllers_raw_rows))
+
+    # output data encoding
+    # first encode actors
+    # then encode rows
+    # then level_data
+    asm_file = ""
+
 
 
 def main(argv):
@@ -162,24 +395,12 @@ def main(argv):
 
     args = parser.parse_args(argv)
 
-    # Construct the level matrix
-    # Replace empty blocks with default blank value
-    levelMatrix = read_level(args.input, args.blank)
+    global DEFAULT_EMPTY_BLOCK
+    DEFAULT_EMPTY_BLOCK = args.blank
 
-    # Create the row dictionnary
-    dict_of_rows = rowDict(levelMatrix)
-    dict_of_rows.constructDict()
-
-    # Encode the level
-#     assert len(dict_of_rows.rows) <= 256      USELESS SINCE LEVEL CONTROL ROW TABLE LOAD
-
-
-
-    print(encode_level(levelMatrix, dict_of_rows))
-    print("\n#######################\n")
-    print(encode_row_dict(dict_of_rows))
-#     for k, v in enumerate(dict_of_rows.rows):
-#         print(f"{k} : {v}")
+    with open(args.input, 'r') as j_file:
+        json_obj = json.load(j_file, object_hook=lambda d: SimpleNamespace(**d))
+        tmp_main(json_obj)
 
     return
 
