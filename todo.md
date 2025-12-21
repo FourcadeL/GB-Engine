@@ -9,4 +9,9 @@
 # Level loading
 
 - Correct tiles loading and indexing ($80 offset)
+- Change level structure so that block, and row tables are loaded by the data stream and not the initial structure
 
+# Tools
+
+- Create a nice level encode scipt that is not patchwork !
+- Optimization of row tables switches
