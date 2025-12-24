@@ -106,7 +106,7 @@ Rot_enemy_request::
     ld [hl+], a
     ld [hl], DESCENT_TIME_COUNTER
     inc hl
-    ld [hl], 10             ; TODO default shoot timeout
+    ld [hl], 20             ; TODO default shoot timeout
     inc hl
     ld [hl], 60             ; TODO default shoot countdown
     inc hl

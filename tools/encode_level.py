@@ -12,9 +12,11 @@
 
 
 import sys
+import os
 import argparse
 import json
 from types import SimpleNamespace
+from lxml import objectify
 
 
 # Constants needed by the GB-engine
@@ -45,6 +47,7 @@ TILE_BASE_INDEX = None
 
 # parameters Constants
 DEFAULT_EMPTY_BLOCK = None
+MODELS_DIRECTORIES = None
 
 
 class TileRow:
@@ -113,6 +116,25 @@ def get_4fixed_dec_from_float(flt_dec):
 
 
 #################################
+# XML utils
+
+def get_typed_named_property(xml_properties_node, name):
+    """
+    Returns the property 'name' in the node containing
+    all xml properties
+    """
+    for prop in xml_properties_node.findall('property'):
+        if prop.get('name') == name:
+            content = prop.get('value')
+            match prop.get('type'):
+                case "int":
+                    return int(content)
+                case _:
+                    return content
+    raise ValueError(f"XML object does not have the attribute {name}")
+
+
+#################################
 # Tiled format utils
 
 def get_named_layer(json_level, name):
@@ -129,10 +151,32 @@ def get_named_property(json_obj, name):
     """
     Return the property 'name' from json object
     """
-    for p in json_obj.properties:
-        if p.name == name:
-            return p.value
+    if hasattr(json_obj, "properties"):
+        for p in json_obj.properties:
+            if p.name == name:
+                return p.value
+    # not found try searching in model files
+    if not hasattr(json_obj, "template"):
+        raise ValueError(f"Object has no property '{name}'")
+    model_file = json_obj.template
+    for dir in MODELS_DIRECTORIES:
+        try:
+            spath = os.path.join(dir, model_file)
+            return get_model_property(spath, name)
+        except FileNotFoundError:
+            pass
+    # not found in models either
     raise ValueError(f"Object has no property '{name}'")
+
+
+def get_model_property(xml_template_file, name):
+    """
+    Return the property 'name' from
+    the xml template file
+    """
+    with open(xml_template_file, "rb") as f:
+        objprop = objectify.fromstring(f.read()).object.properties
+        return get_typed_named_property(objprop, name)
 
 
 def get_raw_tile_rows(json_layer):
@@ -167,14 +211,22 @@ def actor_equality(act1, act2):
 
     Print a warning message if actors are close enough to be merged (X posiitons differ from less than 2)
     """
-    if act1.properties != act1.properties:
+    p1 = hasattr(act1, "properties")
+    p2 = hasattr(act2, "properties")
+    if p1 != p2:
+        return False
+    if p1 and (act1.properties != act2.properties):
+        return False
+    t1 = hasattr(act1, "template")
+    t2 = hasattr(act2, "template")
+    if t1 and t2 and (act1.template != act2.template):    # (cound have same properties but different templates)
         return False
 #     if int(act1.y)//16 != int(act2.y)//16:
 #         print("Hmmm Y value inequality...")
 #         return False
     if int(act1.x) != int(act2.x):
         if abs(int(act1.x) - int(act2.x)) <= 2:
-            print(f"Actors {act1.name} (y={act1.y}) and {act2.name} (y={act2.y}) are nearly identical.\nCONSIDER MERGING THEM")
+            print(f"Actors id {act1.id} (y={act1.y}) and id {act2.id} (y={act2.y}) are nearly identical.\nCONSIDER MERGING THEM")
         return False
     return True
 
@@ -186,11 +238,9 @@ def actor_equality(act1, act2):
 # these functions return the string of encoded parameters for each
 # actor types
 
-def default_parameters(json_act, stack_args: list[str]):
+def default_parameters(json_act):
     print("WARNING ! Use of undefined actor")
-    res = ""
-    for arg in stack_args:
-        res += f"${arg:02x}, "
+    res = "$00, "
     res += f"${get_named_property(json_act, "b"):02x}, "
     res += f"${get_named_property(json_act, "c"):02x}, "
     res += f"${get_named_property(json_act, "d"):02x}, "
@@ -198,17 +248,45 @@ def default_parameters(json_act, stack_args: list[str]):
     return res
 
 
-def wav_parameters(json_act, stack_args: list[str]):
+def wav_parameters(json_act):
     """
     Encoding of parameters for waving enemy
     """
-    assert len(stack_args) == 0
-    res = ""
+    res = "$00, "
     res += f"${int(json_act.x):02x}, "      # x position in row
-    res += f"${get_named_property(json_act, "c"):02x}, "
-    res += f"${get_named_property(json_act, "d"):02x}, "
-    res += f"${get_named_property(json_act, "e"):02x}, "
+    res += f"${get_named_property(json_act, "sine_speed"):02x}, "
+    res += f"${get_named_property(json_act, "shoot_rate"):02x}, "
+    sht_speed = get_named_property(json_act, "shot_speed")
+    assert 0 <= sht_speed <= 3
+    res += f"${sht_speed:02x}, "
     return res
+
+
+def rot_parameters(json_act):
+    """
+    Encoding of parameters for rot enemy
+    """
+    res = "$00, "
+    res += f"${int(json_act.x):02x}, "       # x position
+    res += "$00, "
+    res += f"${get_named_property(json_act, "shoot_rate"):02x}, "
+    sht_speed = get_named_property(json_act, "shot_speed")
+    assert 0 <= sht_speed <= 3
+    res += f"${sht_speed:02x}, "
+    return res
+
+
+def generator_parameters(json_act, stack_args: list[str]):
+    """
+    Encoding of parameters for actor generator
+    """
+    res = "$02, "
+    #TODO pushes in stack
+    res += f"${get_named_property(json_act, "nb_gen")}, "
+    res += f"{get_named_property(json_act, "gen_timer")}, "
+    res += f"HIGH({get_named_property(json_act, "")})"
+    pass
+
 
 
 #################################
@@ -222,18 +300,17 @@ def encode_actor_row(act_row: ActorRow):
     res = f"act_row_{act_row.index}:\n\t"
     res += "DB "
     for act in act_row.content:
-        raw_stack_args = get_named_property(act, "stack_args")
-        stack_args = [] if len(raw_stack_args) <= 0 else raw_stack_args.replace(" ", "").split(',')
-        assert len(stack_args) % 2 == 0
-        res += f"${len(stack_args):02x}, "
         try:
             match get_named_property(act, "type"):
                 case "wave_enemy":
-                    res += wav_parameters(act, stack_args)
+                    res += wav_parameters(act)
+                case "rot_enemy":
+                    res += rot_parameters(act)
                 case _:
                     print("WARNING ! No actor specific parameter encoding function")
+                    res += default_parameters(act)
         except ValueError:
-            res += default_parameters(act, stack_args)
+            res += default_parameters(act)
 
         res += f"LOW({get_named_property(act, "request_fun")}),"\
                 f"HIGH({get_named_property(act, "request_fun")}), "
@@ -440,6 +517,10 @@ def main(argv):
             help="Default value of empty blocks", default=0
     )
     parser.add_argument(
+            "--models", "-m", type=str,
+            help="Directory for tiled object models", default="./"
+    )
+    parser.add_argument(
             "--output", "-o", type=str,
             help="The rgbds output", default="./out.asm"
     )
@@ -449,6 +530,11 @@ def main(argv):
     global DEFAULT_EMPTY_BLOCK
     DEFAULT_EMPTY_BLOCK = args.blank
 
+    global MODELS_DIRECTORIES
+    MODELS_DIRECTORIES = []
+    MODELS_DIRECTORIES.append(args.models)
+    MODELS_DIRECTORIES.append(os.path.dirname(args.input))
+
     with open(args.input, 'r') as j_file:
         json_obj = json.load(j_file, object_hook=lambda d: SimpleNamespace(**d))
         tmp_main(json_obj)
@@ -457,4 +543,12 @@ def main(argv):
 
 
 if __name__ == "__main__":
+#     print("test")
+#     with open("../../Shmup-resources/actors_models/wav_enemy_(ampl5).tx", "rb") as f:
+#         object = objectify.fromstring(f.read())
+#         for i in object.object.properties.findall('property'):
+#             print(i.get("name"))
+#             print(i.get("value"))
+#         print(object.object.properties[0].get('name'))
+
     main(sys.argv[1:])

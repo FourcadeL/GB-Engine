@@ -109,9 +109,9 @@ Wav_enemy_request::
     ld [hl], c                              ; sine step speed
     inc hl
 
-    ld [hl], 20                             ; TODO default shoot timeout
+    ld [hl], 02                             ; TODO default shoot timeout
     inc hl
-    ld [hl], 60                             ; TODO default shoot countdown
+    ld [hl], 10                             ; TODO default shoot countdown
     inc hl
     ld [hl], d                              ; shoot threshold (higher = more shoots)
     inc hl
