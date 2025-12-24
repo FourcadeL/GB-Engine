@@ -61,11 +61,16 @@ Rot_enemy_init::
 
 
 ;--------------------------------
-; Rot_enemy_request(b = x pixel pos)
+; Rot_enemy_request(b = x pixel pos,
+;       d = shoot_rate,
+;       e = shot_speed)
 ;   Request a new rotating enemy at position specified by b
+;   With shoot rate at d
+;   and shot_speed at e (0 to 3)
 ;   Enemy always starts up at the top of the screen
 ;--------------------------------
 Rot_enemy_request::
+    push de
     push bc
     ACTOR_FIND_FREE                             ; find actor (hl, de are set)
     pop bc
@@ -94,6 +99,7 @@ Rot_enemy_request::
     ; WARNING init depend on actor data order for rot enemy in rot_enemy.inc
     ld h, d
     ld l, e
+    pop de
     ld a, COUNTER_STATE
     ld [hl+], a
     ld a, MOVE_DESCENT_STATE
@@ -104,9 +110,9 @@ Rot_enemy_request::
     inc hl
     ld [hl], 60             ; TODO default shoot countdown
     inc hl
-    ld [hl], %00001111      ; TODO default shoot threshold (higher = more shoots)
+    ld [hl], d              ; shoot threshold (higher = more shoots)
     inc hl
-    ld [hl], 2              ; TODO default shot speed (0 to 3)
+    ld [hl], e              ; shot speed (0 to 3)
     inc hl
 
         ; framerule set

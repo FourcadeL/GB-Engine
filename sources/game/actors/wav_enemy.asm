@@ -61,12 +61,16 @@ Wav_enemy_init::
 
 
 ;----------------------------------------
-; Wav_enemy_request(b = x pixel pos c = sine step speed)
+; Wav_enemy_request(b = x pixel pos,
+;       c = sine step speed,
+;       d = shoot_rate,
+;       e = shot_speed)
 ;   Request a new waving enemy at position specified by b
 ;   with sine amplitude as defined in c
 ;   Enemy always starts up at the top of the screen
 ;----------------------------------------
 Wav_enemy_request::
+    push de
     push bc
     ACTOR_FIND_FREE                         ; find actor (hl, de are set)
     pop bc
@@ -97,6 +101,7 @@ Wav_enemy_request::
     ; actor data
     ld h, d
     ld l, e
+    pop de
     ld a, COUNTER_STATE
     ld [hl+], a
     ld [hl], 00                             ; startup movement count
@@ -106,11 +111,11 @@ Wav_enemy_request::
 
     ld [hl], 20                             ; TODO default shoot timeout
     inc hl
-    ld [hl], 40                             ; TODO default shoot countdown
+    ld [hl], 60                             ; TODO default shoot countdown
     inc hl
-    ld [hl], %00001111                      ; TODO default shoot threshold (higher = more shoots)
+    ld [hl], d                              ; shoot threshold (higher = more shoots)
     inc hl
-    ld [hl], 2                              ; TODO default shot speed (0 to 3)
+    ld [hl], e                              ; shot speed (0 to 3)
     inc hl
 
         ; animation counter

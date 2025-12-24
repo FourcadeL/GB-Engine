@@ -1,14 +1,14 @@
 // version essai de starfield (de salamander ^^)
 // pour V0.1 du compilateur
 audio
-instrument base1 : 
+instrument base1 :
 $00, $80, $50, $80;
 0, -2, 2, -3; // main square
-instrument base2 : 
+instrument base2 :
 $00, $C0, $F1, $C0; 0;
-instrument wave1 : 
+instrument wave1 :
 $00, $10, $20, $80;
-0, 0, 0, 0, 0, 0, 2; // main wave 
+0, 0, 0, 0, 0, 0, 2; // main wave
 instrument noise :
 //$00, $00, $F0, $C0; 1, -1, -5, -9, -15; // main noise
 //$00, %00001111, $F4, $C0; 0, -7, -1, -8, -2, -9, -3, -10, -4, -11, -5, -12;
@@ -205,7 +205,7 @@ block mainNoise : [
     withInstrument(noise){withVolume(10){loop{
         F#3 ... G3 ... G#3 ... A3 ... A#3 ... B3 ... //24
         C4 ... C#4 ... D4 ... D#4 ... E4 ... F4 ... F#4 ... G4 ... G#4 ... A4 ... A#4 ... B4 ... //36
-        C5 ... C#5 ... D5 ... D#5 ... E5 ... F5 ... F#5 ... G5 ... G#5 ... A5 ... A#5 ... // la fin ? 
+        C5 ... C#5 ... D5 ... D#5 ... E5 ... F5 ... F#5 ... G5 ... G#5 ... A5 ... A#5 ... // la fin ?
         C7 ... C#7 ... D7 ... D#7 ... E7 ... F7 ... F#7 ... G7 ... G#7 ... A7 ... A#7 ... B7 ... //72
         C8 ... C#8 ... D8 ... D#8 ... E8 ... F8 ... F#8 ... G8 ... G#8 ... A8 ... A#8 ... B8 ... //84
         C9 ... C#9 ... D9 ... D#9 ... E9 ... F9 ... F#9 ... G9 ... G#9 ...}}}//94
