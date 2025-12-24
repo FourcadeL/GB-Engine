@@ -74,7 +74,11 @@ Rot_enemy_request::
     push bc
     ACTOR_FIND_FREE                             ; find actor (hl, de are set)
     pop bc
-    ret nz                                      ; no actors found ?
+    jr z, .proceed      ; no actors found ?
+        ; no free slot
+        pop de
+        ret
+.proceed
         ; add rotating enemy at hl and de
     ld a, %10000001
     ld [hl+], a

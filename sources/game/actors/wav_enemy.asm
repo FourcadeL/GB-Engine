@@ -74,8 +74,11 @@ Wav_enemy_request::
     push bc
     ACTOR_FIND_FREE                         ; find actor (hl, de are set)
     pop bc
-    ret nz
-
+    jr z, .proceed      ; no actors found ?
+        ; no free slot
+        pop de
+        ret
+.proceed
         ; add waving enemy at hl and de
     ; sprite data
     ld a, %10000001
@@ -109,7 +112,7 @@ Wav_enemy_request::
     ld [hl], c                              ; sine step speed
     inc hl
 
-    ld [hl], 02                             ; TODO default shoot timeout
+    ld [hl], 12                             ; TODO default shoot timeout
     inc hl
     ld [hl], 10                             ; TODO default shoot countdown
     inc hl
