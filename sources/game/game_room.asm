@@ -42,16 +42,23 @@ game_main::
 .not_dead
 
     ; TESTING : RANDOM NEW wav enemy
-    call generateRandom
-    and a, %11111100
     ld a, [PAD_pressed]
     and a, PAD_B
     jr z, .skipenn
-    call generateRandom
-    and a, %01111111
-    ld b, a
     ld b, 28
     ld c, 4
+    ld d, 1
+    ld e, 0
+    call Wav_enemy_request
+    ld b, 58
+    ld c, 4
+    ld d, 1
+    ld e, 0
+    call Wav_enemy_request
+    ld b, 88
+    ld c, 4
+    ld d, 1
+    ld e, 0
     call Wav_enemy_request
 .skipenn
 

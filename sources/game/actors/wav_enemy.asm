@@ -299,6 +299,10 @@ shoot_state_handle:
 
     push bc
     push de
+    ld a, shoot_rate
+    add a, e
+    ld l, a
+    ld h, d                         ; hl setup to shoot_rate compare
     push hl
         ; test if random is under threshold
     call generateRandom
@@ -306,7 +310,7 @@ shoot_state_handle:
     pop de
     pop bc
     cp a, [hl]
-    ret nc                          ; if shoot_rate <= a
+    jr nc, movement_handle          ; if shoot_rate <= a
 
         ; shoot toward player
     push de
