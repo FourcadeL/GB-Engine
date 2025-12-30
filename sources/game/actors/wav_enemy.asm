@@ -401,83 +401,14 @@ collision_handle:
         ; handle collision with player shot
     ; (assume that bc and de are still set)
     push de
-    ld a, SPRITE_STRUCT_Ypos
-    add a, c
-    ld h, b
-    ld l, a
-    ld a, [hl+]
-    and a, %11110000
-    ld d, a
-    ld a, [hl+]
-    and a, %00001111
-    or a, d
-    swap a
-    ld d, a                     ; d <- enemy pixel Y pos
-    ld a, [hl+]
-    and a, %11110000
-    ld e, a
-    ld a, [hl]
-    and a, %00001111
-    or a, e
-    swap a
-    ld e, a                     ; e <- enemy pixel X pos
-
-    ld b, d
-    ld c, e
-
-        ; test against all player shots
-    ld hl, ps_status            ; status table
-    ld d, 0                     ; index count
-    ld e, PS_MAX_SHOTS
-.loop
-    bit 7, [hl]
-    jr nz, .test_shot
-    inc hl
-    inc d
-    dec e
-    jr nz, .loop
-    jr .check_player_collision
-.test_shot
-    push hl
-    ld h, HIGH(ps_Yposs)
-    ld a, LOW(ps_Yposs)
-    add a, d
-    ld l, a
-    ld a, [hl]
-    sub a, b                    ; Y pos diff
-    jr nc, .non_negativeY
-    cpl a
-    inc a
-.non_negativeY
-    and a, %11110000
-    jr nz, .abort_this_collision
-    ld h, HIGH(ps_Xposs)
-    ld a, LOW(ps_Xposs)
-    add a, d
-    ld l, a
-    ld a, [hl]
-    sub a, c                    ; X pos diff
-    jr nc, .non_negativeX
-    cpl a
-    inc a
-.non_negativeX
-    and a, %11111000
-    jr nz, .abort_this_collision
-        ; collision found, set state
-    pop hl
-    set 5, [hl]                 ; set collide flag to shot
+    ACTOR_PLAYER_SHOT_COLLISION_SQUARE 9, 10, .shot_collision, .check_player_collision
+.shot_collision
     pop hl
     ld a, state
     add a, l
     ld l, a
     ld [hl], DEAD_STATE
     ret
-.abort_this_collision
-    pop hl
-    inc hl
-    inc d
-    dec e
-    jr nz, .loop
 
     ; check player collision (b = enemy Y pixel pos; c = enemy X pixel pos)
 .check_player_collision
