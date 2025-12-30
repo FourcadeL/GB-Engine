@@ -12,7 +12,7 @@ LV_infos::                              ; A table of level infos (8 bytes entrie
 ;                                               /!\ may be one tile mis-aligned if scroll y position is not 8 pixels aligned
 ;                                           1 byte : nb of rows to load from current position
 ;                                           1 byte : level song
-    DB $00, $1A, LOW(Level_0), HIGH(Level_0), $00, $11, $0B, 6
+    DB $00, $0A, LOW(Level_0), HIGH(Level_0), $00, $11, $0B, 6
 
 LV_tileset_infos::                      ; A table of tileset infos (8 bytes entries)
 ;                                           2 bytes addr of place to fetch bg tiles
@@ -109,32 +109,39 @@ Block_set_0:
     DB $ca, $c1, $cb, $cc
 
     SECTION "LV_Rows", ROMX
+
 act_row_0:
 	DB $FF
 act_row_1:
-	DB $00, $28, $05, $00, $00, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $00, $47, $05, $00, $00, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $00, $67, $05, $00, $00, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $00, $87, $05, $00, $00, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $FF
+	DB $00, $26, $00, $82, $01, LOW(Rot_enemy_request),HIGH(Rot_enemy_request), $FF
 act_row_2:
-	DB $00, $78, $05, $00, $00, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $FF
+	DB $00, $26, $00, $82, $01, LOW(Rot_enemy_request),HIGH(Rot_enemy_request), $00, $47, $04, $0c, $01, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $00, $67, $04, $0c, $01, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $FF
 act_row_3:
-	DB $00, $17, $05, $00, $00, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $FF
+	DB $00, $27, $00, $82, $01, LOW(Rot_enemy_request),HIGH(Rot_enemy_request), $FF
 act_row_4:
-	DB $00, $77, $05, $00, $00, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $00, $69, $05, $00, $00, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $00, $87, $05, $00, $00, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $FF
+	DB $00, $16, $04, $0c, $01, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $00, $38, $04, $0c, $01, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $00, $57, $04, $0c, $01, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $00, $78, $04, $0c, $01, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $FF
 act_row_5:
-	DB $00, $36, $05, $00, $00, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $FF
+	DB $00, $67, $00, $82, $01, LOW(Rot_enemy_request),HIGH(Rot_enemy_request), $FF
 act_row_6:
-	DB $00, $67, $05, $00, $00, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $FF
+	DB $00, $37, $00, $82, $01, LOW(Rot_enemy_request),HIGH(Rot_enemy_request), $FF
 act_row_7:
-	DB $00, $87, $05, $00, $00, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $FF
+	DB $00, $27, $00, $82, $01, LOW(Rot_enemy_request),HIGH(Rot_enemy_request), $00, $47, $04, $0c, $01, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $00, $67, $04, $0c, $01, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $FF
 act_row_8:
-	DB $00, $37, $05, $00, $00, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $FF
+	DB $00, $18, $04, $0c, $01, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $00, $3a, $04, $0c, $01, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $00, $59, $04, $0c, $01, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $00, $7a, $04, $0c, $01, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $FF
 act_row_9:
-	DB $00, $27, $05, $00, $00, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $00, $47, $05, $00, $00, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $00, $67, $05, $00, $00, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $FF
+	DB $00, $2c, $00, $82, $01, LOW(Rot_enemy_request),HIGH(Rot_enemy_request), $FF
 act_row_10:
-	DB $00, $98, $05, $00, $00, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $FF
+	DB $00, $73, $00, $82, $01, LOW(Rot_enemy_request),HIGH(Rot_enemy_request), $FF
 act_row_11:
-	DB $00, $47, $05, $00, $00, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $FF
+	DB $00, $89, $00, $82, $01, LOW(Rot_enemy_request),HIGH(Rot_enemy_request), $FF
 act_row_12:
-	DB $00, $47, $05, $00, $00, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $00, $86, $05, $00, $00, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $00, $86, $05, $00, $00, LOW(Wav_enemy_request),HIGH(Wav_enemy_request), $FF
+	DB $00, $05, $00, $82, $01, LOW(Rot_enemy_request),HIGH(Rot_enemy_request), $FF
+act_row_13:
+	DB $00, $65, $00, $82, $01, LOW(Rot_enemy_request),HIGH(Rot_enemy_request), $FF
+act_row_14:
+	DB $00, $40, $00, $82, $01, LOW(Rot_enemy_request),HIGH(Rot_enemy_request), $FF
+act_row_15:
+	DB $00, $6a, $00, $82, $01, LOW(Rot_enemy_request),HIGH(Rot_enemy_request), $FF
 
 
 
@@ -146,149 +153,53 @@ row_set_0:
 	DB $0a, $0c, $00, $00, $00, $00, $00, $00, $1a, $0a, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $1b, $00, $00, $00, $00, $00, $00, $00, $00, $19, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $0d, $00, $00, $00, $00, $00, $00, $01, $00, $0d, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $0d, $00, $06, $00, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $0d, $00, $00, $00, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $0c, $00, $00, $00, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $19, $15, $00, $00, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $0c, $00, $00, $00, $00, $00, $00, $00, $00, $1a, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $00, $02, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $01, $00, $00, $00, $00, $00, $00, $04, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $19, $15, $00, $00, $00, $00, $00, $00, $0f, $1b, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $00, $3a, $3b, $3c, $40, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $00, $38, $36, $30, $39, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $04, $00, $01, $00, $03, $35, $36, $36, $17, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $07, $16, $32, $33, $34, $00, $00, $00, $00, $00, LOW(act_row_1), HIGH(act_row_1)
-	DB $00, $00, $00, $00, $00, $00, $00, $09, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $0e, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $1a, $1b, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $1a, $1b, $00, $00, $00, $06, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $1a, $0a, $1b, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $07, $00, $1a, $1b, $00, $00, $00, $07, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $08, $00, $00, $00, $00, $1a, $1b, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $01, $00, $07, $0d, $00, $07, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $00, $00, $1a, $1b, $03, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $02, $00, $00, $19, $2d, $0b, $0a, $2d, $00, $00, $00, $00, LOW(act_row_2), HIGH(act_row_2)
-	DB $00, $00, $00, $19, $2d, $0c, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $19, $2d, $0c, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $0d, $00, $00, $08, $00, $00, $00, $00, $02, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $0d, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $0d, $00, $00, $00, $00, $07, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $0d, $00, $00, $00, $00, $19, $2d, $2d, $0a, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $2d, $0b, $2d, $0a, $1b, $14, $0c, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_3), HIGH(act_row_3)
-	DB $00, $00, $00, $00, $0d, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $07, $00, $19, $0c, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $01, $00, $0d, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $0d, $00, $01, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $0d, $00, $00, $19, $0a, $1b, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $02, $0d, $00, $00, $1a, $2c, $0c, $07, $00, $00, $00, $00, LOW(act_row_4), HIGH(act_row_4)
-	DB $00, $06, $00, $0d, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $2d, $1b, $01, $0d, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $1a, $1b, $0d, $00, $00, $00, $00, $03, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $06, $00, $1a, $0b, $1b, $00, $00, $00, $00, $09, $00, $00, $00, $00, LOW(act_row_5), HIGH(act_row_5)
-	DB $00, $00, $00, $00, $1a, $1b, $00, $00, $01, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $00, $1a, $1b, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $00, $19, $0b, $2d, $0a, $0a, $00, $00, $00, $00, LOW(act_row_6), HIGH(act_row_6)
-	DB $00, $00, $00, $19, $0a, $0c, $04, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $19, $0c, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $0d, $00, $01, $00, $06, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $19, $0c, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $0d, $00, $00, $00, $00, $19, $0a, $2c, $1b, $00, $00, $00, $00, LOW(act_row_7), HIGH(act_row_7)
-	DB $00, $0d, $00, $00, $00, $00, $0d, $00, $19, $0c, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $2d, $0b, $0a, $2c, $1b, $00, $1a, $2d, $0c, $00, $00, $00, $00, $00, LOW(act_row_8), HIGH(act_row_8)
-	DB $00, $00, $00, $06, $1a, $1b, $00, $00, $00, $04, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $3c, $3d, $00, $00, $00, $0d, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $36, $39, $00, $00, $06, $0d, $19, $2c, $0a, $2c, $00, $00, $00, $00, LOW(act_row_9), HIGH(act_row_9)
-	DB $36, $17, $00, $00, $19, $0b, $0c, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $33, $34, $00, $00, $0d, $00, $00, $00, $00, $3a, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $0d, $00, $00, $00, $00, $38, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $0d, $06, $00, $00, $00, $35, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $0d, $00, $00, $04, $00, $31, $00, $00, $00, $00, LOW(act_row_10), HIGH(act_row_10)
-	DB $2c, $2c, $2d, $2d, $0b, $0a, $2d, $1b, $00, $00, $00, $00, $00, $00, LOW(act_row_11), HIGH(act_row_11)
-	DB $00, $07, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $3a, $3b, $3c, $3d, $00, $0d, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $38, $36, $36, $39, $00, $1a, $1b, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $35, $36, $36, $17, $00, $00, $0d, $06, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $16, $32, $33, $34, $00, $00, $0d, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $00, $00, $00, $19, $0c, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $19, $2d, $2d, $0c, $00, $00, $00, $00, $00, $00, LOW(act_row_11), HIGH(act_row_11)
-	DB $0a, $0a, $2d, $0a, $0c, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_12), HIGH(act_row_12)
-	DB $15, $00, $00, $00, $00, $02, $00, $00, $06, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $00, $01, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $01, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $06, $01, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $06, $07, $00, $00, $00, $28, $29, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $00, $00, $27, $25, $1f, $20, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $06, $00, $00, $00, $26, $24, $1d, $1e, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $00, $00, $00, $21, $22, $2a, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $07, $00, $00, $00, $23, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $00, $01, $01, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $03, $00, $00, $00, $06, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $07, $00, $00, $00, $03, $00, $00, $00, $02, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $00, $00, $00, $01, $04, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $01, $00, $00, $07, $00, $00, $00, $00, $02, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $04, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $00, $00, $00, $00, $00, $07, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $00, $00, $00, $00, $00, $04, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $06, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $07, $00, $00, $00, $00, $00, $00, $04, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $08, $00, $00, $19, $2d, $2d, $1b, $00, $00, $04, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $0d, $00, $00, $0d, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $1a, $0a, $0a, $0c, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $00, $07, $00, $04, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $02, $00, $07, $00, $00, $00, $00, $00, $19, $0a, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $00, $06, $00, $19, $0c, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $0a, $1b, $00, $00, $00, $00, $00, $1a, $1b, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $0d, $00, $00, $00, $00, $00, $00, $1a, $0a, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $19, $0c, $00, $00, $00, $01, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $0c, $00, $00, $00, $00, $00, $00, $01, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $00, $00, $00, $06, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $00, $00, $00, $04, $00, $01, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $03, $00, $00, $00, $00, $00, $06, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $07, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $07, $00, $00, $00, $00, $00, $00, $02, $01, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $00, $00, $00, $00, $00, $19, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $09, $00, $00, $00, $00, $19, $0c, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $00, $00, $05, $19, $0c, $09, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $1b, $06, $04, $05, $00, $00, $07, $0d, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $1a, $1b, $00, $00, $00, $06, $19, $0c, $06, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $1a, $1b, $00, $19, $2d, $0c, $00, $00, $06, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $1a, $1b, $0d, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $1a, $0b, $0a, $2d, $2d, $1b, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $01, $00, $00, $00, $00, $00, $00, $1a, $1b, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $19, $2d, $1b, $00, $09, $00, $00, $00, $04, $1a, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $0c, $00, $1a, $15, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $09, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $04, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $00, $00, $00, $04, $04, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $07, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $01, $04, $00, $00, $00, $06, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $0a, $2d, $1b, $00, $19, $2d, $1b, $00, $19, $0a, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $0d, $00, $0d, $00, $0d, $07, $0d, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $1a, $0a, $0c, $00, $1a, $0a, $0c, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $19, $2d, $1b, $00, $19, $0a, $1b, $00, $19, $0a, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $0d, $00, $0d, $00, $0d, $00, $0d, $00, $0d, $04, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $0c, $00, $1a, $0a, $0c, $00, $1a, $0a, $0c, $06, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $00, $00, $06, $00, $00, $01, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $09, $00, $00, $00, $00, $00, $07, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-row_set_1:
-	DB $00, $08, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $01, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $00, $00, $00, $00, $00, $01, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $04, $00, $00, $04, $00, $00, $00, $03, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $3a, $3b, $3c, $3d, $00, $00, $00, $07, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $15, $38, $36, $36, $39, $00, $00, $00, $00, $0f, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $01, $35, $36, $36, $17, $00, $03, $00, $00, $01, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $16, $32, $33, $34, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $15, $00, $00, $00, $00, $00, $00, $00, $00, $14, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $03, $00, $00, $00, $00, $04, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $08, $00, $00, $00, $00, $00, $00, $07, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $07, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $04, $00, $00, $00, $04, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $06, $00, $04, $00, $00, $00, $02, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $00, $00, $00, $08, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $03, $00, $04, $00, $00, $00, $00, $00, $00, $07, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $07, $00, $00, $09, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
-	DB $00, $00, $00, $00, $00, $00, $06, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $0d, $00, $00, $00, $00, $00, $00, $07, $00, $0d, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $0d, $00, $06, $00, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_1), HIGH(act_row_1)
+	DB $0d, $00, $00, $00, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_1), HIGH(act_row_1)
+	DB $0d, $00, $00, $02, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_2), HIGH(act_row_2)
+	DB $0d, $00, $00, $00, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_3), HIGH(act_row_3)
+	DB $0d, $00, $06, $00, $00, $00, $04, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $0d, $00, $00, $00, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_4), HIGH(act_row_4)
+	DB $0d, $00, $00, $02, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $0d, $00, $06, $00, $00, $00, $04, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_5), HIGH(act_row_5)
+	DB $0d, $00, $00, $00, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_6), HIGH(act_row_6)
+	DB $0d, $00, $02, $00, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $0d, $00, $00, $02, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_6), HIGH(act_row_6)
+	DB $0d, $00, $00, $00, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_5), HIGH(act_row_5)
+	DB $0d, $00, $00, $06, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $0d, $01, $00, $00, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_3), HIGH(act_row_3)
+	DB $0d, $00, $00, $00, $00, $00, $00, $00, $1b, $0d, $00, $00, $00, $00, LOW(act_row_7), HIGH(act_row_7)
+	DB $0d, $00, $06, $00, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_8), HIGH(act_row_8)
+	DB $0d, $00, $00, $00, $06, $00, $00, $07, $00, $0d, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $0d, $00, $00, $00, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_8), HIGH(act_row_8)
+	DB $0d, $00, $00, $00, $00, $00, $00, $00, $02, $0d, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $0d, $00, $00, $06, $00, $00, $00, $00, $04, $0d, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $0d, $01, $00, $00, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $0d, $00, $07, $00, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $0d, $00, $00, $06, $00, $00, $00, $07, $00, $0d, $00, $00, $00, $00, LOW(act_row_9), HIGH(act_row_9)
+	DB $0d, $00, $00, $09, $00, $00, $00, $07, $00, $0d, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $0d, $00, $06, $00, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_10), HIGH(act_row_10)
+	DB $0d, $00, $00, $00, $00, $00, $00, $00, $06, $0d, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $0d, $09, $00, $00, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $0d, $00, $00, $00, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_11), HIGH(act_row_11)
+	DB $0d, $00, $04, $00, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $0d, $00, $00, $00, $00, $00, $00, $01, $04, $0d, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $0d, $00, $00, $00, $00, $00, $1c, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $0d, $00, $06, $00, $00, $00, $2f, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_12), HIGH(act_row_12)
+	DB $0d, $09, $00, $00, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_13), HIGH(act_row_13)
+	DB $0d, $00, $00, $06, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_14), HIGH(act_row_14)
+	DB $0d, $00, $00, $06, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_15), HIGH(act_row_15)
+	DB $0d, $00, $08, $00, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $0d, $06, $00, $00, $00, $00, $00, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $0d, $00, $00, $00, $00, $00, $00, $01, $00, $0d, $00, $00, $00, $00, LOW(act_row_5), HIGH(act_row_5)
+	DB $0d, $00, $00, $07, $00, $00, $09, $00, $00, $0d, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $1a, $1b, $06, $00, $00, $00, $00, $00, $19, $0c, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $00, $2e, $00, $00, $00, $00, $06, $00, $2f, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $00, $00, $00, $00, $00, $00, $07, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $2d, $0a, $0a, $2d, $2d, $0a, $2d, $0a, $0a, $2d, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $00, $00, $01, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $00, $07, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $00, $00, $00, $00, $00, $00, $00, $01, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
@@ -300,12 +211,14 @@ row_set_1:
 	DB $00, $00, $00, $08, $00, $35, $36, $36, $17, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $09, $00, $00, $01, $16, $32, $33, $34, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $03, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $00, $00, $00, $00, $00, $00, $00, $00, $00, $07, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $12, $13, $00, $00, $00, $00, $00, $00, $04, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $10, $11, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $00, $00, $00, $00, $00, $00, $00, $03, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $00, $06, $00, $01, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $00, $00, $07, $00, $00, $12, $13, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $06, $00, $00, $00, $00, $10, $11, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $00, $00, $00, $00, $00, $00, $00, $00, $00, $04, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $00, $12, $13, $00, $06, $06, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $04, $10, $11, $00, $00, $00, $00, $07, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $01, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
@@ -328,6 +241,7 @@ row_set_1:
 	DB $36, $37, $00, $00, $38, $36, $18, $39, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $33, $34, $00, $00, $35, $36, $36, $37, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $00, $00, $00, $31, $32, $33, $34, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $01, $00, $00, $00, $00, $00, $00, $04, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $00, $12, $13, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $00, $10, $11, $00, $00, $00, $00, $09, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $07, $00, $00, $00, $00, $01, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
@@ -347,8 +261,10 @@ row_set_1:
 	DB $00, $00, $00, $07, $00, $00, $00, $00, $00, $07, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $00, $00, $03, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $09, $00, $02, $00, $06, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $00, $00, $00, $00, $00, $00, $06, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $00, $00, $00, $02, $00, $00, $00, $00, $06, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $00, $00, $00, $00, $00, $00, $07, $08, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $00, $00, $06, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $09, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $00, $00, $09, $00, $00, $04, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $00, $00, $00, $00, $00, $00, $00, $07, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
@@ -360,15 +276,18 @@ row_set_1:
 	DB $00, $01, $00, $00, $00, $00, $00, $00, $01, $03, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $00, $00, $00, $00, $00, $01, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $00, $00, $00, $00, $00, $00, $00, $06, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+row_set_1:
 	DB $00, $03, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $00, $00, $00, $00, $06, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $04, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $00, $00, $00, $00, $00, $00, $00, $00, $02, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $07, $00, $04, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $00, $00, $00, $07, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $06, $00, $06, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $08, $06, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $00, $00, $00, $08, $00, $00, $00, $04, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $00, $00, $00, $00, $07, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
+	DB $00, $00, $00, $00, $07, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $00, $00, $03, $06, $00, $00, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $00, $00, $00, $00, $00, $00, $00, $02, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
 	DB $00, $00, $01, $00, $04, $00, $06, $00, $00, $00, $00, $00, $00, $00, LOW(act_row_0), HIGH(act_row_0)
@@ -382,74 +301,190 @@ row_set_1:
 
 Level_0:
 
+	DB $98, $01
 	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
 	DB $00
 	DB $01
 	DB $02
-	DB $98, $16
 	DB $03
 	DB $03
 	DB $04
+	DB $92, $02
 	DB $05
-	DB $05
-	DB $05
-	DB $05
-	DB $05
+	DB $91
 	DB $06
 	DB $07
 	DB $05
-	DB $05
-	DB $05
+	DB $07
+	DB $98, $18
+	DB $07
 	DB $08
-	DB $03
+	DB $07
 	DB $09
 	DB $0a
 	DB $0b
-	DB $08
 	DB $0c
+	DB $07
+	DB $07
+	DB $07
 	DB $0d
-	DB $92, $05
+	DB $07
+	DB $07
+	DB $07
 	DB $0e
-	DB $91
+	DB $07
+	DB $07
+	DB $07
+	DB $07
 	DB $0f
+	DB $06
 	DB $10
 	DB $11
+	DB $07
 	DB $12
+	DB $05
+	DB $06
+	DB $07
 	DB $13
 	DB $14
+	DB $0d
 	DB $15
+	DB $15
+	DB $05
 	DB $16
+	DB $0c
 	DB $17
+	DB $0c
+	DB $06
+	DB $0f
+	DB $06
+	DB $15
+	DB $06
+	DB $07
+	DB $0d
+	DB $07
+	DB $15
+	DB $07
+	DB $07
+	DB $0f
+	DB $05
+	DB $15
+	DB $15
+	DB $07
 	DB $18
+	DB $07
+	DB $07
+	DB $07
+	DB $07
+	DB $07
+	DB $05
+	DB $0d
+	DB $07
+	DB $0f
+	DB $08
+	DB $07
+	DB $07
+	DB $0f
+	DB $07
+	DB $05
+	DB $07
+	DB $05
+	DB $07
 	DB $19
+	DB $06
+	DB $06
 	DB $1a
+	DB $07
+	DB $07
+	DB $15
+	DB $07
+	DB $06
 	DB $1b
 	DB $1c
+	DB $07
 	DB $1d
+	DB $1a
+	DB $07
+	DB $08
+	DB $06
 	DB $1e
+	DB $07
+	DB $0d
+	DB $08
+	DB $0f
+	DB $08
+	DB $1e
+	DB $07
+	DB $0f
+	DB $07
+	DB $06
+	DB $07
+	DB $0d
+	DB $07
+	DB $08
+	DB $0d
+	DB $07
+	DB $08
+	DB $0d
 	DB $1f
 	DB $20
+	DB $0f
 	DB $21
 	DB $22
+	DB $15
+	DB $08
+	DB $07
+	DB $1d
+	DB $06
+	DB $07
 	DB $23
 	DB $24
 	DB $25
 	DB $26
+	DB $07
+	DB $07
+	DB $15
 	DB $27
 	DB $28
+	DB $07
+	DB $08
+	DB $07
+	DB $0d
+	DB $07
+	DB $07
 	DB $29
+	DB $15
+	DB $23
+	DB $0f
+	DB $1d
 	DB $2a
+	DB $0d
+	DB $07
+	DB $06
+	DB $08
+	DB $05
+	DB $07
 	DB $2b
+	DB $0f
+	DB $15
 	DB $2c
+	DB $07
+	DB $08
+	DB $07
 	DB $2d
+	DB $0a
+	DB $08
+	DB $07
 	DB $2e
 	DB $2f
+	DB $95
 	DB $30
 	DB $31
 	DB $32
 	DB $33
 	DB $34
 	DB $35
+	DB $03
 	DB $36
 	DB $37
 	DB $38
@@ -458,22 +493,23 @@ Level_0:
 	DB $3b
 	DB $3c
 	DB $3d
+	DB $03
 	DB $3e
 	DB $3f
 	DB $40
 	DB $41
+	DB $35
 	DB $42
 	DB $43
 	DB $44
 	DB $45
 	DB $46
-	DB $95
+	DB $03
 	DB $47
 	DB $48
-	DB $98, $32
+	DB $03
 	DB $03
 	DB $49
-	DB $03
 	DB $4a
 	DB $4b
 	DB $4c
@@ -482,8 +518,8 @@ Level_0:
 	DB $4f
 	DB $50
 	DB $51
-	DB $52
 	DB $03
+	DB $52
 	DB $53
 	DB $54
 	DB $55
@@ -494,19 +530,19 @@ Level_0:
 	DB $5a
 	DB $5b
 	DB $5c
-	DB $03
 	DB $5d
 	DB $5e
 	DB $5f
+	DB $03
+	DB $03
 	DB $60
-	DB $1d
+	DB $03
 	DB $61
 	DB $62
 	DB $63
 	DB $64
 	DB $65
 	DB $66
-	DB $03
 	DB $67
 	DB $68
 	DB $69
@@ -514,236 +550,374 @@ Level_0:
 	DB $6b
 	DB $6c
 	DB $6d
+	DB $03
 	DB $6e
 	DB $6f
+	DB $03
+	DB $03
 	DB $70
+	DB $03
 	DB $71
 	DB $72
 	DB $73
 	DB $03
 	DB $74
+	DB $03
 	DB $75
 	DB $76
-	DB $03
 	DB $77
+	DB $03
+	DB $72
 	DB $78
 	DB $79
-	DB $7a
 	DB $03
+	DB $6f
+	DB $67
+	DB $7a
 	DB $7b
 	DB $7c
 	DB $7d
-	DB $03
-	DB $73
 	DB $7e
 	DB $7f
+	DB $03
+	DB $03
 	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
 	DB $00
 	DB $01
-	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
-	DB $57
-	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
 	DB $02
 	DB $03
+	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
+	DB $03
+	DB $03
+	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
 	DB $04
+	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
+	DB $03
+	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
 	DB $05
+	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
+	DB $03
+	DB $49
+	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
 	DB $06
 	DB $07
 	DB $08
 	DB $09
-	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
-	DB $03
-	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
 	DB $0a
 	DB $0b
-	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
-	DB $03
-	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
 	DB $0c
-	DB $0d
+	DB $09
 	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
 	DB $03
-	DB $57
 	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
+	DB $0d
 	DB $0e
 	DB $0f
 	DB $10
-	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
-	DB $57
-	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
 	DB $11
-	DB $12
-	DB $12
-	DB $13
-	DB $14
-	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
-	DB $03
-	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
-	DB $15
-	DB $16
-	DB $17
-	DB $18
-	DB $19
-	DB $1a
-	DB $1b
-	DB $1c
-	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
-	DB $03
-	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
-	DB $1d
-	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
-	DB $55
-	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
-	DB $1e
-	DB $1f
-	DB $14
-	DB $20
-	DB $21
-	DB $22
-	DB $23
-	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
-	DB $56
-	DB $03
-	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
-	DB $24
-	DB $25
 	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
 	DB $03
 	DB $03
-	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
-	DB $26
-	DB $27
-	DB $28
-	DB $29
-	DB $2a
-	DB $2b
-	DB $2c
-	DB $2d
-	DB $2e
-	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
-	DB $03
-	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
-	DB $2f
-	DB $30
-	DB $31
-	DB $32
-	DB $33
-	DB $34
-	DB $35
-	DB $36
-	DB $37
-	DB $38
-	DB $39
-	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
-	DB $0a
-	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
-	DB $3a
-	DB $3b
-	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
 	DB $03
 	DB $03
-	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
-	DB $3c
-	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
-	DB $03
-	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
-	DB $3d
-	DB $3e
-	DB $3f
-	DB $40
-	DB $41
-	DB $42
-	DB $43
-	DB $44
-	DB $45
-	DB $46
-	DB $47
-	DB $48
-	DB $49
-	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
-	DB $03
-	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
-	DB $4a
-	DB $4b
-	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
 	DB $03
 	DB $03
-	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
-	DB $4c
-	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
-	DB $03
-	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
-	DB $11
-	DB $4d
-	DB $4e
-	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
-	DB $03
-	DB $57
-	DB $03
-	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
-	DB $4f
-	DB $50
-	DB $51
-	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
-	DB $03
-	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
-	DB $4d
-	DB $52
-	DB $53
-	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
-	DB $03
-	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
-	DB $4b
-	DB $43
-	DB $54
-	DB $55
-	DB $56
-	DB $57
-	DB $58
-	DB $59
-	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
 	DB $03
 	DB $03
-	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
-	DB $5a
-	DB $5b
-	DB $5c
-	DB $5d
-	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
 	DB $03
 	DB $03
-	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
-	DB $5e
-	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
 	DB $03
-	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
-	DB $0b
-	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
 	DB $03
-	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
-	DB $26
-	DB $5f
-	DB $60
-	DB $61
-	DB $62
-	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
-	DB $66
-	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
-	DB $63
-	DB $64
-	DB $62
-	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
 	DB $03
-	DB $82, LOW(row_set_1), HIGH(row_set_1)   ; load new set
-	DB $65
-	DB $66
-	DB $67
-	DB $68
-	DB $69
-	DB $82, LOW(row_set_0), HIGH(row_set_0)   ; load new set
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
+	DB $03
 	DB $03
 	DB $90
-
 
 
 
