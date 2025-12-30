@@ -50,6 +50,10 @@ game_over_init:
     call fwf_automaton_init
 
     call Audio_stop_song
+
+    ; reset screen position
+    MEMBSET [video_Xscroll_s], $00
+    MEMBSET [video_Yscroll_s], $00
     ret
 
 _text:
