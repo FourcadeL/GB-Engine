@@ -29,6 +29,20 @@ MACRO ADD_U16_HL    ;hl <- hl + (value first arg)
     ld      h, a
 ENDM
 
+;-------------------------------
+; ADD_U8_R16
+; Add a U8 to r16 register pair
+; [a]
+;-------------------------------
+MACRO ADD_U8_R16
+    ld a, \1
+    add a, LOW(\2)
+    jr nc, .skip
+        inc HIGH(\2)
+.skip
+    ld LOW(\2), a
+ENDM
+
 ; ----------------------------------------
 ; INCREMENT_ADRESS_AT_HL_LITTLE_ENDIAN
 ; increment value of addr stored at hl

@@ -6,6 +6,7 @@
 
     INCLUDE "hardware.inc"
     INCLUDE "engine.inc"
+    INCLUDE "utils.inc"
 
 
 ;+-----------------------------------------------------------------------------+
@@ -101,10 +102,14 @@ push_shadow_registers::
     ret
 
 ;-----------------------------
-;- push_to_tilemap()
-;-
-;-      pushes tilemap buffer to VRAM tilemap
-;-      horizontal or vertical
+; push_to_tilemap()
+;
+;      pushes tilemap buffer to VRAM tilemap
+;       from video_vram_push_buffer to video_vram_push_dst
+;       according to video_vram_push_status byte (see video_vram_push_status)
+;       
+;       horizontal -> +1 dest addr increments
+;       vertical -> +$20 dest addr increments
 ;-----------------------------
 push_to_tilemap::
     ld hl, video_vram_push_status
@@ -112,13 +117,16 @@ push_to_tilemap::
     bit 7, a                            ; request ?
     ret z
     res 7, [hl]                         ; reset request flag
+    ld b, a
     inc hl                              ; destination addr
     and a, %00011111
     ld c, a
     ld a, [hl+]
     ld e, a
     ld a, [hl+]
-    ld d, a
+    ld d, a                             ; de set as destination addr
+    bit 5, b                            ; vertical flag ?
+    jr nz, .vertical_loop
 .loop
     ld a, [hl+]
     ld [de], a
@@ -126,6 +134,14 @@ push_to_tilemap::
     dec c
     jr nz, .loop
     ret
+.vertical_loop
+    ld a, [hl+]
+    ld [de], a
+    ADD_U8_R16 $20, de
+    dec c
+    jr nz, .vertical_loop
+    ret
+    
 
 
 ;--------------------------------------------------------------------------
@@ -305,7 +321,7 @@ video_vram_push_status::    DS 1    ; %rbvsssss
 ;                                      |||+++++- size copy
 ;                                      ||+------ vertical flag (if set writes buffer as vertical column)
 ;                                      ||
-;                                      |+------- base addr flag (0 -> $9800 | 1 -> $9C00)
+;                                      |+------- base addr flag (0 -> $9800 | 1 -> $9C00) (UNUSED FLAG)
 ;                                      +-------- request flag
 video_vram_push_dst::       DS 2    ; destination address
 video_vram_push_buffer::    DS 32   ; 32 bytes buffer
@@ -317,7 +333,7 @@ video_vram_push_buffer::    DS 32   ; 32 bytes buffer
 
 ;+-----------------------------------------------------------------------------+
 ;| +-------------------------------------------------------------------------+ |
-;| |                          DMA ROUTINE assembled                           | |
+;| |                          DMA ROUTINE assembled                          | |
 ;| +-------------------------------------------------------------------------+ |
 ;+-----------------------------------------------------------------------------+
 

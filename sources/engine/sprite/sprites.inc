@@ -28,8 +28,8 @@ DEF MAX_SPRITE_NUMBER       EQU 20
 ; Sprite stricture size
 DEF SPRITE_STRUCTURE_SIZE   EQU SIZEOF_SPRITE_STRUCT
 
-; Maximum number of display lists
-DEF MAX_DISPLAYLIST_NUMBER  EQU 32
+; Maximum number of display lists (127 at most (127 << 1 -> 254))
+DEF MAX_DISPLAYLIST_NUMBER  EQU 64
 
 
 
