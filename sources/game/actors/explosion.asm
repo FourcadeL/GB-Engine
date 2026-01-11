@@ -107,6 +107,11 @@ Explosion_request::
 
     ld hl, nb_active
     inc [hl]                                        ; update active nb
+
+    ; request explosion sfx
+        ; set audio sfx
+        ld a, %11000100
+        jp sfx_request
     ret
 
 ;----------------------------------------------

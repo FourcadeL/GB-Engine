@@ -231,11 +231,7 @@ dying_update:
         add a, d
         ld c, a
 
-        call Explosion_request
-
-        ; set audio sfx
-        ld a, %11000100
-        jp sfx_request
+        jp Explosion_request
 
 .over
     ld hl, player_state
@@ -352,8 +348,6 @@ Player_update::
     ld a, [player_pixel_Ypos]
     ld c, a
     call PS_straight_request
-    ld a, %00000011                         ; MANUAL SFX DEFINE
-    call sfx_request
 .skipShooting
 
     ret

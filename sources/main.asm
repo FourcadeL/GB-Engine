@@ -77,19 +77,19 @@ Main_init::
     ld      [rIE],a
 
 
-    ; attributs palettes background/windows
+    ; background / window palette
     ld      a, %11100100
     ld      [rBGP], a ; palette BG
 
 
-    ; attributs palettes objets
+    ; obj palettes
     ld      a, %11100100
     ld      [rOBP0], a ; palette 0
 
-    ld      a, %11100100
+    ld      a, %11100001
     ld      [rOBP1], a ; palette 1
 
-    ; redémarrage de l'écran
+    ; screen startup
     ld      a,LCDCF_ON ; écran activé
     or      LCDCF_BGON ; arriere plan activé
     ld      [rLCDC],a

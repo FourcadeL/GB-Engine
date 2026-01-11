@@ -8,7 +8,7 @@
 ;   are found in "player_shots.asm"
 ;       (maybe define here the update macro ?)
 ;
-;   Straight shots are shots index 0 and 1 in the
+;   Straight shots are shots index 0, 1 and 2 in the
 ;   player_shots tables
 ; #############################
 
@@ -60,6 +60,11 @@ _create_shot_at_hl_index_d:
     add a, LOW(ps_Yposs)
     ld l, a
     ld [hl], c
+
+        ; play sound effect
+    ld a, %00000011                         ; MANUAL SFX DEFINE
+    call sfx_request
+
     ret
 
 

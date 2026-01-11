@@ -1,5 +1,9 @@
-// version essai de starfield (de salamander ^^)
-// pour V0.1 du compilateur
+// Game musics
+// aria v 0.1
+
+// fixed execution is :
+// 6 in "noire"
+
 audio
 instrument base1 :
 $00, $80, $50, $80;
@@ -76,6 +80,116 @@ ch1 empty
 ch2 BHG1
 ch3 BHGW
 ch4 BHGN
+
+song gameOver :
+ch1 bOver2
+ch2 bOver1
+ch3 empty
+ch4 empty
+
+song startheme1 :
+ch1 empty
+ch2 startheme1main1Global
+ch3 startheme1main2Global
+ch4 empty
+
+block startheme1main1Global : [
+    loop{
+            call{startheme1main1A}
+            call{startheme1main1rep1A}
+            call{startheme1main1A}
+            call{startheme1main1rep2A}
+            call{startheme1main1B}
+        }
+]
+
+block startheme1main2Global : [
+    loop{
+            call{startheme1main2A}
+            call{startheme1main2rep1A}
+            call{startheme1main2A}
+            call{startheme1main2rep2A}
+            call{startheme1main2B}
+        }
+]
+
+block startheme1main1A : [
+    withInstrument(base1){withVolume(11){
+            A#4........ F4.. D5..... A#4. D5. F5. 
+            F5..... D#5.. D5.. D#5........ D#5 F5 D#5
+            C5........ F4..
+        }}
+]
+
+block startheme1main1rep1A : [
+    withInstrument(base1){withVolume(11){
+            D#5........ D#5 F5 D#5
+            A#4........ F4.. D5..... A#4.. F4..
+        }}
+]
+
+block startheme1main1rep2A : [
+    withInstrument(base1){withVolume(11){
+            D#5..... D5.. C5..
+            A#4........ F4.. A#4..... A#4.....
+        }}
+]
+
+block startheme1main1B : [
+    withInstrument(base1){withVolume(11){
+            G5..... G5. A5. A#5. F5........ D5..
+            D#5..... D#5. F5. G5. F5..... D5.. A#4..
+            G5..... G5. A5. A#5. F5..... A5.....
+            A#5..... A#5. C6. C#6. C6..... D#6.....
+            D6...........
+            A#5...........
+        }}
+]
+
+block startheme1main2A : [
+    withInstrument(wave1){withVolume(2){
+            repeat(2){D3.. A#2.. D3.. F3..}
+            repeat(2){D#3.. C3.. D#3.. F3..}
+            repeat(2){C3.. F2.. C3.. D#3..}
+        }}
+]
+
+block startheme1main2rep1A : [
+    withInstrument(wave1){withVolume(2){
+            A#2.. F2.. A#2.. D3.. A#2.. F2.. A#2.. F3..
+    }}
+]
+
+block startheme1main2rep2A : [
+    withInstrument(wave1){withVolume(2){
+            repeat(2){A#2.. F2.. A#2.. D3..}
+    }}
+]
+
+block startheme1main2B : [
+    withInstrument(wave1){withVolume(2){
+            D#3. D3. D#3. A#3.. G3.. D3. C#3. D3. A#3.. F3..
+            C3.. D#3.. F3.. D#3.. D3.. A#2.. D3.. F3..
+            D#3. D3. D#3. A#3.. G3.. A3.. F3.. A3.. C4..
+            A#3. A3. A#3. C#4.. A3.. F3.. A3.. C4.. F4..
+            A#3...........
+            A#2...........
+        }}
+]
+
+block bOver1 : [
+    withInstrument(base1){withVolume(11){
+            A#4 . . . F4 ... D#4 ... F4 ... D4 ....... withVolume(7){D3}.... _
+        }}
+]
+
+block bOver2 : [
+    withInstrument(base1){withVolume(10){
+            F3 ....... A3 ....... A#3 ...
+            withInstrument(base2){withVolume(15) {A#2 .. A#2 withInstrument(base1){A#2 ...._}}}
+        }}
+]
+
 
 block noiseInstrumentBlock : [
     withInstrument(noiseT1){withVolume(15){call{noiseInstrumentBlockTest}}}

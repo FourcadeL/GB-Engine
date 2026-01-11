@@ -137,7 +137,7 @@ Wav_enemy_request::
 
 
 ;-------------------------------------------------------------
-; Wav_enemy_handle(bc = sprite addr, da = actor data addr)
+; Wav_enemy_handle(bc = sprite addr, de = actor data addr)
 ;
 ;   1 - do main state handle
 ;   2 - do movement handle
@@ -149,7 +149,7 @@ Wav_enemy_handle:
 ;     ld a, state
 ;     add a, e
 ;     ld h, d
-;     ld l, e
+;     ld l, a
     ld a, [de]                              ; get current state (first byte)
     cp a, COUNTER_STATE
     jr z, count_state_handle
@@ -449,6 +449,7 @@ static_dl_addrs:                ; static outline of dl for setup in displyList t
     DW enemy_wav_dl_frame1
     DW enemy_wav_dl_frame3
 .end
+
 ;+------------------------------------------------------------------+
 ;| +--------------------------------------------------------------+ |
 ;| |                    VRAM                                      | |
