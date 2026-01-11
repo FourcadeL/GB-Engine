@@ -25,8 +25,8 @@ DEF PS_DIAG_LEFT_FIRST_INDEX EQU 6
 DEF PS_DIAG_NB EQU 3
 
 
-DEF PS_DIAG_Y_SPEED EQU 12
-DEF PS_DIAG_X_SPEED EQU 3
+DEF PS_DIAG_Y_SPEED EQU 11
+DEF PS_DIAG_X_SPEED EQU 4
 
 EXPORT Player_shot_diag_tiles
 EXPORT Player_shot_diag_tiles.end
@@ -40,25 +40,10 @@ MACRO PS_DIAG_INIT
     call vram_copy_fast
 
     ; set tiles for diag shots in displaylist
-    ld hl, ps_dynamic_displayList_content + PS_DIAG_RIGHT_FIRST_INDEX * 4 + 2
-    ld a, (Player_shot_diag_vram_tiles - _VRAM) / 16
-    ld d, PS_DIAG_NB                        ; (fill right table)
-.diag_right_loop\@
-    ld [hl+], a
-    inc hl
-    inc hl
-    inc hl
-    dec d
-    jr nz, .diag_right_loop\@
-    ld b, %00100000
-    ld d, PS_DIAG_NB                        ; (fill left table)
-.diag_left_loop\@
-    ld [hl+], a
-    ld [hl], b
-    inc hl
-    inc hl
-    inc hl
-    jr nz, .diag_left_loop\@
+    ld hl, ps_Tiles + PS_DIAG_RIGHT_FIRST_INDEX
+    ld d, (Player_shot_diag_vram_tiles - _VRAM) / 16
+    ld b, PS_DIAG_NB * 2                    ; (fill both r/l tables)
+    call memset_fast
 ENDM
 
 

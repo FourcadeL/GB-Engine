@@ -80,21 +80,24 @@ DEF PS_Y_threshold EQU 160
 ;| +-----------------------------------------------------------------+ |
 ;+---------------------------------------------------------------------+
 
-    SECTION "Player_shots_variables", WRAM0
 
-_ps_variables_start:
-ps_purge_current_index: DS 1
-_ps_variables_end:
-
-    SECTION "PS_tables", WRAM0, ALIGN[6]
-    ; %xx00.... aligned
+    SECTION "PS_tables", WRAM0, ALIGN[7]
+    ; %x000.... aligned
 ps_status:      DS 1*PS_MAX_SHOTS      ; table of ps status bytes
 
-    ; %xx01.... aligned
+    ; %x001.... aligned
 ps_Xposs:       DS 1*PS_MAX_SHOTS      ; table of ps x positions
 
-    ; %xx10.... aligned
+    ; %x010.... aligned
 ps_Yposs:       DS 1*PS_MAX_SHOTS      ; table of ps y positions
+
+    ; %x011.... aligned
+ps_Tiles:       DS 1*PS_MAX_SHOTS
+
+    ; %x100.... aligned
+_ps_variables_start:
+ps_push_to_display_counter: DS 1
+_ps_variables_end:
 
 
     SECTION "PS_displaylist_table", WRAM0
@@ -163,9 +166,8 @@ PS_update::
     ; "per shots" macros will go here
     PS_STRAIGHT_UPDATE
     PS_DIAG_UPDATE
-    ; TODO
-    call PS_push_to_display
-    ret
+
+;     jr PS_push_to_display
 
 
 ;---------------------
@@ -175,23 +177,23 @@ PS_update::
 ;---------------------
 PS_push_to_display:
     ld e, PS_MAX_SHOTS
-    ld a, 0
-    ld [ps_dynamic_displayList_header], a       ; set 0 shots to display
+    xor a
+    ld d, a
+    ld [ps_push_to_display_counter], a  ; set 0 shots to display
     ld hl, ps_status
     ld bc, ps_dynamic_displayList_content
 .loop
     bit 7, [hl]
     jr nz, .display_shot                ; a is current shot index
     inc hl
-    inc a
+    inc d
     dec e
     jr nz, .loop
+    MEMBSET [ps_dynamic_displayList_header], [ps_push_to_display_counter]
     ret
 .display_shot
         ;set display position of the shot to current content
-        push hl                 ; save current status addr
-        ld d, a                 ; save current shot index
-        ld h, HIGH(ps_Yposs)
+        ld a, d
         add a, LOW(ps_Yposs)
         ld l, a
         ld a, [hl]
@@ -199,22 +201,35 @@ PS_push_to_display:
         ld [bc], a
         inc bc
         ld a, d
-        ld h, HIGH(ps_Xposs)
         add a, LOW(ps_Xposs)
         ld l, a
         ld a, [hl]
         sub a, 4                ; compensate for tile X offset
         ld [bc], a
         inc bc
-        inc bc
-        inc bc
-        ld hl, ps_dynamic_displayList_header
-        inc [hl]                ; increment number of shots to display
         ld a, d
-        pop hl
+        add a, LOW(ps_Tiles)
+        ld l, a
+        ld a, [hl]
+        ld [bc], a              ; set current shot tile
+        inc bc
+        
+        ld l, LOW(ps_push_to_display_counter)
+        inc [hl]                ; increment number of shots to display
+
+        ld a, d
+        add a, LOW(ps_status)
+        ld l, a
+        ld a, [hl]
+        and a, %00000001        ; get shot flip flag
+        swap a
+        rl a
+        ld [bc], a              ; set shot flip
+        inc bc
     inc hl
-    inc a
+    inc d
     dec e
     jr nz, .loop
+    MEMBSET [ps_dynamic_displayList_header], [ps_push_to_display_counter]
     ret
 

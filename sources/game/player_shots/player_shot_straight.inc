@@ -28,17 +28,11 @@ MACRO PS_STRAIGHT_INIT
     ld c, Player_shot_straight_tiles.end - Player_shot_straight_tiles
     call vram_copy_fast
 
-    ; set tiles for straight shots in displayList
-    ld hl, ps_dynamic_displayList_content + PS_STRAIGHT_FIRST_INDEX * 4 + 2
-    ld a, (Player_shot_straight_vram_tiles - _VRAM)/16
-    ld d, PS_STRAIGHT_NB
-.straight_set_loop\@
-    ld [hl+], a
-    inc hl
-    inc hl
-    inc hl
-    dec d
-    jr nz, .straight_set_loop\@
+    ; set tiles for straight shots table
+    ld hl, ps_Tiles + PS_STRAIGHT_FIRST_INDEX
+    ld d, (Player_shot_straight_vram_tiles - _VRAM)/16
+    ld b, PS_STRAIGHT_NB
+    call memset_fast
 ENDM
 
 MACRO PS_STRAIGHT_UPDATE

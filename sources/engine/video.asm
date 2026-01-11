@@ -311,7 +311,7 @@ tilemap_win_block_copy::
 ;| |                          VARIABLES                                      | |
 ;| +-------------------------------------------------------------------------+ |
 ;+-----------------------------------------------------------------------------+
-    SECTION "Video_Variables", WRAM0
+    SECTION "Video_Variables", WRAM0, ALIGN[6]          ; align is not required but unsure LOW(video_vram_push_buffer) + 32 is 8 bits
 
 _screen_control_save:       DS 1
 video_Xscroll_s::           DS 1

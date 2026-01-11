@@ -92,7 +92,7 @@ Player_shot_diag_tiles:
 Player_shot_diag_vram_tiles:
 ; TODO tiles data
 tile1:
-    DB $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $18
+    DB $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $18
 tile2:
     DB $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $18
     ENDL
