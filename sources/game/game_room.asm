@@ -62,10 +62,15 @@ game_main::
     call Wav_enemy_request
 .skipenn
 
-    ; TESTING : LOAD LEVEL (on select)
+    ; TESTING : LOAD snip (on select)
     ld a, [PAD_pressed]
     and a, PAD_SELECT
     jr z, .skiplevelLoad
+    ld b, 33
+    ld c, %10011111
+    ld d, 24
+    ld e, 0
+    call Snip_enemy_request
 .skiplevelLoad
 
     ; TESTING : actor row load (on start)
@@ -100,6 +105,7 @@ game_init:
     call Actors_init
     call Rot_enemy_init
     call Wav_enemy_init
+    call Snip_enemy_init
 
     ; explosion init
     call Explosion_init
@@ -121,7 +127,8 @@ game_init:
 
     ; set auto repeat mask
     ld hl, PAD_repeat_speed
-    ld [hl], %00001011
+    ld [hl], %00001000
+;     ld [hl], %00001011
     ld hl, PAD_repeat_counter
     ld [hl], $02
 
