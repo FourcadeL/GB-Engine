@@ -12,7 +12,7 @@ LV_infos::                              ; A table of level infos (8 bytes entrie
 ;                                               /!\ may be one tile mis-aligned if scroll y position is not 8 pixels aligned
 ;                                           1 byte : nb of rows to load from current position
 ;                                           1 byte : level song
-    DB $00, $0A, LOW(Level_0), HIGH(Level_0), $00, $11, $0B, 6
+    DB $00, $0A, LOW(Level_0), HIGH(Level_0), $00, $11, $0B, 9
 
 LV_tileset_infos::                      ; A table of tileset infos (8 bytes entries)
 ;                                           2 bytes addr of place to fetch bg tiles

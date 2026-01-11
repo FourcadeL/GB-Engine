@@ -15,7 +15,9 @@
 ;   (they moove fast enough that sub pixels are not an issue)
 ;
 ;   Each shot has :
-;       - 8 bits status : %a0c00000 | a : 1 -> active | c : 1 -> collided
+;       - 8 bits status : %a0c0000f | a : 1 -> active | c : 1 -> collided | a = flip
+;                          | |    |
+;                          | |    +> flip shot display 1 : flipped | 0 : not flipped
 ;                          | |
 ;                          | +--> collided flag (with ennemy)
 ;                          |
@@ -37,12 +39,12 @@
 ;       0   : straight 1
 ;       1   : straight 2
 ;       2   : straight 3
-;       3   : free
-;       4   : free
-;       5   : free
-;       6   : free
-;       7   : free
-;       8   : free
+;       3   : diag 1 /
+;       4   : diag 2 /
+;       5   : diag 3 /
+;       6   : diag 4 \
+;       7   : diag 5 \
+;       8   : diag 6 \
 ;       9   : free
 ;       10  : free
 ;       11  : free
@@ -60,6 +62,7 @@ INCLUDE "utils.inc"
 INCLUDE "player.inc"
 INCLUDE "player_shots.inc"
 INCLUDE "player_shot_straight.inc"
+INCLUDE "player_shot_diag.inc"
 
 
 DEF PS_sprite_entry EQUS "Sprite_table + 19*8"
@@ -83,13 +86,14 @@ _ps_variables_start:
 ps_purge_current_index: DS 1
 _ps_variables_end:
 
-    SECTION "PS_status_table", WRAM0, ALIGN[4]
+    SECTION "PS_tables", WRAM0, ALIGN[6]
+    ; %xx00.... aligned
 ps_status:      DS 1*PS_MAX_SHOTS      ; table of ps status bytes
 
-    SECTION "PS_Xposs_table", WRAM0, ALIGN[4]
+    ; %xx01.... aligned
 ps_Xposs:       DS 1*PS_MAX_SHOTS      ; table of ps x positions
 
-    SECTION "PS_Yposs_table", WRAM0, ALIGN[4]
+    ; %xx10.... aligned
 ps_Yposs:       DS 1*PS_MAX_SHOTS      ; table of ps y positions
 
 
@@ -112,6 +116,7 @@ ps_dynamic_displayList_content:
 
 PS_init::
     PS_STRAIGHT_INIT
+    PS_DIAG_INIT
     ; reset variables in ram
     ld d, $00
     ld hl, _ps_variables_start
@@ -157,6 +162,7 @@ PS_update::
 
     ; "per shots" macros will go here
     PS_STRAIGHT_UPDATE
+    PS_DIAG_UPDATE
     ; TODO
     call PS_push_to_display
     ret

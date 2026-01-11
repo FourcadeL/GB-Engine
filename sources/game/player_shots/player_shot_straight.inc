@@ -32,13 +32,13 @@ MACRO PS_STRAIGHT_INIT
     ld hl, ps_dynamic_displayList_content + PS_STRAIGHT_FIRST_INDEX * 4 + 2
     ld a, (Player_shot_straight_vram_tiles - _VRAM)/16
     ld d, PS_STRAIGHT_NB
-.straight_set_loop
+.straight_set_loop\@
     ld [hl+], a
     inc hl
     inc hl
     inc hl
     dec d
-    jr nz, .straight_set_loop
+    jr nz, .straight_set_loop\@
 ENDM
 
 MACRO PS_STRAIGHT_UPDATE
@@ -46,27 +46,27 @@ MACRO PS_STRAIGHT_UPDATE
     ld c, PS_STRAIGHT_NB
     ld de, ps_status + PS_STRAIGHT_FIRST_INDEX
     ld hl, ps_Yposs + PS_STRAIGHT_FIRST_INDEX
-.loop
+.loop\@
     ld a, [de]
     bit 5, a
-    jr nz, .delete_shot
+    jr nz, .delete_shot\@
     ld a, [hl]
     sub a, PS_Y_SPEED
     ld [hl], a
-    jr c, .delete_shot          ; carry means shot overflow from top of the screen -> reset status
+    jr c, .delete_shot\@        ; carry means shot overflow from top of the screen -> reset status
     inc de
     inc hl
     dec c
-    jr nz, .loop
-    jr .end
-.delete_shot
+    jr nz, .loop\@
+    jr .end\@
+.delete_shot\@
     ld a, 0
     ld [de], a
     inc de
     inc hl
     dec c
-    jr nz, .loop
-.end
+    jr nz, .loop\@
+.end\@
 ENDM
 
     ENDC ; PLAYER_SHOT_STRAIGHT_INC

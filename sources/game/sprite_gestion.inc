@@ -63,7 +63,13 @@
 ; 28 :  Waving enemy frame 2
 ; 29 :  Waving enemy frame 3
 ; 30 :  Waving enemy frame 4
-; 31 :
+; 31 :  Unused
+; 32 :  Sniper_enemy_frame 1
+; 33 :  Sniper_enemy_frame 2
+; 34 :  Sniper_enemy_frame 3
+; 35 :  Sniper_enemy_frame 4
+; ...
+; 63 :
 
 
 

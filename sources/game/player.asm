@@ -347,7 +347,19 @@ Player_update::
     ld b, a
     ld a, [player_pixel_Ypos]
     ld c, a
+
+    ; TODO test diagonal shots
+    push bc
     call PS_straight_request
+    pop bc
+    push bc
+    ld d, 0
+    call PS_diag_request
+    pop bc
+    ld d, 1
+    call PS_diag_request
+
+    
 .skipShooting
 
     ret
