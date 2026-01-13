@@ -18,71 +18,78 @@
 
 
 
-    SECTION "RST_00",ROM0[$0000]
+SECTION "RST_00",ROM0[$0000]
     ret ; Reserved for interrupt handler. If an interrupt vector is $0000 it
         ; jumps here and returns.
 
-    SECTION "RST_08",ROM0[$0008]
+SECTION "RST_08",ROM0[$0008]
     jp      hl ; Reserved for interrupt handler. (Or any other function that
                ; uses CALL_HL permet de faire un call plus rapidement)
 
-    SECTION "RST_10",ROM0[$0010]
+SECTION "RST_10",ROM0[$0010]
     ret
 
-    SECTION "RST_18",ROM0[$0018]
+SECTION "RST_18",ROM0[$0018]
     ret
 
-    SECTION "RST_20",ROM0[$0020]
+SECTION "RST_20",ROM0[$0020]
     ret
 
-    SECTION "RST_28",ROM0[$0028]
+SECTION "RST_28",ROM0[$0028]
     ret
 
-    SECTION "RST_30",ROM0[$0030]
+SECTION "RST_30",ROM0[$0030]
     ret
 
-    SECTION "RST_38",ROM0[$0038]
+SECTION "RST_38",ROM0[$0038]
     jp      Reset
 
 
-;+-----------------------------------------------------------------------------+
-;| +-------------------------------------------------------------------------+ |
-;| |                             INTERRUPT VECTORS                           | |
-;| +-------------------------------------------------------------------------+ |
-;+-----------------------------------------------------------------------------+
+;+----------------------------------------------------------------------+
+;| +------------------------------------------------------------------+ |
+;| |                         INTERRUPT VECTORS                        | |
+;| +------------------------------------------------------------------+ |
+;+----------------------------------------------------------------------+
 
-    SECTION "VBL Interrupt Vector",ROM0[$0040]
+
+SECTION "VBL Interrupt Vector",ROM0[$0040]
     push    hl
     ld      hl, _vbl_flag ; vblank execution flag
     ld      [hl], 1
     jr      int_VBlank
 
-    SECTION "LCD Interrupt Vector",ROM0[$0048]
+SECTION "LCD Interrupt Vector",ROM0[$0048]
+    ; TODO accélérer l'appel pour LCD interrupt (Handler in RAM ?)
     push    hl
+;     push    af
+;     ld      hl, LCD_handler
+;     ld      a, [hl+]
+;     ld      h, [hl]
+;     ld      l, a
     ld      hl,LCD_handler
     jr      int_Common
 
-    SECTION "TIM Interrupt Vector",ROM0[$0050]
+SECTION "TIM Interrupt Vector",ROM0[$0050]
     push    hl
     ld      hl,TIM_handler
     jr      int_Common
 
-    SECTION "SIO Interrupt Vector",ROM0[$0058]
+SECTION "SIO Interrupt Vector",ROM0[$0058]
     push    hl
     ld      hl,SIO_handler
     jr      int_Common
 
-    SECTION "JOY Interrupt Vector",ROM0[$0060]
+SECTION "JOY Interrupt Vector",ROM0[$0060]
     push    hl
     ld      hl,JOY_handler
     jr      int_Common
 
 
-;+-----------------------------------------------------------------------------+
-;| +-------------------------------------------------------------------------+ |
-;| |                             INTERRUPT HANDLER                           | |
-;| +-------------------------------------------------------------------------+ |
-;+-----------------------------------------------------------------------------+
+;+----------------------------------------------------------------------+
+;| +------------------------------------------------------------------+ |
+;| |                        INTERRUPT HANDLER                         | |
+;| +------------------------------------------------------------------+ |
+;+----------------------------------------------------------------------+
 
 int_VBlank:
     ld      hl,VBL_handler
@@ -90,7 +97,7 @@ int_VBlank:
 int_Common:
     push    af
 
-    ; retrieve interrupt functio addr
+    ; retrieve interrupt function addr
     ld      a,[hl+]
     ld      h,[hl]
     ld      l,a
@@ -132,13 +139,13 @@ wait_vbl::
 
 
 
-;+-----------------------------------------------------------------------------+
-;| +-------------------------------------------------------------------------+ |
-;| |                              CARTRIDGE HEADER                           | |
-;| +-------------------------------------------------------------------------+ |
-;+-----------------------------------------------------------------------------+
+;+----------------------------------------------------------------------+
+;| +------------------------------------------------------------------+ |
+;| |                          CARTRIDGE HEADER                        | |
+;| +------------------------------------------------------------------+ |
+;+----------------------------------------------------------------------+
 
-    SECTION "Cartridge Header",ROM0[$0100]
+SECTION "Cartridge Header", ROM0[$0100]
 
     nop
     jp      StartPoint
@@ -165,48 +172,47 @@ wait_vbl::
 
 
 
-;+-----------------------------------------------------------------------------+
-;| +-------------------------------------------------------------------------+ |
-;| |                                START ROUTINE                            | |
-;| +-------------------------------------------------------------------------+ |
-;+-----------------------------------------------------------------------------+
+;+----------------------------------------------------------------------+
+;| +------------------------------------------------------------------+ |
+;| |                            START ROUTINE                         | |
+;| +------------------------------------------------------------------+ |
+;+----------------------------------------------------------------------+
 
-    SECTION "Program Start",ROM0[$0150]
+SECTION "Program Start", ROM0[$0150]
 
 StartPoint:
+    di                      ; no interupts during startup
 
-
-    di ; no interupts during startup
-
-    call screen_off ; screen of before VRAM or memory manipulation
+    call    screen_off      ; screen of before VRAM or memory manipulation
 
     ; RAM cleanup
-    ld d, $00
-    ld hl, _RAM
-    ld bc, $2000
-    call memset
+    ld      d, $00
+    ld      hl, _RAM
+    ld      bc, $2000
+    call    memset
 
     ; random seed init (seed is A = $55 ; B = $F3 ; C = $1A)
-    ld hl, RandomA
-    ld [hl], $55
-    ld hl, RandomB
-    ld [hl], $F3
-    ld hl, RandomC
-    ld [hl], $1A
+    ld      hl, RandomA
+    ld      [hl], $55
+    ld      hl, RandomB
+    ld      [hl], $F3
+    ld      hl, RandomC
+    ld      [hl], $1A
 
     ; VRAM cleanup
-    ld d, $00
-    ld hl, _VRAM
-    ld bc, $2000
-    call memset
+    ld      d, $00
+    ld      hl, _VRAM
+    ld      bc, $2000
+    call    memset
+
+    ; set stack in WRAM
+    ld      sp, StackTop
 
     ; copy DMA routine into HRAM
-    call init_DMA
+    call    init_DMA
 
     ; main call
-    call Main
-
-    jp Reset ; just in case but shouldn't reach
+    call    Main
 
 
 
@@ -282,10 +288,9 @@ JOY_handler:    DS 2
 
 ; new stack definition in WorkRAM
 
-;    SECTION "Stack",WRAM0[$CE00]
-
-;Stack:    DS $200
-;StackTop: ; At address $D000
+   SECTION "Stack", WRAM0
+Stack:          DS $100
+StackTop:
 
 
 
