@@ -356,7 +356,15 @@ Player_update::
     ld d, 0
     call PS_diag_request
     pop bc
+    push bc
     ld d, 1
+    call PS_diag_request
+    pop bc
+    push bc
+    ld d, 2
+    call PS_diag_request
+    pop bc
+    ld d, 3
     call PS_diag_request
 
     

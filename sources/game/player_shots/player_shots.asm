@@ -15,9 +15,11 @@
 ;   (they moove fast enough that sub pixels are not an issue)
 ;
 ;   Each shot has :
-;       - 8 bits status : %a0c0000f | a : 1 -> active | c : 1 -> collided | a = flip
-;                          | |    |
-;                          | |    +> flip shot display 1 : flipped | 0 : not flipped
+;       - 8 bits status : %a0c000vf | a : 1 -> active | c : 1 -> collided | vf = flip
+;                          | |   ||
+;                          | |   |+> flip shot display 1 : flipped | 0 : not flipped
+;                          | |   |
+;                          | |   +-> vertical flip 1 : flipped | 0 : not flipped
 ;                          | |
 ;                          | +--> collided flag (with ennemy)
 ;                          |
@@ -45,12 +47,12 @@
 ;       6   : diag 4 \
 ;       7   : diag 5 \
 ;       8   : diag 6 \
-;       9   : free
-;       10  : free
-;       11  : free
-;       12  : free
-;       13  : free
-;       14  : free
+;       9   : diagd 7 \
+;       10  : diagd 8 \
+;       11  : diagd 9 \
+;       12  : diagd 10 /
+;       13  : diagd 11 /
+;       14  : diagd 12 /
 ;       15  : free
 ;
 ; ##########################################
@@ -221,7 +223,7 @@ PS_push_to_display:
         add a, LOW(ps_status)
         ld l, a
         ld a, [hl]
-        and a, %00000001        ; get shot flip flag
+        and a, %00000011        ; get shot flip flags
         swap a
         rl a
         ld [bc], a              ; set shot flip

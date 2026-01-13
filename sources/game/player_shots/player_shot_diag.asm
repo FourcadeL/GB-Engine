@@ -33,45 +33,45 @@ INCLUDE "player_shot_diag.inc"
 ;-------------------------------
 ; PS_diag_request(b = Xposs, c = Yposs, d = righ or left flag)
 ;
-;       d = %???????d
-;                   +-> 0 : right : 1 : left
+;       d = %??????vd
+;                  |+-> 0 : right | 1 : left
+;                  +--> 0 : up | 1 : down
 ;
 ;   Spawn a new diagonal shot
 ;   at position specified by bc
 ;-------------------------------
 PS_diag_request::
     ;loop to find available slot
-    ld hl, ps_status + PS_DIAG_RIGHT_FIRST_INDEX
-    bit 0, d                                        ; left shot ?
-    ld a, 0
-    ld d, %10000000                                 ; active, right shot status
+    ld h, HIGH(ps_status)
+    ld a, d
+    and a, %00000011
+    or a, %10000000                                 ; shot flags
+    ld d, a
+    ld a, LOW(ps_status) + PS_DIAG_RIGHT_FIRST_INDEX
+    bit 0, d                                        ; horizontal flip ?
+    jr z, .no_hflip
+        add a, PS_DIAG_NB
+.no_hflip
+    bit 1, d                                        ; vertical flip ?
+    jr z, .no_vflip
+        add a, 2 * PS_DIAG_NB
+.no_vflip
+    ld l, a
     ld e, PS_DIAG_NB
-    jr z, .loop                                     ; right shot, start search
-        ; left shot
-        inc d                                       ; change r/l flag
-        ld hl, ps_status + PS_DIAG_LEFT_FIRST_INDEX ; change table slice
 .loop
     bit 7, [hl]
     jr z, _create_shot_at_hl_index_a                ; free slot -> create new
     inc hl
-    inc a
     dec e
     jr nz, .loop
     ret
 _create_shot_at_hl_index_a:
+    ld a, l
     ld [hl], d                                      ; set new shot flags
-    bit 0, d
-    ld d, PS_DIAG_RIGHT_FIRST_INDEX
-    jr z, .create_shot
-        ld d, PS_DIAG_LEFT_FIRST_INDEX
-.create_shot
-    add a, d
-    ld d, a
-    add a, LOW(ps_Xposs)
+    add a, PS_MAX_SHOTS
     ld l, a
     ld [hl], b                                      ; set new shot X postition
-    ld a, d
-    add a, LOW(ps_Yposs)
+    add a, PS_MAX_SHOTS
     ld l, a
     ld [hl], c                                      ; set new shot Y postition
 
@@ -90,10 +90,9 @@ _create_shot_at_hl_index_a:
 Player_shot_diag_tiles:
     LOAD "PS_diag_VRAM", VRAM[$8340]
 Player_shot_diag_vram_tiles:
-; TODO tiles data
 tile1:
-    DB $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $18
+    DB $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $02, $06, $0c, $0a, $0c, $1c
 tile2:
-    DB $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $18
+    DB $30, $78, $f0, $f0, $60, $70, $20, $20, $00, $00, $00, $00, $00, $00, $00, $00
     ENDL
 .end
