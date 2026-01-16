@@ -66,11 +66,26 @@ game_main::
     ld a, [PAD_pressed]
     and a, PAD_SELECT
     jr z, .skiplevelLoad
-    ld b, 33
-    ld c, %10011111
-    ld d, 24
-    ld e, 0
+        ; test snip enemy spawn
+        ; target
+    ld b, 50
+    ld c, 45
+    push bc
+        ; speed and shot nb
+    ld b, 3
+    ld c, 4
+    push bc
+        ; shoot rate and speed
+    ld b, 100
+    ld c, 2
+    push bc
+        ; starting position
+    ld b, 12
+    ld c, 160
     call Snip_enemy_request
+    pop af
+    pop af
+    pop af
 .skiplevelLoad
 
     ; TESTING : actor row load (on start)

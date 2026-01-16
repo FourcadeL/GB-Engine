@@ -265,6 +265,8 @@ ES_request_shot_toward_player::
 
     call Target_get_displacement_vector
 
+    ret z               ; no shot if null vector
+
         ; set displacement vector as request
     ld hl, es_request_Yspeed
     ld a, e             ; Y speed
