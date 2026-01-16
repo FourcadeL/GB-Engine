@@ -228,6 +228,59 @@ ES_request_shot::
     set 7, [hl]
     ret
 
+; ----------------------------------------------
+; ES_request_shot_toward_player(b = XStartPos, c = YStartPos, d = speed)
+;
+;   Request a shot from position in bc
+;   Targetted at the player position
+;   Speed can range from 0 to 3 (2 bits)
+; ----------------------------------------------
+ES_request_shot_toward_player::
+        ; set starting position
+    ld hl, es_request_Ypos
+    ld e, c
+    swap e
+    ld a, e
+    and a, %11110000
+    ld [hl+], a
+    ld a, e
+    and a, %00001111
+    ld [hl+], a         ; Now hl=es_request_Xpos
+    ld e, b
+    swap e
+    ld a, e
+    and a, %11110000
+    ld [hl+], a
+    ld a, e
+    and a, %00001111
+    ld [hl+], a
+        
+        ; get player pixel position (target) in de
+    push de
+    ld a, [player_pixel_Xpos]
+    ld d, a
+    ld a, [player_pixel_Ypos]
+    ld e, a
+    pop af
+
+    call Target_get_displacement_vector
+
+        ; set displacement vector as request
+    ld hl, es_request_Yspeed
+    ld a, e             ; Y speed
+    ld [hl+], a
+    ld a, d
+    ld [hl+], a
+
+    ld a, c             ; X speed
+    ld [hl+], a
+    ld [hl], b
+
+        ; set request flag
+    ld hl, es_request_status
+    set 7, [hl]
+    ret
+
 
 ; ----------------------------------------
 ; ES_handle_request()

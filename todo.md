@@ -2,6 +2,10 @@
 
 - Change usage of _PAD_X_ to use the definitions in hardware.inc
 
+# Sprites
+
+- Handle sprite flip on multiplex routine (not with distinct displaylists)
+
 # Actors
 
 - Find a way to factorise code between actors

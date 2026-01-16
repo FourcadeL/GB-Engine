@@ -405,7 +405,7 @@ shoot_state_handle:
 
     ld d, [hl]                      ; shot speed
 
-    call TP_request_shot_toward_player
+    call ES_request_shot_toward_player
 
     pop bc
     pop de
