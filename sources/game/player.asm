@@ -21,27 +21,35 @@ INCLUDE "player.inc"
 
     SECTION "Player_variables", WRAM0
 _player_variables_start:
-player_state::          DS 1
+player_state::                  DS 1
 ;   %xxxxxlrv
-;    |||| ||+-> player has moved vertically
-;    |||| ||
-;    |||| |+-> player has moved right
-;    |||| |
-;    |||| +-> player has moved left
+;    |||||||+-> player has moved vertically
+;    |||||||
+;    ||||||+-> player has moved right
+;    ||||||
+;    |||||+-> player has moved left
+;    |||||
+;    ||||+-> player collision with a powerup
 ;    ||||
 ;    |||+-> player is in a dying state (should not give control to player)
 ;    |||
 ;    ||+-> player collision with ennemy
 ;    |+-> player collision with shot
 ;    +-> player destroyed
-player_anim_counter::   DS 1
+player_state_private:           DS 1
+;   %xxxxxxxx
+;           +--> player is in invincibility state
+player_anim_counter::           DS 1
 DEF player_Xpos EQUS "Player_sprite_entry + 4"
 ; player_Xpos::           DS 2
 DEF player_Ypos EQUS "Player_sprite_entry + 2"
 ; player_Ypos::           DS 2
-player_pixel_Xpos::     DS 1            ; the integral X position of the player
-player_pixel_Ypos::     DS 1            ; the integral Y position of the player
-player_dying_counter:   DS 1            ; dying animation counter
+player_pixel_Xpos::             DS 1            ; the integral X position of the player
+player_pixel_Ypos::             DS 1            ; the integral Y position of the player
+player_dying_counter:           DS 1            ; dying animation counter
+player_power_state:             DS 1            ; power up state of the player
+                                                 ; 3 states : 0, 1 and 2
+player_invincibility_counter:    DS 1
 _player_variables_end:
 
 
@@ -87,6 +95,10 @@ Player_init::
     ld hl, player_dying_counter
     ld [hl], Player_death_anim_counter
 
+        ; set invincibility counter
+    ld a, Player_invincibility_time
+    ld [player_invincibility_counter], a
+
     call Player_set_idle_frame
     ret
 
@@ -114,7 +126,7 @@ Player_set_left_frame:
 
 Player_move_up:
     ld hl, player_state
-    set 0, [hl]
+    set PLAYER_STATUS_VERTICAL_MOVE, [hl]
     ld a, [player_Ypos]
     sub a, Player_y_speed
     ld [player_Ypos], a
@@ -125,7 +137,7 @@ Player_move_up:
 
 Player_move_down:
     ld hl, player_state
-    set 0, [hl]
+    set PLAYER_STATUS_VERTICAL_MOVE, [hl]
     ld a, [player_Ypos]
     add a, Player_y_speed
     ld [player_Ypos], a
@@ -136,7 +148,7 @@ Player_move_down:
 
 Player_move_left:
     ld hl, player_state
-    set 2, [hl]
+    set PLAYER_STATUS_LEFT_MOVE, [hl]
     ld a, [player_Xpos]
     sub a, Player_x_speed
     ld [player_Xpos], a
@@ -147,7 +159,7 @@ Player_move_left:
 
 Player_move_right:
     ld hl, player_state
-    set 1, [hl]
+    set PLAYER_STATUS_RIGHT_MOVE, [hl]
     ld a, [player_Xpos]
     add a, Player_x_speed
     ld [player_Xpos], a
@@ -182,6 +194,37 @@ Player_reset_down_pos:
     ld a, LOW(Player_boundary_down)
     ld [hl+], a
     ld [hl], HIGH(Player_boundary_down)
+    ret
+
+; -----------------------------
+; invincibility_update()
+;   masks the collision bits
+;   make player flicker
+;   decrement counter and reset when over
+; -----------------------------
+invincibility_update:
+    ; mask collisions
+    ld a, [player_state]
+    and a, %10011111
+    ld [player_state], a
+    ; make player flicker
+    ld a, [Player_sprite_entry]
+    xor a, %00000001
+    ld [Player_sprite_entry], a
+    ; decrement counter
+    ld a, [player_invincibility_counter]
+    dec a
+    ld [player_invincibility_counter], a
+    ret nz
+        ; zero, timer over -> reset invincibility and timer and reset flicker
+    ld a, Player_invincibility_time
+    ld [player_invincibility_counter], a
+    ld a, [player_state_private]
+    res PLAYER_STATUS_PRIV_INVICIBILITY, a
+    ld [player_state_private], a
+    ld a, [Player_sprite_entry]
+    or a, %00000001
+    ld [Player_sprite_entry], a
     ret
 
 ; ---------------------------
@@ -235,25 +278,62 @@ dying_update:
 
 .over
     ld hl, player_state
-    set 7, [hl]
+    set PLAYER_STATUS_DESTROYED, [hl]
     ret
 
 Player_update::
     ld hl, player_state
-    bit 4, [hl]
-    jr nz, dying_update                 ; dying state, no control
-    bit 7, [hl]
+    bit PLAYER_STATUS_DESTROYED, [hl]
     ret nz                              ; dead -> no routine
+    bit PLAYER_STATUS_DYING, [hl]
+    jr nz, dying_update                 ; dying state, no control
 
-    ; STATUS UPDATE     ;TODO WORK IN PROGRESS
-    bit 6, [hl]
-    jr z, .skip1
-    set 4, [hl]
-.skip1
-    bit 5, [hl]
-    jr z, .skip2
-    set 4, [hl]
-.skip2
+    ; INVINCIBILITY MASK ?
+    ld a, [player_state_private]
+    bit PLAYER_STATUS_PRIV_INVICIBILITY, a
+    call nz, invincibility_update
+
+    ; COLLISIONS UPDATE
+    bit PLAYER_STATUS_SHOT_COLLISION, [hl]
+    jr z, .no_shot_collision
+        ; set invincibility
+        ld a, (1<<PLAYER_STATUS_PRIV_INVICIBILITY)
+        ld [player_state_private], a
+        ; reset flag
+        res PLAYER_STATUS_SHOT_COLLISION, [hl]
+        ld a, [player_power_state]
+        sub a, 1
+        jr nc, .not_dead
+            ; carry -> powerup underflow -> dead
+            set PLAYER_STATUS_DYING, [hl]
+    .not_dead
+        ld [player_power_state], a
+.no_shot_collision
+
+    bit PLAYER_STATUS_ENEMY_COLLISION, [hl]
+    jr z, .no_enemy_collision
+        set PLAYER_STATUS_DYING, [hl]
+.no_enemy_collision
+
+    ; POWERUP UPDATE
+    bit PLAYER_STATUS_PU_COLLISION, [hl]
+    jr z, .no_power_up_update
+        ; set invincibility
+        ld a, (1<<PLAYER_STATUS_PRIV_INVICIBILITY)
+        ld [player_state_private], a
+        ; reset power up flag
+        res PLAYER_STATUS_PU_COLLISION, [hl]
+        ; increment power state
+        ld a, [player_power_state]
+        inc a
+        cp a, 3
+        jr c, .ok
+            ld a, 2
+    .ok
+        ld [player_power_state], a
+
+        ; TODO : SFX
+.no_power_up_update
 
     ; POSITION UPDATE
     ld a, [PAD_hold]
@@ -342,34 +422,41 @@ Player_update::
     ld a, [PAD_repeat]
     and a, PAD_A
     jr z, .skipShooting
-        ; only vertical shooting for now
+        ; get player pixel position
     ld a, [player_pixel_Xpos]
     ld b, a
     ld a, [player_pixel_Ypos]
     ld c, a
 
-    ; TODO test diagonal shots
-    push bc
+        ; test powerup state
+    ld a, [player_power_state]
+    cp a, 1
+    jr c, .single_shoot
+    cp a, 2
+    jr c, .forward_shoot
+        ; state >= 2 -> shoot behind
+        push bc
+        ld d, 2
+        call PS_diag_request
+        pop bc
+        push bc
+        ld d, 3
+        call PS_diag_request
+        pop bc
+.forward_shoot
+        ; state >= 1 -> shoot diagonal
+        push bc
+        ld d, 0
+        call PS_diag_request
+        pop bc
+        push bc
+        ld d, 1
+        call PS_diag_request
+        pop bc
+.single_shoot
     call PS_straight_request
-    pop bc
-    push bc
-    ld d, 0
-    call PS_diag_request
-    pop bc
-    push bc
-    ld d, 1
-    call PS_diag_request
-    pop bc
-    push bc
-    ld d, 2
-    call PS_diag_request
-    pop bc
-    ld d, 3
-    call PS_diag_request
 
-    
 .skipShooting
-
     ret
 
 

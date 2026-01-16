@@ -58,12 +58,12 @@
 ; 23 :  Explosion frame 4
 ; 24 :  Explosion frame 5
 ; 25 :  Explosion frame 6
-; 26 :  Rolling enemy display list, shared by all ennemies
+; 26 :  Rolling enemy display list, shared
 ; 27 :  Waving enemy frame 1
 ; 28 :  Waving enemy frame 2
 ; 29 :  Waving enemy frame 3
 ; 30 :  Waving enemy frame 4
-; 31 :  Unused
+; 31 :  PowerUp shared display list
 ; 32 :  Sniper_enemy_frame 1
 ; 33 :  Sniper_enemy_frame 2
 ; 34 :  Sniper_enemy_frame 3

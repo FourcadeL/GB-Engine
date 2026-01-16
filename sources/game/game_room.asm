@@ -41,25 +41,13 @@ game_main::
     jp game_over_main
 .not_dead
 
-    ; TESTING : RANDOM NEW wav enemy
+    ; TESTING : RANDOM NEW powerup
     ld a, [PAD_pressed]
     and a, PAD_B
     jr z, .skipenn
-    ld b, 28
-    ld c, 4
-    ld d, 1
-    ld e, 0
-    call Wav_enemy_request
-    ld b, 58
-    ld c, 4
-    ld d, 1
-    ld e, 0
-    call Wav_enemy_request
-    ld b, 88
-    ld c, 4
-    ld d, 1
-    ld e, 0
-    call Wav_enemy_request
+    ld b, 30
+    ld c, 7
+    call PU_request
 .skipenn
 
     ; TESTING : LOAD snip (on select)
@@ -121,6 +109,7 @@ game_init:
     call Rot_enemy_init
     call Wav_enemy_init
     call Snip_enemy_init
+    call PU_init
 
     ; explosion init
     call Explosion_init
