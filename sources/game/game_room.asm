@@ -73,10 +73,10 @@ game_main::
     push bc
         ; speed and shot nb
     ld b, 3
-    ld c, 4
+    ld c, 18
     push bc
         ; shoot rate and speed
-    ld b, 100
+    ld b, 130
     ld c, 2
     push bc
         ; starting position

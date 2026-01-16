@@ -135,7 +135,11 @@ Snip_enemy_request::
     ld [de], a
     inc e
         ; shot set up
+    ld a, 1                                 ; shoot counter
+    ld [de], a
+    inc e
     ld a, [hl-]                             ; shot nb
+    inc a
     ld [de], a
     inc e
     ld a, [hl-]                             ; shoot rate
@@ -177,7 +181,7 @@ Snip_enemy_handle:
     cp a, SHOOT_STATE
     jr z, shoot_state_handle
     cp a, DEAD_STATE
-    jr z, dead_state_handle
+    jp z, dead_state_handle
 
     ret
 
@@ -283,8 +287,73 @@ moove_state_handle:
 
 
 shoot_state_handle:
-    ; TODO
+    ld a, shoot_counter
+    ld h, d
+    add a, e
+    ld l, a
+    dec [hl]
+    jr nz, collision_handle                     ; wait for shoot
+    ld [hl], SHOOT_COUNTER_VALUE
+    inc l
+    dec [hl]
+    jr nz, .do_shoot_attempt
+        ; all shots have been fired -> next state
+        ld a, MOOVE_STATE
+        ld [de], a
+        ret
+.do_shoot_attempt
+    inc l
+    push bc
+    push de
+    push hl
+
+    call generateRandom
+
+    pop hl
+    pop de
+    pop bc
+
+    cp a, [hl]
+    jr nc, collision_handle                     ; a < shoot_rate -> do shoot
+        ; shot toward the player
+    push bc
+    push de
+
+    inc l
+    ld a, [hl]                                  ; a <- shot speed
+    push af
+
+    ld a, SPRITE_STRUCT_Ypos
+    add a, c
+    ld h, b
+    ld l, a
+    ld a, [hl+]
+    and a, %11110000
+    ld c, a
+    ld a, [hl+]
+    and a, %00001111
+    or a, c
+    swap a
+    ld c, a                                     ; b <- Y pixel pos of enemy
+    ld a, [hl+]
+    and a, %11110000
+    ld b, a
+    ld a, [hl]
+    and a, %00001111
+    or a, b
+    swap a
+    ld b, a                                     ; c <- X pixel pos of enemy
+
+
+    pop de                                      ; d <- shot speed
+
+    call ES_request_shot_toward_player
+
+    pop bc
+    pop de
+
     jr collision_handle
+
 
 dead_state_handle:
         ; delete sprite

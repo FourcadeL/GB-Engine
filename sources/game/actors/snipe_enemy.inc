@@ -20,6 +20,9 @@ DEF TOP_ENTRY_Y_VALUE           EQU $F8
 
 DEF DISPLACEMENT_SPEED          EQU 2
 
+    ; SHOTS
+DEF SHOOT_COUNTER_VALUE         EQU 6   ; NB of frames to wait before each shoot attempt
+
 
     ; ANIMATION
 DEF ANIM_COUNTER_VALUE          EQU 7
@@ -41,6 +44,7 @@ DEF y_initial               RB 1 ; y pixel starting pos
 DEF x_target                RB 1 ; pixel x position of target displacement
 DEF y_target                RB 1 ; pixel y position of target displacement
 DEF displacement_speed      RB 1 ; enemy speed (2 bits)
+DEF shoot_counter           RB 1 ; numbre of frames between each shots
 DEF shoot_nb                RB 1 ; number of shots before end
 DEF shoot_rate              RB 1 ; shoot threshold for random
 DEF shot_speed              RB 1 ; speed of fired shots
