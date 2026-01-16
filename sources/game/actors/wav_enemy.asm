@@ -201,7 +201,7 @@ movement_handle:
     adc a, 0
     ld [hl], a
         ; Test low nibble of a + 1:
-        ; grater than High nibble of BOUNDARY_Y
+        ; greater than High nibble of BOUNDARY_Y
         ; -> delete sprite
         inc a
         and a, %00001111
@@ -219,7 +219,7 @@ movement_handle:
     dec hl
     ld [hl], a                          ; stores ocunter back
     GET_SINE_A
-    sra a                               ; shift sine aplitude
+    sra a                               ; shift sine amplitude
     sra a
     ld d, $00                           ; high part of 16 bit position offset
     bit 7, a

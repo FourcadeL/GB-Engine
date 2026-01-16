@@ -29,7 +29,7 @@ DEF PS_DIAG_NB EQU 3
 
 
 DEF PS_DIAG_Y_SPEED EQU 9
-DEF PS_DIAG_X_SPEED EQU 6
+DEF PS_DIAG_X_SPEED EQU 5
 
 EXPORT Player_shot_diag_tiles
 EXPORT Player_shot_diag_tiles.end

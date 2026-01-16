@@ -62,7 +62,6 @@ ENDM
 ;   Check if the current actor and the player
 ;   have collided (square bounding box arround actor (X, Y) of width XW and height YH)
 ;       Checks pixel positions
-;   flag c is set if collision occured
 ;   [a, hl]
 ;--------------------------------
 MACRO ACTOR_PLAYER_COLLISION_SQUARE
