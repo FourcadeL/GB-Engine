@@ -34,14 +34,14 @@
 
 ; 0 :   Player display list addr (modified by player routines)
 ; 1 :   Simple shots display list (points to WRAM and dynamically constructed)
-; 2 :   Default actor display list
-; 3 :   Default actor display list
-; 4 :   Default actor display list
-; 5 :   Default actor display list
-; 6 :   Default actor display list
-; 7 :   Default actor display list
-; 8 :   Default actor display list
-; 9 :   Default actor display list
+; 2 :   Pinch enemy frame 1
+; 3 :   Pinch enemy frame 2
+; 4 :   Pinch enemy frame 3
+; 5 :   Pinch enemy frame 4
+; 6 :   Pinch enemy frame 5
+; 7 :   Pinch enemy frame 6
+; 8 :   Pinch enemy frame 7
+; 9 :   Pinch enemy frame 8
 ; 10 :  Default actor display list
 ; 11 :  Default actor display list
 ; 12 :  Default actor display list

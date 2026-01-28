@@ -44,34 +44,40 @@
 ;   Multiple vectors norms are stored as offsets in the tables
 ;
 ;
-;   Grid arround the Source is 19 * 19, this means we want to store a
-;   10 * 10 grid in memory
+;   Grid arround the Source is 31 * 31, this means we want to store a
+;   16 * 16 grid in memory
 ;   Since every entry is 2 bytes long we need to store two tables
 ;   This aligns in table with : %xxxxyyyy
-;       where xxxx is the x part of P-E and yyyy is the y part of P-E
+;       where xxxx is the x part of T-S and yyyy is the y part of T-S
+;
+;   For outside uses :
+;       - saves |T-S| results
+;       - saves T-S sign flags
 ; ###############################
 
-;+------------------------------------------------------------------------+
-;| +--------------------------------------------------------------------+ |
-;| |                     RAM                                            | |
-;| +--------------------------------------------------------------------+ |
-;+------------------------------------------------------------------------+
+;+-----------------------------------------------------------------+
+;| +-------------------------------------------------------------+ |
+;| |                     RAM                                     | |
+;| +-------------------------------------------------------------+ |
+;+-----------------------------------------------------------------+
 
     SECTION "Target_variables", WRAM0
 
-t_work_flags:  DS 1 ; byte of work flags
+t_flags::       DS 1            ; byte of T-S flags
 ;       %??????wh
 ;              |+-> Height (Y) carry when computing T-S offset
 ;              |
 ;              +----> Width (X) carry when computing T-S offset
+t_x_offset::    DS 1            ; absolute T-S x offset
+t_y_offset::    DS 1            ; absolute T-S y offset
 
 
 
-;+------------------------------------------------------------------------+
-;| +--------------------------------------------------------------------+ |
-;| |                     ROM                                            | |
-;| +--------------------------------------------------------------------+ |
-;+------------------------------------------------------------------------+
+;+-----------------------------------------------------------------+
+;| +-------------------------------------------------------------+ |
+;| |                     ROM                                     | |
+;| +-------------------------------------------------------------+ |
+;+-----------------------------------------------------------------+
 
     SECTION "Target_player_code", ROMX
 
@@ -103,7 +109,7 @@ Target_get_displacement_vector::
     ld c, a
 
         ; compute offsets (%xxxxyyyy table entry)
-    ld hl, t_work_flags
+    ld hl, t_flags
         ; X offset
     ld a, d
     and a, %11110000
@@ -115,6 +121,7 @@ Target_get_displacement_vector::
         cpl a
         inc a           ; positive table offset
 .noCarryCorrectionX
+    ld [t_x_offset], a  ; save x offset
     swap a
     ld b, a             ; %xxxx???? set
 
@@ -131,6 +138,7 @@ Target_get_displacement_vector::
         cpl a
         inc a           ; positive table offset
 .noCarryCorrectionY
+    ld [t_y_offset], a  ; save y offset
     or a, b             ; %xxxx???? set
     and a, %11111111
     ret z               ; offset is zero : return with z flag set
@@ -150,7 +158,7 @@ Target_get_displacement_vector::
     ld b, [hl]
 
         ; compute output vector values (correct values if mirroring)
-    ld hl, t_work_flags
+    ld hl, t_flags
     ld d, $00
     ld e, b
     ld b, d

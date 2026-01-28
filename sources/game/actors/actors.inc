@@ -5,6 +5,9 @@
 ;   have access to the actors tables
 ; #############################
 
+INCLUDE "sprites.inc"
+INCLUDE "player_shots.inc"
+
     IF!DEF(ACTORS_INC)
 DEF ACTORS_INC EQU 1
 ;   ---- DEFINES ----
@@ -38,9 +41,9 @@ MACRO ACTOR_FIND_FREE
     ld de, Actors_data_table
     ld b, ACTORS_NB
     ld c, 0
-.loop
+.loop\@
     bit 7, [hl]
-    jr z, .success
+    jr z, .success\@
     ld a, SPRITE_STRUCTURE_SIZE
     add a, l
     ld l, a
@@ -52,9 +55,9 @@ MACRO ACTOR_FIND_FREE
     ld d, a
     inc c
     dec b
-    jr nz, .loop
+    jr nz, .loop\@
     dec b                   ; ensure flag z is not set
-.success
+.success\@
 ENDM
 
 ;--------------------------------
@@ -124,15 +127,15 @@ MACRO ACTOR_PLAYER_SHOT_COLLISION_SQUARE
     ld hl, ps_status                        ; status table
     ld d, 0                                 ; index count
     ld e, PS_MAX_SHOTS                      ; loop indicator
-.loop
+.loop\@
     bit 7, [hl]                             ; is current shot active ?
-    jr nz, .test_shot
+    jr nz, .test_shot\@
     inc hl
     inc d
     dec e
-    jr nz, .loop
+    jr nz, .loop\@
     jr \4                                   ; end -> jump to .no_collision
-.test_shot
+.test_shot\@
         push hl                             ; saves current shot status
         ld h, HIGH(ps_Xposs)
         ld a, LOW(ps_Xposs)
@@ -142,7 +145,7 @@ MACRO ACTOR_PLAYER_SHOT_COLLISION_SQUARE
         sub a, c                        ; (- Actor X pos)
         add a, \1                       ; (+ Actor X bounding width)
         sub a, (2*\1 +1)                ; (- (2* Actor X bound width + 1))
-        jr nc, .abort_this_collision    ; no carry ? -> no X collision
+        jr nc, .abort_this_collision\@  ; no carry ? -> no X collision
 
         ld h, HIGH(ps_Yposs)
         ld a, LOW(ps_Yposs)
@@ -152,18 +155,18 @@ MACRO ACTOR_PLAYER_SHOT_COLLISION_SQUARE
         sub a, b                        ; (- Actor Y pos)
         add a, \2                       ; (+ Actor Y bounding height)
         sub a, (2*\2 +1)                ; (- (2* Actor Y bound height + 1))
-        jr nc, .abort_this_collision    ; no carry ? -> no Y collision
+        jr nc, .abort_this_collision\@  ; no carry ? -> no Y collision
 
         ; collision found, set player shot collide flag
         pop hl
         set 5, [hl]
         jr \3                               ; found collision -> jump to .collision
-.abort_this_collision
+.abort_this_collision\@
     pop hl
     inc hl                                  ; next ps_status
     inc d                                   ; next index
     dec e
-    jr nz, .loop
+    jr nz, .loop\@
     jr \4                                   ; end -> jump to .no_collision
 ENDM
 

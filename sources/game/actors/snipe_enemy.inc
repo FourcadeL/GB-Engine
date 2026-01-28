@@ -53,7 +53,7 @@ DEF framerule               RB 1 ; framerule of enemy
 
 DEF SIZEOF_snip_enemy_data  RB 0
 
-STATIC_ASSERT SIZEOF_snip_enemy_data <= ACTORS_DATA_SIZE, "Data struct for rot_enemy is too large"
+STATIC_ASSERT SIZEOF_snip_enemy_data <= ACTORS_DATA_SIZE, "Data struct for snipe enemy is too large"
 
 
     ENDC ; SNIP_ENEMY_INC
