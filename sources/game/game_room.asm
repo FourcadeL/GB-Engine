@@ -76,23 +76,28 @@ game_main::
     pop af
 .skiplevelLoad
 
-    ; TESTING : actor row load (on start)
+    ; TESTING : LOAD pinch (on start)
     ld a, [PAD_pressed]
     and a, PAD_START
     jr z, .skipActGen
-    call generateRandom
-    and a, %01111111
-    ld b, a
-    ld c, 2
-    ld d, 3
-    ld e, 4
+        ; test pinch enemy spawn
+        ; speed
+    ld b, 2
     push bc
-    push de
-    ld b, 6
-    ld c, 20
-    ld de, Rot_enemy_request
-    call Act_generator_request
-    pop de
+        ; Duration
+    ld b, 1
+    ld c, $FF
+    push bc
+        ; end target
+    ld b, 255
+    ld c, 255
+    push bc
+        ; start position
+    ld b, 22
+    ld c, 0
+    call Pinch_enemy_request
+    pop bc
+    pop bc
     pop bc
 .skipActGen
 
@@ -110,6 +115,7 @@ game_init:
     call Wav_enemy_init
     call Snip_enemy_init
     call PU_init
+    call Pinch_enemy_init
 
     ; explosion init
     call Explosion_init
@@ -140,6 +146,6 @@ game_init:
     ld b, $00
     ld hl, levels_flags
     res 7, [hl]                 ; flag reset TO force reload
-    call Levels_request
+;     call Levels_request
 
     ret

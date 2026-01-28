@@ -9,6 +9,7 @@
 # Actors
 
 - Find a way to factorise code between actors
+- Add more speed values for displacement vector
 
 # Level loading
 
