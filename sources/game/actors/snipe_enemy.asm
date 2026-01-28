@@ -106,7 +106,8 @@ Snip_enemy_request::
     ld [hl], HIGH(Snip_enemy_handle)
 
     ; actor data                                    ; COULD BE OPTIMIZED WITH A LOOP
-    ld hl, sp + 7                           ; stackargs botom ; state set up
+    ld hl, sp + 7                           ; stackargs botom
+        ; state set up
     ld a, MOOVE_STATE
     ld [de], a
     inc e
@@ -177,7 +178,7 @@ Snip_enemy_handle:
 ;     ld l, a
     ld a, [de]                                  ; get current state (first byte)
     cp a, MOOVE_STATE
-    jr z, moove_state_handle
+    jr z, move_state_handle
     cp a, SHOOT_STATE
     jr z, shoot_state_handle
     cp a, DEAD_STATE
@@ -185,7 +186,7 @@ Snip_enemy_handle:
 
     ret
 
-moove_state_handle:
+move_state_handle:
     push de
     push bc
     ld h, b
@@ -386,7 +387,7 @@ dead_state_handle:
 ;-------------------------
 ; collision_handle(bc = sprite addr, de = actor data addr)
 ;
-;   Tests against all enemy shots if there is a collision
+;   Tests against all player shots if there is a collision
 ;   Test player collision and set player flag if collision occured
 ;   Test is done only on current enemy framerule
 ;------------------------
@@ -406,9 +407,9 @@ collision_handle:
     ACTOR_PLAYER_SHOT_COLLISION_SQUARE 9, 10, .shot_collision, .check_player_collision
 .shot_collision
     pop hl
-    ld a, state
-    add a, l
-    ld l, a
+;     ld a, state
+;     add a, l
+;     ld l, a
     ld [hl], DEAD_STATE
     ret
 
@@ -417,8 +418,8 @@ collision_handle:
     ACTOR_PLAYER_COLLISION_SQUARE c, b, SNIP_E_HITBOX_WIDTH, SNIP_E_HITBOX_HEIGHT, .no_player_collision
         ; set collision flag for player
     ld hl, player_state
-    set 5, [hl]
-        ; set enely in dead state
+    set PLAYER_STATUS_ENEMY_COLLISION, [hl]
+        ; set enemy in dead state
     pop hl
 ;     ld a, state
 ;     add a, l
