@@ -103,9 +103,9 @@ PU_request::
     ld hl, pu_amount
     inc [hl]
     ld a, [hl]
-    ld [de], a
+    ld [de], a                              ; own index
     inc e
-    xor a
+    ld a, 62                                ; initial sine offset
     ld [de], a
 
     ret
